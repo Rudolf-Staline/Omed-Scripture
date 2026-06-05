@@ -9,6 +9,9 @@ export const DRIVE_FILES = {
 
 type DriveFileListResponse = { files?: { id: string }[] };
 
+export const isDriveSessionInvalidError = (error: unknown): boolean =>
+  error instanceof Error && error.message.includes('Google session invalid');
+
 const assertDriveResponse = (res: Response, action: string) => {
   if (res.status === 401 || res.status === 403) {
     throw new Error(`Google session invalid (${res.status}) during ${action}`);

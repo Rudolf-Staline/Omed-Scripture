@@ -18,14 +18,14 @@ import { usePlansStore } from '../../store/usePlansStore';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
-import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES } from '../../utils/driveSync';
+import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
 import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 export const SettingsPage: React.FC = () => {
   const { settings, updateSettings, synced, setSynced, loadSettings } = useSettingsStore();
-  const { user, token, logout } = useAuthStore();
+  const { user, token, logout, expireSession } = useAuthStore();
   const navigate = useNavigate();
   const [syncing, setSyncing] = useState(false);
 
@@ -74,7 +74,12 @@ export const SettingsPage: React.FC = () => {
       toast.success('Synchronisation réussie !');
     } catch (err) {
       console.error('Drive sync failed', err);
-      toast.error('Échec de la synchronisation.');
+      if (isDriveSessionInvalidError(err)) {
+        expireSession();
+        toast.error('Session Google expirée. Veuillez vous reconnecter.');
+      } else {
+        toast.error('Échec de la synchronisation.');
+      }
     } finally {
       setSyncing(false);
     }
@@ -96,7 +101,12 @@ export const SettingsPage: React.FC = () => {
       toast.success('Sauvegarde en ligne réussie !');
     } catch (err) {
       console.error('Drive upload failed', err);
-      toast.error('Échec de la sauvegarde.');
+      if (isDriveSessionInvalidError(err)) {
+        expireSession();
+        toast.error('Session Google expirée. Veuillez vous reconnecter.');
+      } else {
+        toast.error('Échec de la sauvegarde.');
+      }
     } finally {
       setSyncing(false);
     }
