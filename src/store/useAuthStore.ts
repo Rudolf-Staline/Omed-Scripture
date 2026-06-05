@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface User {
   id: string;
@@ -10,34 +11,58 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  login: (user: User, token: string) => void;
+  sessionExpired: boolean;
+  login: (user: User, token: string, expiresInSeconds?: number) => void;
   logout: () => void;
   restoreSession: () => void;
+  expireSession: () => void;
 }
+
+const clearStoredSession = () => {
+  localStorage.removeItem(OMED_STORAGE_KEYS.authToken);
+  localStorage.removeItem(OMED_STORAGE_KEYS.authUser);
+  localStorage.removeItem(OMED_STORAGE_KEYS.authExpiresAt);
+};
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
-  login: (user, token) => {
-    localStorage.setItem('auth_token', token);
-    localStorage.setItem('auth_user', JSON.stringify(user));
-    set({ user, token });
+  sessionExpired: false,
+  login: (user, token, expiresInSeconds = 3600) => {
+    const expiresAt = Date.now() + expiresInSeconds * 1000;
+    localStorage.setItem(OMED_STORAGE_KEYS.authToken, token);
+    localStorage.setItem(OMED_STORAGE_KEYS.authUser, JSON.stringify(user));
+    localStorage.setItem(OMED_STORAGE_KEYS.authExpiresAt, String(expiresAt));
+    set({ user, token, sessionExpired: false });
   },
   logout: () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    set({ user: null, token: null });
+    clearStoredSession();
+    set({ user: null, token: null, sessionExpired: false });
   },
   restoreSession: () => {
-    const token = localStorage.getItem('auth_token');
-    const userStr = localStorage.getItem('auth_user');
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        set({ user, token });
-      } catch (e) {
-        console.error('Failed to parse user from localStorage', e);
-      }
+    const token = localStorage.getItem(OMED_STORAGE_KEYS.authToken);
+    const userStr = localStorage.getItem(OMED_STORAGE_KEYS.authUser);
+    const expiresAt = Number(localStorage.getItem(OMED_STORAGE_KEYS.authExpiresAt) || '0');
+
+    if (!token || !userStr) return;
+
+    if (!expiresAt || Date.now() >= expiresAt) {
+      clearStoredSession();
+      set({ user: null, token: null, sessionExpired: true });
+      return;
     }
+
+    try {
+      const user = JSON.parse(userStr) as User;
+      set({ user, token, sessionExpired: false });
+    } catch (e) {
+      console.error('Failed to parse user from localStorage', e);
+      clearStoredSession();
+      set({ user: null, token: null, sessionExpired: true });
+    }
+  },
+  expireSession: () => {
+    clearStoredSession();
+    set({ user: null, token: null, sessionExpired: true });
   },
 }));

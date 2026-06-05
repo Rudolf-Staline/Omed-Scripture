@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface Note {
   id: string; // generated id
@@ -21,7 +22,7 @@ interface NotesState {
 }
 
 const getInitialNotes = (): Note[] => {
-  const stored = localStorage.getItem('omed_bible_notes');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.notes);
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -44,7 +45,7 @@ export const useNotesStore = create<NotesState>((set) => ({
         dateModified: now,
       };
       const newNotes = [...state.notes, newNote];
-      localStorage.setItem('omed_bible_notes', JSON.stringify(newNotes));
+      localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(newNotes));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -59,7 +60,7 @@ export const useNotesStore = create<NotesState>((set) => ({
       const newNotes = state.notes.map((n) =>
         n.id === id ? { ...n, text, dateModified: Date.now() } : n
       );
-      localStorage.setItem('omed_bible_notes', JSON.stringify(newNotes));
+      localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(newNotes));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -72,7 +73,7 @@ export const useNotesStore = create<NotesState>((set) => ({
   removeNote: (id) =>
     set((state) => {
       const newNotes = state.notes.filter((n) => n.id !== id);
-      localStorage.setItem('omed_bible_notes', JSON.stringify(newNotes));
+      localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(newNotes));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -82,5 +83,8 @@ export const useNotesStore = create<NotesState>((set) => ({
       
       return { notes: newNotes };
     }),
-  loadNotes: (notes) => set({ notes }),
+  loadNotes: (notes) => {
+    localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(notes));
+    set({ notes });
+  },
 }));

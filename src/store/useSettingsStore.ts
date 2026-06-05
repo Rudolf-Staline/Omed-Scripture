@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export type FontSize = 'S' | 'M' | 'L' | 'XL';
 export type LineHeight = 'Normal' | 'Relaxed' | 'Large';
@@ -43,7 +44,7 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const getInitialSettings = (): Settings => {
-  const stored = localStorage.getItem('omed_bible_settings');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.settings);
   if (stored) {
     try {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
@@ -55,7 +56,7 @@ const getInitialSettings = (): Settings => {
 };
 
 const getInitialSynced = (): boolean => {
-  return localStorage.getItem('omed_bible_synced') === 'true';
+  return localStorage.getItem(OMED_STORAGE_KEYS.synced) === 'true';
 };
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -64,7 +65,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   updateSettings: (newSettings) =>
     set((state) => {
       const updated = { ...state.settings, ...newSettings };
-      localStorage.setItem('omed_bible_settings', JSON.stringify(updated));
+      localStorage.setItem(OMED_STORAGE_KEYS.settings, JSON.stringify(updated));
 
       const token = useAuthStore.getState().token;
       if (token && state.synced) {
@@ -73,9 +74,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
 
       return { settings: updated };
     }),
-  loadSettings: (settings) => set({ settings: { ...DEFAULT_SETTINGS, ...settings } }),
+  loadSettings: (settings) => {
+    const merged = { ...DEFAULT_SETTINGS, ...settings };
+    localStorage.setItem(OMED_STORAGE_KEYS.settings, JSON.stringify(merged));
+    set({ settings: merged });
+  },
   setSynced: (synced) => {
-    localStorage.setItem('omed_bible_synced', String(synced));
+    localStorage.setItem(OMED_STORAGE_KEYS.synced, String(synced));
     set({ synced });
   },
 }));

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useBibleStore } from '../../store/useBibleStore';
+import { getBookName } from '../../utils/bibleBooks';
 
 const QUICK_LINKS = [
   { label: 'Recherche', to: '/search', description: 'Trouver rapidement un passage ou un mot-clé.' },
@@ -25,7 +26,7 @@ export const HomePage: React.FC = () => {
         <div className="pt-2 space-y-2">
           <p className="text-sm text-text-muted">Dernière position</p>
           <p className="text-xl font-medium text-text-primary">
-            {bookId} {chapter} · {translation.toUpperCase()}
+            {getBookName(bookId)} {chapter} · {translation.toUpperCase()}
           </p>
         </div>
 

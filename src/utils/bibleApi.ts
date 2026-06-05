@@ -23,7 +23,7 @@ const BOLLS_VERSIONS: Record<string, string> = {
 // Versions utilisant bible-api.com (English translations only)
 const BIBLE_API_VERSIONS = ['kjv', 'web', 'bbe'];
 
-// Versions utilisant API.Bible
+// Versions utilisant API.Bible via la route serverless /api/bible/chapter
 const SCRIPTURE_API_VERSIONS: Record<string, string> = {
   niv: '06125adad2d5898a-01', // NIV
   esv: 'f421fe261da7624f-01', // ESV
@@ -213,9 +213,9 @@ export const getChapter = async (
     // API.Bible — for NIV, ESV, NLT
     const bibleId = SCRIPTURE_API_VERSIONS[translation];
     const chapterId = `${book.toUpperCase()}.${chapter}`;
+    if (!bibleId) throw new Error(`Unsupported API.Bible translation: ${translation}`);
     const res = await fetch(
-      `/bible-proxy/bibles/${bibleId}/chapters/${chapterId}?content-type=html&include-verse-numbers=true`,
-      { headers: { 'api-key': import.meta.env.VITE_BIBLE_API_KEY || '' } }
+      `/api/bible/chapter?bibleId=${encodeURIComponent(bibleId)}&chapterId=${encodeURIComponent(chapterId)}`
     );
     if (!res.ok) throw new Error('Failed to fetch chapter');
     const data = await res.json();
@@ -244,7 +244,7 @@ export const searchVerses = async (
     
     const getBookIdByNumber = (num: number): string => {
        // Reverse lookup from BOOK_NUMBERS
-       const entry = Object.entries(BOOK_NUMBERS).find(([_, n]) => n === num);
+       const entry = Object.entries(BOOK_NUMBERS).find((entry) => entry[1] === num);
        return entry ? entry[0] : 'genese';
     };
 

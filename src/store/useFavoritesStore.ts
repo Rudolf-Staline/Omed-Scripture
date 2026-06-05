@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface FavoriteVerse {
   id: string; // e.g., lsg-jean-3-16
@@ -21,7 +22,7 @@ interface FavoritesState {
 }
 
 const getInitialFavorites = (): FavoriteVerse[] => {
-  const stored = localStorage.getItem('omed_bible_favorites');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.favorites);
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -37,7 +38,7 @@ export const useFavoritesStore = create<FavoritesState>((set) => ({
   addFavorite: (verse) =>
     set((state) => {
       const newFavorites = [...state.favorites, verse];
-      localStorage.setItem('omed_bible_favorites', JSON.stringify(newFavorites));
+      localStorage.setItem(OMED_STORAGE_KEYS.favorites, JSON.stringify(newFavorites));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -50,7 +51,7 @@ export const useFavoritesStore = create<FavoritesState>((set) => ({
   removeFavorite: (id) =>
     set((state) => {
       const newFavorites = state.favorites.filter((f) => f.id !== id);
-      localStorage.setItem('omed_bible_favorites', JSON.stringify(newFavorites));
+      localStorage.setItem(OMED_STORAGE_KEYS.favorites, JSON.stringify(newFavorites));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -60,5 +61,8 @@ export const useFavoritesStore = create<FavoritesState>((set) => ({
       
       return { favorites: newFavorites };
     }),
-  loadFavorites: (favorites) => set({ favorites }),
+  loadFavorites: (favorites) => {
+    localStorage.setItem(OMED_STORAGE_KEYS.favorites, JSON.stringify(favorites));
+    set({ favorites });
+  },
 }));
