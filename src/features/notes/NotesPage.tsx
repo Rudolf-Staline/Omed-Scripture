@@ -3,12 +3,7 @@ import { useNotesStore } from '../../store/useNotesStore';
 import { useNavigate } from 'react-router-dom';
 import { Edit3, Trash2, Check, X, Search, BookOpenText } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const normalizeBookId = (bookId: string) =>
-  bookId
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+import { formatBibleReference } from '../../utils/bibleBooks';
 
 const formatDate = (value?: number) => {
   if (!value) return 'Date indisponible';
@@ -65,7 +60,7 @@ export const NotesPage: React.FC = () => {
 
     return sortedNotes.filter((note) => {
       const [translation = '', bookId = '', chapter = '', verse = ''] = note.verseId.split('-');
-      const reference = `${normalizeBookId(bookId)} ${chapter}:${verse}`.toLowerCase();
+      const reference = formatBibleReference(bookId, chapter, verse).toLowerCase();
 
       return (
         note.text.toLowerCase().includes(term) ||
@@ -124,7 +119,7 @@ export const NotesPage: React.FC = () => {
         <div className="space-y-5">
           {filteredNotes.map((note) => {
             const [translation = 'n/a', bookId = '', chapter = '?', verse = '?'] = note.verseId.split('-');
-            const reference = `${normalizeBookId(bookId)} ${chapter}:${verse}`;
+            const reference = formatBibleReference(bookId, chapter, verse);
             const hasVerseText = Boolean(note.verseText && note.verseText.trim());
             const createdAt = formatDate(note.dateAdded);
             const modifiedAt = formatDate(note.dateModified);

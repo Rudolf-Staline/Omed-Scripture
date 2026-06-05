@@ -51,11 +51,11 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
         const data = await getChapter(translation, bookId, chapter);
         cacheChapter(translation, bookId, chapter, data);
         if (mounted) setVerses(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cached) {
           if (mounted) setVerses(cached);
         } else if (mounted) {
-          setError(err.message || 'Erreur lors du chargement du chapitre');
+          setError(err instanceof Error ? err.message : 'Erreur lors du chargement du chapitre');
         }
       } finally {
         if (mounted) setLoading(false);

@@ -1,3 +1,4 @@
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 import type { Verse } from './bibleApi';
 
 interface CachedChapterEntry {
@@ -6,7 +7,7 @@ interface CachedChapterEntry {
   updatedAt: number;
 }
 
-const STORAGE_KEY = 'omed_bible_recent_chapters';
+const STORAGE_KEY = OMED_STORAGE_KEYS.chapterCache;
 const MAX_CACHED_CHAPTERS = 20;
 
 const buildChapterCacheKey = (translation: string, bookId: string, chapter: number): string =>

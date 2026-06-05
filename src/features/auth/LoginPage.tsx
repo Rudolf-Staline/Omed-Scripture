@@ -3,6 +3,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../../store/useAuthStore';
 import { BookOpenText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export const LoginPage: React.FC = () => {
   const login = useAuthStore((state) => state.login);
@@ -22,11 +23,13 @@ export const LoginPage: React.FC = () => {
             name: userInfo.name,
             picture: userInfo.picture,
           },
-          tokenResponse.access_token
+          tokenResponse.access_token,
+          tokenResponse.expires_in
         );
         navigate('/');
       } catch (error) {
         console.error('Failed to fetch user info', error);
+        toast.error('Connexion Google impossible. Veuillez réessayer.');
       }
     },
     scope: 'https://www.googleapis.com/auth/drive.appdata',

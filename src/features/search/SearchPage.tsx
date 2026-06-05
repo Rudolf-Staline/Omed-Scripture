@@ -35,8 +35,8 @@ export const SearchPage: React.FC = () => {
     try {
       const data = await searchVerses(translation, cleanQuery);
       setResults(data);
-    } catch (err: any) {
-      setError(err.message || 'La recherche n’a pas abouti. Veuillez réessayer.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'La recherche n’a pas abouti. Veuillez réessayer.');
       setResults([]);
     } finally {
       setLoading(false);

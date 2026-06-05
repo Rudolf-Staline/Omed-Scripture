@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/useAuthStore';
 import { LoginPage } from './features/auth/LoginPage';
 import { Layout } from './components/Layout';
@@ -11,6 +12,7 @@ import { PlansPage } from './features/plans/PlansPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import { PlanDetail } from './features/plans/PlanDetail';
 import { HomePage } from './features/home/HomePage';
+import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import { useFavoritesStore } from './store/useFavoritesStore';
@@ -18,10 +20,13 @@ import { useHighlightsStore } from './store/useHighlightsStore';
 import { useNotesStore } from './store/useNotesStore';
 import { usePlansStore } from './store/usePlansStore';
 import { syncFileFromDrive, DRIVE_FILES } from './utils/driveSync';
+import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 
 function App() {
   const restoreSession = useAuthStore((state) => state.restoreSession);
   const token = useAuthStore((state) => state.token);
+  const sessionExpired = useAuthStore((state) => state.sessionExpired);
+  const expireSession = useAuthStore((state) => state.expireSession);
   const synced = useSettingsStore((state) => state.synced);
   const loadSettings = useSettingsStore((state) => state.loadSettings);
   const settings = useSettingsStore((state) => state.settings);
@@ -44,6 +49,12 @@ function App() {
   }, [settings.theme]);
 
   useEffect(() => {
+    if (sessionExpired) {
+      toast.error('Session Google expirée. Veuillez vous reconnecter.');
+    }
+  }, [sessionExpired]);
+
+  useEffect(() => {
     if (token && synced) {
       const syncDown = async () => {
         try {
@@ -63,19 +74,25 @@ function App() {
             syncFileFromDrive(DRIVE_FILES.position, token)
           ]);
 
-          if (remoteSettings) loadSettings(remoteSettings);
-          if (remoteFavorites) loadFavorites(remoteFavorites);
-          if (remoteHighlights) loadHighlights(remoteHighlights);
-          if (remoteNotes) loadNotes(remoteNotes);
-          if (remotePlans) loadPlans(remotePlans);
-          if (remotePosition) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition);
+          if (hasRemoteData) backupLocalDataBeforeRestore();
+
+          if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
+          if (isValidArray(remoteFavorites)) loadFavorites(remoteFavorites as Parameters<typeof loadFavorites>[0]);
+          if (isValidRecord(remoteHighlights)) loadHighlights(remoteHighlights as Parameters<typeof loadHighlights>[0]);
+          if (isValidArray(remoteNotes)) loadNotes(remoteNotes as Parameters<typeof loadNotes>[0]);
+          if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
+          if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
+          if (err instanceof Error && err.message.includes('401')) {
+            expireSession();
+          }
         }
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, setPosition]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, setPosition, expireSession]);
 
   return (
     <Router>
@@ -91,8 +108,10 @@ function App() {
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
     </Router>
   );
 }

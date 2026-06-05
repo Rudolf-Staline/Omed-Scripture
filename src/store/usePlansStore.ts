@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface PlanProgress {
-  planId: string; // e.g., bible-365
+  planId: string;
   completedDays: number[]; // array of day indices (1-based)
   startDate: number;
 }
@@ -18,7 +19,7 @@ interface PlansState {
 }
 
 const getInitialPlans = (): Record<string, PlanProgress> => {
-  const stored = localStorage.getItem('omed_bible_plans');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.plans);
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -37,7 +38,7 @@ export const usePlansStore = create<PlansState>((set) => ({
         ...state.progress,
         [planId]: { planId, completedDays: [], startDate: Date.now() },
       };
-      localStorage.setItem('omed_bible_plans', JSON.stringify(newProgress));
+      localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(newProgress));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -58,7 +59,7 @@ export const usePlansStore = create<PlansState>((set) => ({
           completedDays: Array.from(new Set([...plan.completedDays, dayIndex])),
         },
       };
-      localStorage.setItem('omed_bible_plans', JSON.stringify(newProgress));
+      localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(newProgress));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -79,7 +80,7 @@ export const usePlansStore = create<PlansState>((set) => ({
           completedDays: plan.completedDays.filter((d) => d !== dayIndex),
         },
       };
-      localStorage.setItem('omed_bible_plans', JSON.stringify(newProgress));
+      localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(newProgress));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -89,5 +90,8 @@ export const usePlansStore = create<PlansState>((set) => ({
       
       return { progress: newProgress };
     }),
-  loadPlans: (progress) => set({ progress }),
+  loadPlans: (progress) => {
+    localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(progress));
+    set({ progress });
+  },
 }));

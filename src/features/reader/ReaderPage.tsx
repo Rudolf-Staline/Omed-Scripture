@@ -7,6 +7,10 @@ import { AudioPlayer } from '../../components/AudioPlayer';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { ChevronDown, ChevronLeft, ChevronRight, Headphones, GitCompare, WifiOff } from 'lucide-react';
 
+const SelectChevron = () => (
+  <ChevronDown size={15} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
+);
+
 export const ReaderPage: React.FC = () => {
   const { translation, bookId, chapter } = useParams<{ translation: string; bookId: string; chapter: string }>();
   const navigate = useNavigate();
@@ -23,15 +27,12 @@ export const ReaderPage: React.FC = () => {
     if (translation && bookId && chapter) {
       setPosition(translation, bookId, chapterNum);
     }
-  }, [translation, bookId, chapterNum, setPosition]);
+  }, [translation, bookId, chapter, chapterNum, setPosition]);
 
   const currentBook = BIBLE_BOOKS.find((b) => b.id === bookId) || BIBLE_BOOKS[0];
 
   const selectClass = 'appearance-none rounded-lg border border-border/80 bg-bg-card/70 pl-3 pr-8 py-2 text-sm font-medium text-text-primary transition-colors hover:border-accent-gold/30 focus:outline-none focus:ring-1 focus:ring-accent-gold/50';
 
-  const SelectChevron = () => (
-    <ChevronDown size={15} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
-  );
 
   return (
     <div className="flex flex-col h-full">
@@ -79,13 +80,13 @@ export const ReaderPage: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 flex gap-6">
-        <div className={`flex-1 transition-all ${compareTranslation ? 'pr-5 border-r border-border/70' : ''}`}>
+      <div className="flex-1 flex flex-col gap-8 lg:flex-row lg:gap-6">
+        <div className={`flex-1 transition-all ${compareTranslation ? 'border-b border-border/70 pb-8 lg:border-b-0 lg:pb-0 lg:pr-5 lg:border-r' : ''}`}>
           <ChapterView translation={translation || 'lsg'} bookId={bookId || 'jean'} chapter={chapterNum} />
         </div>
 
         {compareTranslation && (
-          <div className="flex-1 pl-1">
+          <div className="flex-1 lg:pl-1">
             <div className="mb-5">
               <div className="relative inline-flex">
                 <select value={compareTranslation} onChange={(e) => setCompareTranslation(e.target.value)} className={selectClass}>

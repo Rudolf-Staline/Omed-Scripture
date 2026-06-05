@@ -3,24 +3,14 @@ import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Share2, ChevronRight, Bookmark } from 'lucide-react';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
+import { formatBibleReference, getBookOrder } from '../../utils/bibleBooks';
 import toast from 'react-hot-toast';
-
-const BIBLICAL_BOOK_ORDER = [
-  'gen','exo','lev','num','deu','jos','jdg','rut','1sa','2sa','1ki','2ki','1ch','2ch','ezr','neh','est','job','psa','pro','ecc','sng','isa','jer','lam','ezk','dan','hos','jol','amo','oba','jon','mic','nam','hab','zep','hag','zec','mal',
-  'mat','mrk','luk','jhn','act','rom','1co','2co','gal','eph','php','col','1th','2th','1ti','2ti','tit','phm','heb','jas','1pe','2pe','1jn','2jn','3jn','jud','rev'
-];
 
 export const FavoritesPage: React.FC = () => {
   const [sortMode, setSortMode] = useState<'date' | 'biblical'>('date');
   const favorites = useFavoritesStore((state) => state.favorites);
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
   const navigate = useNavigate();
-
-  const bookOrderMap = useMemo(() => {
-    const m = new Map<string, number>();
-    BIBLICAL_BOOK_ORDER.forEach((book, index) => m.set(book, index));
-    return m;
-  }, []);
 
   const getTranslationName = (id: string) => {
     return FEATURED_TRANSLATIONS.find((t) => t.id === id)?.short || id.toUpperCase();
@@ -44,13 +34,13 @@ export const FavoritesPage: React.FC = () => {
     }
 
     return items.sort((a, b) => {
-      const bookA = bookOrderMap.get(a.bookId.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
-      const bookB = bookOrderMap.get(b.bookId.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+      const bookA = getBookOrder(a.bookId);
+      const bookB = getBookOrder(b.bookId);
       if (bookA !== bookB) return bookA - bookB;
       if (a.chapter !== b.chapter) return a.chapter - b.chapter;
       return a.verse - b.verse;
     });
-  }, [favorites, sortMode, bookOrderMap]);
+  }, [favorites, sortMode]);
 
   if (favorites.length === 0) {
     return (
@@ -91,7 +81,7 @@ export const FavoritesPage: React.FC = () => {
 
       <div className="space-y-4">
         {sortedFavorites.map((verse) => {
-          const reference = `${verse.bookId.charAt(0).toUpperCase() + verse.bookId.slice(1)} ${verse.chapter}:${verse.verse}`;
+          const reference = formatBibleReference(verse.bookId, verse.chapter, verse.verse);
 
           return (
             <div key={verse.id} className="bg-bg-card border border-border rounded-xl p-6 group hover:shadow-sm transition-all">

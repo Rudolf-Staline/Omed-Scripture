@@ -16,6 +16,8 @@ import { useHighlightsStore } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
+import { clearOmedLocalData } from '../../constants/storageKeys';
+import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES } from '../../utils/driveSync';
 import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -31,6 +33,7 @@ export const SettingsPage: React.FC = () => {
   const { loadHighlights, highlights } = useHighlightsStore();
   const { loadNotes, notes } = useNotesStore();
   const { loadPlans, progress } = usePlansStore();
+  const { translation, bookId, chapter } = useBibleStore();
   const setPosition = useBibleStore((state) => state.setPosition);
 
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
@@ -48,23 +51,24 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const remoteSettings = await syncFileFromDrive(DRIVE_FILES.settings, token);
-      if (remoteSettings) loadSettings(remoteSettings);
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition] = await Promise.all([
+        syncFileFromDrive(DRIVE_FILES.settings, token),
+        syncFileFromDrive(DRIVE_FILES.favorites, token),
+        syncFileFromDrive(DRIVE_FILES.highlights, token),
+        syncFileFromDrive(DRIVE_FILES.notes, token),
+        syncFileFromDrive(DRIVE_FILES.plans, token),
+        syncFileFromDrive(DRIVE_FILES.position, token),
+      ]);
 
-      const remoteFavorites = await syncFileFromDrive(DRIVE_FILES.favorites, token);
-      if (remoteFavorites) loadFavorites(remoteFavorites);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition);
+      if (hasRemoteData) backupLocalDataBeforeRestore();
 
-      const remoteHighlights = await syncFileFromDrive(DRIVE_FILES.highlights, token);
-      if (remoteHighlights) loadHighlights(remoteHighlights);
-
-      const remoteNotes = await syncFileFromDrive(DRIVE_FILES.notes, token);
-      if (remoteNotes) loadNotes(remoteNotes);
-
-      const remotePlans = await syncFileFromDrive(DRIVE_FILES.plans, token);
-      if (remotePlans) loadPlans(remotePlans);
-
-      const remotePosition = await syncFileFromDrive(DRIVE_FILES.position, token);
-      if (remotePosition) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
+      if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
+      if (isValidArray(remoteFavorites)) loadFavorites(remoteFavorites as Parameters<typeof loadFavorites>[0]);
+      if (isValidRecord(remoteHighlights)) loadHighlights(remoteHighlights as Parameters<typeof loadHighlights>[0]);
+      if (isValidArray(remoteNotes)) loadNotes(remoteNotes as Parameters<typeof loadNotes>[0]);
+      if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
+      if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
 
       setSynced(true);
       toast.success('Synchronisation réussie !');
@@ -86,6 +90,7 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.highlights, highlights, token),
         syncFileToDrive(DRIVE_FILES.notes, notes, token),
         syncFileToDrive(DRIVE_FILES.plans, progress, token),
+        syncFileToDrive(DRIVE_FILES.position, { translation, bookId, chapter }, token),
       ]);
       setSynced(true);
       toast.success('Sauvegarde en ligne réussie !');
@@ -98,12 +103,19 @@ export const SettingsPage: React.FC = () => {
   };
 
   const exportData = () => {
-    const data = { settings, favorites, highlights, notes, progress };
+    const data = createBackup({
+      settings,
+      favorites,
+      highlights,
+      notes,
+      progress,
+      position: { translation, bookId, chapter },
+    });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `omed_bible_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `omed_scripture_backup_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -111,8 +123,12 @@ export const SettingsPage: React.FC = () => {
   };
 
   const clearData = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer toutes vos données locales ? Cette action est irréversible.')) {
-      localStorage.clear();
+    const confirmed = window.confirm(
+      'Confirmez-vous la suppression des données locales Omed Scripture uniquement (favoris, notes, surlignages, préférences, parcours, position et session Google) ? Les autres données de ce domaine seront conservées.'
+    );
+
+    if (confirmed) {
+      clearOmedLocalData();
       window.location.reload();
     }
   };

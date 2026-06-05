@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface BibleState {
   translation: string;
@@ -13,7 +14,7 @@ export interface BibleState {
 }
 
 const getInitialPosition = () => {
-  const stored = localStorage.getItem('omed_bible_position');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.biblePosition);
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -32,7 +33,7 @@ export const useBibleStore = create<BibleState>((set) => ({
   compareTranslation: null,
   setPosition: (translation, bookId, chapter) => set((state) => {
      const newState = { translation, bookId, chapter, compareTranslation: state.compareTranslation };
-     localStorage.setItem('omed_bible_position', JSON.stringify(newState));
+     localStorage.setItem(OMED_STORAGE_KEYS.biblePosition, JSON.stringify(newState));
      
      const token = useAuthStore.getState().token;
      const synced = useSettingsStore.getState().synced;

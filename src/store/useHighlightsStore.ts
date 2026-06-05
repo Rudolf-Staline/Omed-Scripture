@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { syncFileToDrive, DRIVE_FILES } from '../utils/driveSync';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
+import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 
 export type HighlightColor = 'yellow' | 'blue' | 'green' | 'pink' | 'purple';
 
@@ -19,7 +20,7 @@ interface HighlightsState {
 }
 
 const getInitialHighlights = (): Record<string, Highlight> => {
-  const stored = localStorage.getItem('omed_bible_highlights');
+  const stored = localStorage.getItem(OMED_STORAGE_KEYS.highlights);
   if (stored) {
     try {
       return JSON.parse(stored);
@@ -35,7 +36,7 @@ export const useHighlightsStore = create<HighlightsState>((set) => ({
   addHighlight: (id, color) =>
     set((state) => {
       const newHighlights = { ...state.highlights, [id]: { id, color, dateAdded: Date.now() } };
-      localStorage.setItem('omed_bible_highlights', JSON.stringify(newHighlights));
+      localStorage.setItem(OMED_STORAGE_KEYS.highlights, JSON.stringify(newHighlights));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -49,7 +50,7 @@ export const useHighlightsStore = create<HighlightsState>((set) => ({
     set((state) => {
       const newHighlights = { ...state.highlights };
       delete newHighlights[id];
-      localStorage.setItem('omed_bible_highlights', JSON.stringify(newHighlights));
+      localStorage.setItem(OMED_STORAGE_KEYS.highlights, JSON.stringify(newHighlights));
       
       const token = useAuthStore.getState().token;
       const synced = useSettingsStore.getState().synced;
@@ -59,5 +60,8 @@ export const useHighlightsStore = create<HighlightsState>((set) => ({
       
       return { highlights: newHighlights };
     }),
-  loadHighlights: (highlights) => set({ highlights }),
+  loadHighlights: (highlights) => {
+    localStorage.setItem(OMED_STORAGE_KEYS.highlights, JSON.stringify(highlights));
+    set({ highlights });
+  },
 }));
