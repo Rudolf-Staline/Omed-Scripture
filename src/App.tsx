@@ -19,7 +19,7 @@ import { useFavoritesStore } from './store/useFavoritesStore';
 import { useHighlightsStore } from './store/useHighlightsStore';
 import { useNotesStore } from './store/useNotesStore';
 import { usePlansStore } from './store/usePlansStore';
-import { syncFileFromDrive, DRIVE_FILES } from './utils/driveSync';
+import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 
 function App() {
@@ -85,8 +85,10 @@ function App() {
           if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
-          if (err instanceof Error && err.message.includes('401')) {
+          if (isDriveSessionInvalidError(err)) {
             expireSession();
+          } else {
+            toast.error('Synchronisation Google Drive impossible pour le moment.');
           }
         }
       };
