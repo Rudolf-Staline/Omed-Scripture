@@ -4,6 +4,8 @@ import { Search as SearchIcon, ChevronRight, Loader2 } from 'lucide-react';
 import { searchVerses, FEATURED_TRANSLATIONS, BIBLE_BOOKS } from '../../utils/bibleApi';
 import type { SearchResult } from '../../utils/bibleApi';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { EmptyState } from '../../components/EmptyState';
+import { ErrorState } from '../../components/ErrorState';
 
 const SEARCH_DIRECT_TRANSLATIONS = ['lsg', 'darby', 'kjv', 'web', 'bbe'];
 
@@ -50,80 +52,66 @@ export const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <h1 className="font-display text-3xl font-bold mb-2 text-text-primary">Recherche biblique</h1>
-      <p className="text-text-secondary mb-8">Trouvez rapidement un verset et ouvrez le chapitre pour lire le contexte.</p>
+    <div className="mx-auto max-w-4xl py-4 md:py-8">
+      <section className="reading-surface mb-7 p-6 md:p-8">
+        <p className="omed-kicker mb-3">Recherche biblique</p>
+        <h1 className="font-display text-4xl tracking-tight text-text-primary md:text-5xl">Chercher dans le texte.</h1>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary md:text-base">Un champ calme pour retrouver un mot, une expression ou un passage, puis ouvrir le chapitre dans son contexte.</p>
 
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <label className="relative flex-1" htmlFor="bible-search-input">
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
-            <input
-              id="bible-search-input"
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Exemple : amour, pardon, Jean 3"
-              aria-label="Recherche biblique"
-              className="w-full bg-bg-card border border-border rounded-lg py-3.5 pl-11 pr-4 text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-gold/40"
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={loading || !query.trim()}
-            className="inline-flex items-center justify-center gap-2 min-w-36 bg-accent-gold text-white px-5 py-3.5 rounded-lg font-medium hover:bg-accent-brown transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? 'Recherche en cours' : 'Lancer la recherche'}
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSearch} className="mt-7">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <label className="relative flex-1" htmlFor="bible-search-input">
+              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+              <input
+                id="bible-search-input"
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Exemple : amour, pardon, Jean 3"
+                aria-label="Recherche biblique"
+                className="min-h-14 w-full rounded-2xl border border-border bg-bg-card/72 py-3.5 pl-12 pr-4 text-base text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold/50"
+              />
+            </label>
+            <button type="submit" disabled={loading || !query.trim()} className="omed-button-primary min-h-14 px-6 disabled:cursor-not-allowed disabled:opacity-55">
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading ? 'Recherche…' : 'Rechercher'}
+            </button>
+          </div>
+        </form>
+      </section>
 
       {searchIsFallback && (
-        <div className="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 text-sm leading-relaxed">
-          La recherche textuelle n’est pas entièrement prise en charge pour la traduction <strong>{translationName}</strong>.
-          Les résultats affichés utilisent une version de référence compatible pour éviter les interruptions.
+        <div className="mb-6 rounded-2xl border border-accent-brown/25 bg-accent-brown/10 p-4 text-sm leading-relaxed text-text-secondary">
+          La recherche textuelle n’est pas entièrement prise en charge pour <strong className="text-text-primary">{translationName}</strong>. Une version compatible peut être utilisée pour éviter les interruptions.
         </div>
       )}
 
-      {error && (
-        <div className="mb-6 p-4 rounded-lg border border-red-200 bg-red-50 text-red-800">
-          <p className="font-medium">Une erreur est survenue.</p>
-          <p className="text-sm mt-1">{error}</p>
-        </div>
-      )}
+      {error && <ErrorState compact title="Recherche interrompue" message={error} />}
 
       <section className="space-y-4">
         {loading && (
-          <div className="p-5 rounded-lg border border-border bg-bg-card text-text-secondary">Recherche en cours, merci de patienter.</div>
+          <div className="omed-panel-soft p-5 text-text-secondary"><Loader2 className="mr-2 inline animate-spin" size={16} />Recherche en cours, merci de patienter.</div>
         )}
 
         {!loading && results.length > 0 && (
-          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">{results.length} résultat{results.length > 1 ? 's' : ''}</h2>
+          <h2 className="omed-kicker">{results.length} résultat{results.length > 1 ? 's' : ''}</h2>
         )}
 
         {!loading && !error && hasSearched && results.length === 0 && (
-          <div className="text-center py-12 px-6 border border-border rounded-xl bg-bg-card">
-            <p className="text-text-primary text-lg font-medium">Aucun passage trouvé.</p>
-            <p className="text-text-secondary text-sm mt-2">Affinez votre recherche avec un mot plus précis ou une autre formulation.</p>
-          </div>
+          <EmptyState compact title="Aucun passage trouvé" message="Affinez votre recherche avec un mot plus précis ou une autre formulation." />
         )}
 
         {results.map((result, idx) => (
-          <article key={idx} className="bg-bg-card border border-border rounded-xl p-5 hover:shadow-sm transition-shadow">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <h3 className="font-display font-semibold text-xl text-text-primary">{result.reference}</h3>
-              <span className="text-xs font-medium text-accent-brown bg-accent-gold/10 px-2.5 py-1 rounded">
-                Traduction : {translationName}
+          <article key={idx} className="group rounded-2xl border border-border bg-bg-card/62 p-5 shadow-[var(--shadow-soft)] hover:border-accent-gold/35 md:p-6">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="font-display text-2xl font-semibold text-text-primary">{result.reference}</h3>
+              <span className="rounded-full border border-accent-gold/25 bg-accent-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-accent-gold">
+                {translationName}
               </span>
             </div>
-            <p className="font-body text-text-secondary leading-relaxed mb-4">{result.text}</p>
-            <button
-              onClick={() => navigateToVerse(result.book_id, result.chapter_id)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-brown hover:text-accent-gold transition-colors"
-            >
-              Lire le chapitre
-              <ChevronRight size={16} />
+            <p className="font-body text-base leading-8 text-text-secondary">{result.text}</p>
+            <button onClick={() => navigateToVerse(result.book_id, result.chapter_id)} className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-accent-brown hover:text-accent-gold">
+              Ouvrir le chapitre <ChevronRight size={16} />
             </button>
           </article>
         ))}

@@ -17,16 +17,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div className={compact ? 'py-12 text-center' : 'py-20 text-center'}>
-      <Inbox size={30} className="mx-auto mb-4 text-text-muted" aria-hidden="true" />
-      <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">{title}</h2>
-      <p className="text-text-secondary">{message}</p>
+    <div className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
+      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-bg-card/70 text-accent-gold">
+        <Inbox size={24} aria-hidden="true" />
+      </div>
+      <h2 className="mb-2 font-display text-2xl font-semibold text-text-primary">{title}</h2>
+      <p className="mx-auto max-w-xl text-sm leading-6 text-text-secondary">{message}</p>
       {actionLabel && onAction && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="mt-6 rounded-lg bg-bg-secondary px-6 py-2 font-medium text-text-primary transition-colors hover:bg-border"
-        >
+        <button type="button" onClick={onAction} className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold">
           {actionLabel}
         </button>
       )}

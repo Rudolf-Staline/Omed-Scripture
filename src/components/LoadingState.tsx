@@ -12,14 +12,12 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={compact ? 'py-12 text-center' : 'py-20 text-center'}
-    >
-      <div className="mx-auto mb-5 h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent-gold" aria-hidden="true" />
+    <div role="status" aria-live="polite" className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
+      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-bg-card/70" aria-hidden="true">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-accent-gold" />
+      </div>
       <h2 className="font-display text-xl font-semibold text-text-primary">{title}</h2>
-      <p className="mt-2 text-sm text-text-secondary">{message}</p>
+      <p className="mt-2 text-sm leading-6 text-text-secondary">{message}</p>
       <span className="sr-only">Chargement</span>
     </div>
   );

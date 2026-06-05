@@ -18,17 +18,18 @@ export const PlansPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <h1 className="font-display text-3xl font-bold mb-2 text-text-primary flex items-center gap-3">
-        <Calendar className="text-accent-gold" />
-        Parcours
-      </h1>
-      <p className="text-sm text-text-secondary mb-8">
-        Choisissez un parcours biblique et avancez jour après jour avec constance.
-      </p>
+    <div className="mx-auto max-w-5xl py-4 md:py-8">
+      <section className="mb-8 rounded-[1.75rem] border border-border bg-bg-card/55 p-6 shadow-[var(--shadow-soft)] md:p-8">
+        <p className="omed-kicker mb-3">Parcours de lecture</p>
+        <h1 className="flex items-center gap-3 font-display text-4xl font-semibold tracking-tight text-text-primary">
+          <Calendar className="text-accent-gold" strokeWidth={1.5} />
+          Avancer avec constance
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary md:text-base">Des parcours sobres, organisés en étapes lisibles, pour installer un rythme sans transformer la lecture en tableau de bord.</p>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {READING_PLANS.map((plan) => {
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {READING_PLANS.map((plan, index) => {
           const planProgress = progress[plan.id];
           const isStarted = !!planProgress;
           const isPlanned = plan.status === 'planned';
@@ -37,50 +38,43 @@ export const PlansPage: React.FC = () => {
           const percentage = isStarted ? Math.round((completed / plan.durationDays) * 100) : 0;
 
           return (
-            <div
+            <article
               key={plan.id}
               onClick={() => handlePlanClick(plan.id, isPlanned)}
-              className={`bg-bg-card border border-border rounded-xl p-6 transition-shadow flex flex-col h-full ${
-                isPlanned ? 'opacity-75' : 'hover:shadow-md cursor-pointer'
+              className={`group relative overflow-hidden rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)] transition-all ${
+                isPlanned ? 'opacity-70' : 'cursor-pointer hover:-translate-y-0.5 hover:border-accent-gold/35'
               }`}
             >
-              <div className="flex justify-between items-start mb-2 gap-2">
-                <h3 className="font-display font-semibold text-lg text-text-primary">{plan.title}</h3>
-                {isPlanned ? (
-                  <span className="text-xs font-medium bg-bg-secondary text-text-muted px-2 py-1 rounded">À venir</span>
-                ) : isStarted ? (
-                  <span className="text-xs font-medium bg-accent-sage/20 text-accent-sage px-2 py-1 rounded">En cours</span>
-                ) : null}
-              </div>
-              <p className="font-body text-text-secondary text-sm mb-6 flex-1">{plan.description}</p>
+              <div className="absolute right-5 top-5 font-display text-6xl text-accent-gold/10">{String(index + 1).padStart(2, '0')}</div>
+              <div className="relative flex min-h-full flex-col">
+                <div className="mb-4 flex items-start justify-between gap-2">
+                  <h2 className="font-display text-2xl font-semibold leading-tight text-text-primary">{plan.title}</h2>
+                  {isPlanned ? (
+                    <span className="rounded-full border border-border bg-bg-secondary px-2.5 py-1 text-xs font-semibold text-text-muted">À venir</span>
+                  ) : isStarted ? (
+                    <span className="rounded-full border border-accent-sage/35 bg-accent-sage/12 px-2.5 py-1 text-xs font-semibold text-accent-sage">En cours</span>
+                  ) : null}
+                </div>
+                <p className="mb-7 flex-1 font-body text-sm leading-7 text-text-secondary">{plan.description}</p>
 
-              <div className="mt-auto">
                 {isStarted ? (
                   <div>
-                    <div className="flex justify-between text-xs font-medium text-text-muted mb-1.5">
-                      <span>{completed} / {plan.durationDays} jours</span>
+                    <div className="mb-2 flex justify-between text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">
+                      <span>{completed}/{plan.durationDays} jours</span>
                       <span>{remaining} restants</span>
                     </div>
-                    <div className="flex justify-between text-xs font-medium text-text-muted mb-2">
-                      <span>Progression</span>
-                      <span>{percentage}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-accent-gold transition-all duration-500" style={{ width: `${percentage}%` }} />
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-bg-secondary">
+                      <div className="h-full rounded-full bg-accent-gold transition-all duration-500" style={{ width: `${percentage}%` }} />
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-text-muted">{plan.durationDays} étapes</span>
-                    {!isPlanned && (
-                      <span className="flex items-center gap-1 text-sm font-medium text-accent-brown">
-                        Commencer <ChevronRight size={16} />
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between border-t border-border pt-4">
+                    <span className="text-sm font-semibold text-text-muted">{plan.durationDays} étapes</span>
+                    {!isPlanned && <span className="inline-flex items-center gap-1 text-sm font-semibold text-accent-brown group-hover:text-accent-gold">Commencer <ChevronRight size={16} /></span>}
                   </div>
                 )}
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

@@ -106,7 +106,7 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
 
   return (
     <>
-      <div className="bg-bg-card shadow-lg border border-border rounded-xl px-2 py-1.5 flex items-center gap-1">
+      <div className="border border-border bg-bg-card/95 shadow-[var(--shadow-panel)] backdrop-blur-xl rounded-2xl px-2 py-1.5 flex items-center gap-1">
         {showColors ? (
           <div className="flex items-center gap-2 px-2">
             {colors.map((c) => (
@@ -120,25 +120,25 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
           </div>
         ) : (
           <>
-            <button type="button" aria-label="Ajouter aux favoris" onClick={handleFavorite} className="p-2 hover:bg-bg-secondary rounded-lg text-text-secondary transition-colors group" title="Favori">
+            <button type="button" aria-label="Ajouter aux favoris" onClick={handleFavorite} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors group" title="Favori">
               <Heart size={18} className={isFavorite ? 'fill-accent-gold text-accent-gold' : 'group-hover:text-accent-gold'} />
             </button>
-            <button type="button" aria-label="Ajouter une note" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} className="p-2 hover:bg-bg-secondary rounded-lg text-text-secondary transition-colors hover:text-accent-gold" title="Noter">
+            <button type="button" aria-label="Ajouter une note" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Noter">
               <Edit3 size={18} />
             </button>
-            <button type="button" aria-label="Surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} className="p-2 hover:bg-bg-secondary rounded-lg text-text-secondary transition-colors hover:text-accent-gold" title="Surligner">
+            <button type="button" aria-label="Surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Surligner">
               <Type size={18} />
             </button>
             <div className="relative">
-              <button type="button" aria-label="Partager" aria-expanded={showShareOptions} onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }} className="p-2 hover:bg-bg-secondary rounded-lg text-text-secondary transition-colors hover:text-accent-gold" title="Partager">
+              <button type="button" aria-label="Partager" aria-expanded={showShareOptions} onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Partager">
                 <Share2 size={18} />
               </button>
               {showShareOptions && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-bg-card border border-border shadow-xl rounded-lg py-2 flex flex-col z-50">
-                  <button type="button" onClick={handleCopyImage} className="px-4 py-2 text-sm text-left hover:bg-bg-secondary transition-colors">Copier l'image</button>
-                  <button type="button" onClick={handleCopyText} className="px-4 py-2 text-sm text-left hover:bg-bg-secondary transition-colors">Copier le texte</button>
-                  <button type="button" onClick={handleShareWhatsApp} className="px-4 py-2 text-sm text-left hover:bg-bg-secondary transition-colors text-green-600">WhatsApp</button>
-                  <button type="button" onClick={handleShareTwitter} className="px-4 py-2 text-sm text-left hover:bg-bg-secondary transition-colors text-blue-500">Twitter / X</button>
+                <div className="absolute bottom-full left-1/2 z-50 mb-2 flex w-52 -translate-x-1/2 flex-col rounded-2xl border border-border bg-bg-card/98 py-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+                  <button type="button" onClick={handleCopyImage} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier l'image</button>
+                  <button type="button" onClick={handleCopyText} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier le texte</button>
+                  <button type="button" onClick={handleShareWhatsApp} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary text-accent-sage">WhatsApp</button>
+                  <button type="button" onClick={handleShareTwitter} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary text-[color:var(--color-info)]">Twitter / X</button>
                 </div>
               )}
             </div>

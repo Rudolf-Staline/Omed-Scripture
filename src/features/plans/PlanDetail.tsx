@@ -23,10 +23,10 @@ export const PlanDetail: React.FC = () => {
 
   if (!plan || !planProgress || plan.status === 'planned') {
     return (
-      <div className="py-20 text-center text-text-muted">
+      <div className="mx-auto max-w-2xl py-20 text-center text-text-muted">
         Parcours introuvable, non commencé ou pas encore disponible.
         <br />
-        <button onClick={() => navigate('/plans')} className="text-accent-brown underline mt-4">Retour aux parcours</button>
+        <button onClick={() => navigate('/plans')} className="mt-4 text-accent-brown underline">Retour aux parcours</button>
       </div>
     );
   }
@@ -36,45 +36,45 @@ export const PlanDetail: React.FC = () => {
   const currentDay = Math.min(completedCount + 1, plan.durationDays);
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <button onClick={() => navigate('/plans')} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 text-sm font-medium">
+    <div className="mx-auto max-w-4xl py-4 md:py-8">
+      <button onClick={() => navigate('/plans')} className="mb-6 flex items-center gap-2 text-sm font-semibold text-text-secondary transition-colors hover:text-text-primary">
         <ArrowLeft size={16} />
         Retour aux parcours
       </button>
 
-      <div className="bg-bg-card border border-border rounded-2xl p-8 mb-8">
-        <h1 className="font-display text-3xl font-bold mb-3 text-text-primary">{plan.title}</h1>
-        <p className="font-body text-text-secondary mb-6 leading-relaxed">{plan.description}</p>
+      <div className="reading-surface mb-8 p-6 md:p-8">
+        <h1 className="mb-3 font-display text-4xl font-semibold tracking-tight text-text-primary">{plan.title}</h1>
+        <p className="mb-6 font-body leading-8 text-text-secondary">{plan.description}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-sm">
-          <div className="rounded-lg border border-border p-3 bg-bg-secondary/40">
+          <div className="rounded-2xl border border-border bg-bg-card/45 p-4">
             <p className="text-text-muted">Progression</p>
             <p className="text-text-primary font-semibold">{completedCount} / {plan.durationDays} jours</p>
           </div>
-          <div className="rounded-lg border border-border p-3 bg-bg-secondary/40">
+          <div className="rounded-2xl border border-border bg-bg-card/45 p-4">
             <p className="text-text-muted">Avancement</p>
             <p className="text-text-primary font-semibold">{percentage}%</p>
           </div>
-          <div className="rounded-lg border border-border p-3 bg-bg-secondary/40">
+          <div className="rounded-2xl border border-border bg-bg-card/45 p-4">
             <p className="text-text-muted">Étape actuelle</p>
             <p className="text-text-primary font-semibold">Jour {currentDay}</p>
           </div>
         </div>
 
-        <div className="h-2 w-full bg-bg-secondary rounded-full overflow-hidden">
-          <div className="h-full bg-accent-gold transition-all duration-500 ease-out" style={{ width: `${percentage}%` }} />
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-bg-secondary">
+          <div className="h-full rounded-full bg-accent-gold transition-all duration-500 ease-out" style={{ width: `${percentage}%` }} />
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="font-display text-xl font-bold text-text-primary">Étapes du parcours</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <h2 className="font-display text-2xl font-semibold text-text-primary">Étapes du parcours</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {plan.readings.map((reading) => {
             const isCompleted = planProgress.completedDays.includes(reading.day);
             const firstPassage = reading.passages[0];
 
             return (
-              <div key={reading.day} className={`rounded-xl border p-4 transition-colors ${isCompleted ? 'border-accent-sage/40 bg-accent-sage/10' : 'border-border bg-bg-card'}`}>
+              <div key={reading.day} className={`rounded-[1.25rem] border p-4 transition-colors ${isCompleted ? 'border-accent-sage/40 bg-accent-sage/12' : 'border-border bg-bg-card/60'}`}>
                 <div className="flex items-center justify-between mb-3 gap-3">
                   <div>
                     <p className="text-xs text-text-muted">Étape</p>
@@ -85,7 +85,7 @@ export const PlanDetail: React.FC = () => {
                       if (isCompleted) unmarkDayComplete(plan.id, reading.day);
                       else markDayComplete(plan.id, reading.day);
                     }}
-                    className={`text-xs font-medium px-3 py-1.5 rounded border ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
+                    className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
                   >
                     {isCompleted ? 'Marqué comme fait' : 'Marquer comme fait'}
                   </button>
@@ -94,7 +94,7 @@ export const PlanDetail: React.FC = () => {
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-text-secondary">Lecture suggérée : {reading.passages.map(formatPassage).join(', ')}</p>
                   {firstPassage && (
-                    <button onClick={() => navigate(`/read/kjv/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-2 text-sm font-medium text-accent-brown hover:underline">
+                    <button onClick={() => navigate(`/read/kjv/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-2 text-sm font-semibold text-accent-brown hover:text-accent-gold">
                       <BookOpen size={15} />
                       Ouvrir
                     </button>

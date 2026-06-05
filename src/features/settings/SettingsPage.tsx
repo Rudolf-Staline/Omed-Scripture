@@ -144,15 +144,15 @@ export const SettingsPage: React.FC = () => {
   };
 
   const SegmentedControl = <T extends string>({ values, selected, onSelect }: { values: readonly T[]; selected: T; onSelect: (value: T) => void }) => (
-    <div className="flex gap-2 bg-bg-primary p-1 rounded-lg border border-border">
+    <div className="flex gap-2 rounded-2xl border border-border bg-bg-primary p-1">
       {values.map((value) => (
         <button
           type="button"
           key={value}
           onClick={() => onSelect(value)}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-xl py-2 text-sm font-semibold transition-colors ${
             selected === value
-              ? 'bg-bg-card shadow-sm text-text-primary border border-border/50'
+              ? 'border border-accent-gold/30 bg-bg-card text-text-primary shadow-sm'
               : 'text-text-muted hover:text-text-primary'
           }`}
         >
@@ -163,16 +163,16 @@ export const SettingsPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <h1 className="font-display text-3xl font-bold mb-2 text-text-primary flex items-center gap-3">
+    <div className="mx-auto max-w-5xl py-4 md:py-8">
+      <h1 className="flex items-center gap-3 font-display text-4xl font-semibold tracking-tight text-text-primary">
         <Settings className="text-accent-gold" />
         Préférences
       </h1>
-      <p className="text-text-secondary mb-8">Personnalisez votre expérience de lecture biblique en toute simplicité.</p>
+      <p className="mt-3 mb-8 max-w-2xl text-text-secondary">Personnalisez votre expérience de lecture biblique en toute simplicité.</p>
 
-      <div className="space-y-8">
-        <section className="bg-bg-card border border-border rounded-xl p-6">
-          <h2 className="font-display font-semibold text-xl text-text-primary mb-6 flex items-center gap-2">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Palette size={20} className="text-accent-brown" /> Apparence
           </h2>
           <div className="space-y-6">
@@ -182,15 +182,15 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Police de lecture</label>
-              <div className="flex gap-2 bg-bg-primary p-1 rounded-lg border border-border">
+              <div className="flex gap-2 rounded-2xl border border-border bg-bg-primary p-1">
                 {fontFamilies.map((ff) => (
                   <button
                     type="button"
                     key={ff}
                     onClick={() => updateSettings({ fontFamily: ff })}
-                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex-1 rounded-xl py-2 text-sm font-semibold transition-colors ${
                       settings.fontFamily === ff
-                        ? 'bg-bg-card shadow-sm text-text-primary border border-border/50'
+                        ? 'border border-accent-gold/30 bg-bg-card text-text-primary shadow-sm'
                         : 'text-text-muted hover:text-text-primary'
                     } ${ff === 'Lora' ? 'font-serif' : 'font-sans'}`}
                   >
@@ -206,8 +206,8 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="bg-bg-card border border-border rounded-xl p-6">
-          <h2 className="font-display font-semibold text-xl text-text-primary mb-6 flex items-center gap-2">
+        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <BookOpen size={20} className="text-accent-brown" /> Lecture
           </h2>
           <div className="space-y-6">
@@ -216,7 +216,7 @@ export const SettingsPage: React.FC = () => {
               <select
                 value={settings.defaultTranslation}
                 onChange={(e) => updateSettings({ defaultTranslation: e.target.value })}
-                className="w-full bg-bg-primary border border-border rounded-lg px-4 py-2 text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
+                className="w-full rounded-2xl border border-border bg-bg-primary px-4 py-3 text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
               >
                 {FEATURED_TRANSLATIONS.map((t) => (
                   <option key={t.id} value={t.id}>{t.name} ({t.short})</option>
@@ -239,7 +239,7 @@ export const SettingsPage: React.FC = () => {
               <label className="block text-sm font-medium text-text-secondary mb-2">Affichage</label>
               <SegmentedControl values={readingDensities} selected={settings.readingDensity} onSelect={(readingDensity) => updateSettings({ readingDensity })} />
             </div>
-            <label className="flex items-center justify-between p-4 rounded-lg border border-border bg-bg-primary cursor-pointer">
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border bg-bg-primary p-4">
               <div>
                 <p className="font-medium text-text-primary">Afficher les numéros de verset</p>
                 <p className="text-sm text-text-muted">Masquer les numéros pour une lecture plus fluide.</p>
@@ -254,15 +254,15 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="bg-bg-card border border-border rounded-xl p-6">
-          <h2 className="font-display font-semibold text-xl text-text-primary mb-6 flex items-center gap-2">
+        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Cloud size={20} className="text-accent-brown" /> Synchronisation
           </h2>
 
           {user ? (
             <div className="space-y-6">
-              <div className="flex items-center gap-4 bg-bg-primary p-4 rounded-xl border border-border">
-                {user.picture ? <img src={user.picture} alt={user.name} className="w-16 h-16 rounded-full" /> : <div className="w-16 h-16 rounded-full bg-accent-gold text-white flex items-center justify-center font-bold text-xl">{user.name.charAt(0)}</div>}
+              <div className="flex items-center gap-4 rounded-2xl border border-border bg-bg-primary p-4">
+                {user.picture ? <img src={user.picture} alt={user.name} className="h-16 w-16 rounded-full" /> : <div className="h-16 w-16 rounded-full bg-accent-gold text-white flex items-center justify-center font-bold text-xl">{user.name.charAt(0)}</div>}
                 <div>
                   <h3 className="font-semibold text-lg text-text-primary">{user.name}</h3>
                   <p className="text-text-secondary">{user.email}</p>
@@ -270,12 +270,12 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                <button type="button" onClick={handleSyncData} disabled={syncing} className="flex items-center justify-center gap-2 w-full bg-accent-gold hover:bg-accent-brown text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50">
+                <button type="button" onClick={handleSyncData} disabled={syncing} className="omed-button-primary flex w-full items-center justify-center gap-2 py-3 disabled:opacity-50">
                   <Cloud size={20} />
                   {syncing ? 'Synchronisation...' : 'Restaurer depuis Google Drive'}
                 </button>
 
-                <button type="button" onClick={handleForceUpload} disabled={syncing} className="flex items-center justify-center gap-2 w-full bg-bg-secondary hover:bg-border text-text-primary py-3 rounded-lg font-medium transition-colors disabled:opacity-50 border border-border">
+                <button type="button" onClick={handleForceUpload} disabled={syncing} className="omed-button-ghost flex w-full items-center justify-center gap-2 py-3 disabled:opacity-50">
                   <RefreshCw size={20} />
                   Sauvegarder sur Google Drive
                 </button>
@@ -293,7 +293,7 @@ export const SettingsPage: React.FC = () => {
                     logout();
                     setSynced(false);
                   }}
-                  className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium transition-colors"
+                  className="flex items-center gap-2 text-[color:var(--color-danger)] hover:text-[color:var(--color-danger)] font-medium transition-colors"
                 >
                   <LogOut size={18} />
                   Se déconnecter
@@ -303,29 +303,29 @@ export const SettingsPage: React.FC = () => {
           ) : (
             <div className="text-center py-6">
               <p className="text-text-secondary mb-4">Connectez-vous pour synchroniser vos données sur tous vos appareils.</p>
-              <button type="button" onClick={() => navigate('/login')} className="bg-bg-secondary hover:bg-border text-text-primary px-6 py-2.5 rounded-lg font-medium transition-colors">Se connecter</button>
+              <button type="button" onClick={() => navigate('/login')} className="omed-button-ghost px-6 py-2.5 font-semibold">Se connecter</button>
             </div>
           )}
         </section>
 
-        <section className="bg-bg-card border border-border rounded-xl p-6">
-          <h2 className="font-display font-semibold text-xl text-text-primary mb-6 flex items-center gap-2">
+        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Database size={20} className="text-accent-brown" /> Données personnelles
           </h2>
           <div className="space-y-4">
-            <button type="button" onClick={exportData} className="flex items-center gap-3 w-full p-4 rounded-lg border border-border hover:bg-bg-primary transition-colors text-left">
-              <div className="p-2 bg-bg-secondary rounded-lg text-accent-brown"><Download size={20} /></div>
+            <button type="button" onClick={exportData} className="flex w-full items-center gap-3 rounded-2xl border border-border p-4 text-left transition-colors hover:bg-bg-primary">
+              <div className="rounded-xl bg-bg-secondary p-2 text-accent-brown"><Download size={20} /></div>
               <div>
                 <h4 className="font-medium text-text-primary">Exporter mes données</h4>
                 <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes et préférences.</p>
               </div>
             </button>
 
-            <button type="button" onClick={clearData} className="flex items-center gap-3 w-full p-4 rounded-lg border border-red-100 hover:bg-red-50 transition-colors text-left">
-              <div className="p-2 bg-red-100 rounded-lg text-red-500"><Trash2 size={20} /></div>
+            <button type="button" onClick={clearData} className="flex w-full items-center gap-3 rounded-2xl border border-[color:var(--color-danger)]/35 p-4 text-left transition-colors hover:bg-[color:var(--color-danger)]/10">
+              <div className="rounded-xl bg-[color:var(--color-danger)]/12 p-2 text-[color:var(--color-danger)]"><Trash2 size={20} /></div>
               <div>
-                <h4 className="font-medium text-red-600">Effacer toutes les données</h4>
-                <p className="text-sm text-red-400">Supprimer définitivement les données locales (irréversible).</p>
+                <h4 className="font-medium text-[color:var(--color-danger)]">Effacer toutes les données</h4>
+                <p className="text-sm text-[color:var(--color-danger)]/75">Supprimer définitivement les données locales (irréversible).</p>
               </div>
             </button>
           </div>

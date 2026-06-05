@@ -73,15 +73,15 @@ export const NotesPage: React.FC = () => {
 
   if (notes.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto py-20 text-center">
-        <BookOpenText size={46} className="mx-auto text-text-muted mb-4 opacity-60" />
+      <div className="mx-auto max-w-3xl py-20 text-center">
+        <BookOpenText size={46} className="mx-auto mb-4 text-accent-gold opacity-70" />
         <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">Carnet de notes</h2>
         <p className="text-text-secondary max-w-lg mx-auto">
           Vos notes apparaîtront ici lorsque vous annoterez un passage.
         </p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 px-6 py-2 bg-bg-secondary text-text-primary rounded-lg font-medium hover:bg-border transition-colors"
+          className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold"
         >
           Commencer à lire
         </button>
@@ -90,9 +90,9 @@ export const NotesPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <h1 className="font-display text-3xl font-bold mb-3 text-text-primary">Mes notes d'étude</h1>
-      <p className="text-text-secondary mb-6">
+    <div className="mx-auto max-w-4xl py-4 md:py-8">
+      <h1 className="font-display text-4xl font-semibold tracking-tight text-text-primary">Mes notes d'étude</h1>
+      <p className="mt-3 mb-7 max-w-2xl text-text-secondary">
         Un espace personnel pour conserver ce qui vous parle pendant la lecture.
       </p>
 
@@ -103,13 +103,13 @@ export const NotesPage: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher par référence, traduction ou contenu…"
-            className="w-full bg-bg-card border border-border rounded-lg pl-9 pr-4 py-2.5 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold"
+            className="min-h-12 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold"
           />
         </label>
       </div>
 
       {filteredNotes.length === 0 ? (
-        <div className="bg-bg-card border border-border rounded-xl p-10 text-center">
+        <div className="rounded-[1.5rem] border border-border bg-bg-card/60 p-10 text-center">
           <h2 className="font-display text-xl text-text-primary mb-2">Aucun résultat</h2>
           <p className="text-text-secondary">
             Aucune note ne correspond à votre recherche. Essayez un autre mot-clé.
@@ -125,11 +125,11 @@ export const NotesPage: React.FC = () => {
             const modifiedAt = formatDate(note.dateModified);
 
             return (
-              <article key={note.id} className="bg-bg-card border border-border rounded-xl p-5">
+              <article key={note.id} className="rounded-[1.35rem] border border-border bg-bg-card/62 p-5 shadow-[var(--shadow-soft)]">
                 <header className="flex flex-wrap justify-between items-start gap-3 mb-4">
                   <div>
                     <h2 className="font-display text-lg font-semibold text-text-primary">{reference}</h2>
-                    <p className="text-xs uppercase tracking-wide text-text-muted mt-1">
+                    <p className="mt-1 text-xs uppercase tracking-[0.16em] text-accent-gold">
                       Traduction : {translation}
                     </p>
                   </div>
@@ -137,7 +137,7 @@ export const NotesPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditClick(note.id, note.text)}
-                      className="px-3 py-1.5 text-sm rounded-lg border border-border text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors inline-flex items-center gap-1"
+                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-accent-gold/50 hover:text-accent-gold"
                       title="Modifier"
                     >
                       <Edit3 size={14} /> Modifier
@@ -149,7 +149,7 @@ export const NotesPage: React.FC = () => {
                           toast.success('Note supprimée.');
                         }
                       }}
-                      className="px-3 py-1.5 text-sm rounded-lg border border-border text-text-secondary hover:text-red-500 hover:border-red-400 transition-colors inline-flex items-center gap-1"
+                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-[color:var(--color-danger)]/50 hover:text-[color:var(--color-danger)]"
                       title="Supprimer"
                     >
                       <Trash2 size={14} /> Supprimer
@@ -160,7 +160,7 @@ export const NotesPage: React.FC = () => {
                 <section className="space-y-4">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-text-muted mb-1">Extrait</p>
-                    <p className="text-sm italic text-text-secondary border-l-2 border-accent-gold/40 pl-3">
+                    <p className="border-l border-accent-gold/40 pl-3 text-sm italic leading-7 text-text-secondary">
                       {hasVerseText ? `« ${note.verseText} »` : 'Extrait indisponible pour ce verset.'}
                     </p>
                   </div>
@@ -172,25 +172,25 @@ export const NotesPage: React.FC = () => {
                         <textarea
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
-                          className="w-full bg-bg-primary border border-border rounded-lg p-3 text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold font-body min-h-[120px]"
+                          className="min-h-[130px] w-full rounded-2xl border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
                         />
                         <div className="flex justify-end gap-2 mt-3">
                           <button
                             onClick={handleCancelEdit}
-                            className="px-4 py-2 rounded-lg font-medium text-text-muted hover:bg-bg-secondary transition-colors inline-flex items-center gap-1"
+                            className="inline-flex items-center gap-1 rounded-xl px-4 py-2 font-medium text-text-muted transition-colors hover:bg-bg-secondary"
                           >
                             <X size={16} /> Annuler
                           </button>
                           <button
                             onClick={() => handleSaveEdit(note.id)}
-                            className="px-4 py-2 rounded-lg font-medium bg-accent-gold text-white hover:bg-accent-brown transition-colors inline-flex items-center gap-1"
+                            className="omed-button-primary px-4 py-2"
                           >
                             <Check size={16} /> Enregistrer
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <p className="font-body text-text-primary leading-relaxed whitespace-pre-wrap">{note.text}</p>
+                      <p className="whitespace-pre-wrap font-body leading-8 text-text-primary">{note.text}</p>
                     )}
                   </div>
                 </section>
@@ -202,7 +202,7 @@ export const NotesPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => navigate(`/read/${translation}/${bookId}/${chapter}`)}
-                    className="font-medium text-accent-brown hover:text-accent-gold transition-colors"
+                    className="font-semibold text-accent-brown transition-colors hover:text-accent-gold"
                   >
                     Relire le chapitre
                   </button>
