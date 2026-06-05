@@ -17,16 +17,14 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div role="alert" className={compact ? 'py-12 text-center' : 'py-20 text-center'}>
-      <AlertTriangle className="mx-auto mb-4 text-text-muted" size={28} aria-hidden="true" />
+    <div role="alert" className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
+      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/10 text-[color:var(--color-danger)]">
+        <AlertTriangle size={24} aria-hidden="true" />
+      </div>
       <h2 className="font-display text-xl font-semibold text-text-primary">{title}</h2>
-      <p className="mt-2 text-sm text-text-secondary">{message}</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-text-secondary">{message}</p>
       {onAction && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="mt-6 rounded-lg border border-border bg-bg-card px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
-        >
+        <button type="button" onClick={onAction} className="omed-button-ghost mt-6 px-4 py-2 text-sm font-semibold">
           {actionLabel}
         </button>
       )}

@@ -44,13 +44,13 @@ export const FavoritesPage: React.FC = () => {
 
   if (favorites.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto py-20 text-center">
-        <Bookmark size={48} className="mx-auto text-text-muted mb-4 opacity-50" />
+      <div className="mx-auto max-w-3xl py-20 text-center">
+        <Bookmark size={48} className="mx-auto mb-4 text-accent-gold opacity-70" />
         <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">Aucun passage sauvegardé pour le moment.</h2>
         <p className="text-text-secondary">Vos marque-pages bibliques apparaîtront ici.</p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 px-6 py-2 bg-bg-secondary text-text-primary rounded-lg font-medium hover:bg-border transition-colors"
+          className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold"
         >
           Commencer à lire
         </button>
@@ -59,9 +59,9 @@ export const FavoritesPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:justify-between sm:items-center">
-        <h1 className="font-display text-3xl font-bold text-text-primary flex items-center gap-3">
+    <div className="mx-auto max-w-4xl py-4 md:py-8">
+      <div className="mb-8 flex flex-col gap-4 rounded-[1.5rem] border border-border bg-bg-card/52 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="flex items-center gap-3 font-display text-3xl font-semibold text-text-primary">
           <Bookmark className="text-accent-gold" />
           Marque-pages
         </h1>
@@ -71,7 +71,7 @@ export const FavoritesPage: React.FC = () => {
             id="bookmark-sort"
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as 'date' | 'biblical')}
-            className="px-3 py-2 bg-bg-card border border-border rounded-lg text-sm text-text-primary"
+            className="rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
           >
             <option value="date">Date d'ajout (récent)</option>
             <option value="biblical">Ordre biblique</option>
@@ -84,19 +84,19 @@ export const FavoritesPage: React.FC = () => {
           const reference = formatBibleReference(verse.bookId, verse.chapter, verse.verse);
 
           return (
-            <div key={verse.id} className="bg-bg-card border border-border rounded-xl p-6 group hover:shadow-sm transition-all">
+            <div key={verse.id} className="group rounded-[1.35rem] border border-border bg-bg-card/62 p-6 shadow-[var(--shadow-soft)] transition-all hover:border-accent-gold/35">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-display font-semibold text-lg text-text-primary">{reference}</h3>
-                  <span className="text-xs font-mono font-medium text-text-muted px-2 py-0.5 bg-bg-secondary rounded">
+                  <span className="rounded-full border border-border bg-bg-secondary px-2.5 py-1 font-mono text-xs font-semibold text-text-muted">
                     {getTranslationName(verse.translation)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <button
                     onClick={(e) => handleShare(verse.text, reference, e)}
-                    className="p-1.5 text-text-muted hover:text-accent-gold rounded transition-colors"
+                    className="rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold"
                     title="Partager"
                   >
                     <Share2 size={16} />
@@ -108,7 +108,7 @@ export const FavoritesPage: React.FC = () => {
                         toast.success('Marque-page retiré.');
                       }
                     }}
-                    className="p-1.5 text-text-muted hover:text-red-500 rounded transition-colors"
+                    className="rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-[color:var(--color-danger)]"
                     title="Supprimer"
                   >
                     <Trash2 size={16} />
@@ -116,13 +116,13 @@ export const FavoritesPage: React.FC = () => {
                 </div>
               </div>
 
-              <p className="font-body text-base text-text-secondary mb-6 leading-relaxed italic">
+              <p className="mb-6 border-l border-accent-gold/35 pl-4 font-body text-base italic leading-8 text-text-secondary">
                 « {verse.text} »
               </p>
 
               <button
                 onClick={() => navigate(`/read/${verse.translation}/${verse.bookId}/${verse.chapter}`)}
-                className="flex items-center gap-1 text-sm font-medium text-accent-brown hover:text-accent-gold transition-colors"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold"
               >
                 Lire le contexte <ChevronRight size={16} />
               </button>

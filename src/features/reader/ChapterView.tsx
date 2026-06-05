@@ -90,26 +90,29 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
   };
 
   const densityClasses = {
-    Compact: 'space-y-3',
-    Aired: 'space-y-5',
+    Compact: 'space-y-2.5',
+    Aired: 'space-y-4',
   };
 
   const getHighlightStyle = (color: HighlightColor) => {
     switch (color) {
-      case 'yellow': return 'bg-amber-200/20 border-b border-amber-400/45 shadow-[inset_0_-1px_0_rgba(180,120,30,0.25)]';
-      case 'blue': return 'bg-slate-300/20 border-b border-slate-500/35 shadow-[inset_0_-1px_0_rgba(70,85,110,0.25)]';
-      case 'green': return 'bg-emerald-300/18 border-b border-emerald-500/35 shadow-[inset_0_-1px_0_rgba(25,110,85,0.25)]';
-      case 'pink': return 'bg-rose-300/16 border-b border-rose-500/30 shadow-[inset_0_-1px_0_rgba(145,70,95,0.25)]';
-      case 'purple': return 'bg-violet-300/16 border-b border-violet-500/30 shadow-[inset_0_-1px_0_rgba(90,75,140,0.25)]';
+      case 'yellow': return 'bg-accent-gold/18 border-b border-accent-gold/55 shadow-[inset_0_-0.32em_0_rgba(201,164,92,0.16)]';
+      case 'blue': return 'bg-[color-mix(in_srgb,var(--color-info)_20%,transparent)] border-b border-[color-mix(in_srgb,var(--color-info)_55%,transparent)]';
+      case 'green': return 'bg-accent-sage/18 border-b border-accent-sage/45';
+      case 'pink': return 'bg-accent-brown/15 border-b border-accent-brown/40';
+      case 'purple': return 'bg-[color-mix(in_srgb,var(--color-copper)_16%,transparent)] border-b border-[color-mix(in_srgb,var(--color-copper)_42%,transparent)]';
       default: return '';
     }
   };
 
   return (
-    <div className={`${widthClasses[settings.readingWidth]} mx-auto pb-32 px-1 sm:px-2 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
-      <h2 className="font-display text-3xl sm:text-4xl font-semibold mb-10 text-text-primary/95 mt-6 tracking-tight">
-        {verses.length > 0 ? `${verses[0].book_name} ${chapter}` : `${bookId} ${chapter}`}
-      </h2>
+    <article className={`reading-surface ${widthClasses[settings.readingWidth]} mx-auto px-5 py-8 pb-20 sm:px-8 md:px-12 lg:px-14 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
+      <header className="mb-9 border-b border-border/70 pb-6">
+        <p className="omed-kicker mb-3">{translation.toUpperCase()}</p>
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+          {verses.length > 0 ? `${verses[0].book_name} ${chapter}` : `${bookId} ${chapter}`}
+        </h2>
+      </header>
 
       <div className={densityClasses[settings.readingDensity]}>
         {verses.map((verse) => {
@@ -118,19 +121,19 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           const highlight = highlights[verseId];
 
           return (
-            <div key={verseId} className="relative group cursor-pointer" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
+            <div key={verseId} className="group/verse relative cursor-pointer rounded-xl px-2 py-1 -mx-2 hover:bg-bg-card/35 focus-within:bg-bg-card/45" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
               {isSelected && (
-                <div className="absolute -top-12 left-0 right-0 z-20 flex justify-center">
+                <div className="absolute -top-14 left-0 right-0 z-20 flex justify-center">
                   <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
                 </div>
               )}
               <span className={clsx(
-                'transition-all duration-200 rounded-md px-1.5 py-0.5 -mx-1.5',
-                highlight ? getHighlightStyle(highlight.color) : 'group-hover:bg-bg-card/65',
-                isSelected ? 'bg-bg-card ring-1 ring-accent-gold/20 shadow-sm' : ''
+                'transition-all duration-200 rounded-lg px-1.5 py-0.5 -mx-1.5',
+                highlight ? getHighlightStyle(highlight.color) : '',
+                isSelected ? 'bg-bg-card ring-1 ring-accent-gold/30 shadow-sm' : ''
               )}>
                 {settings.showVerseNumbers && (
-                  <sup className="font-mono text-[10px] text-text-muted/80 font-medium mr-2 align-top mt-1 inline-block select-none tracking-wide">
+                  <sup className="mr-2 inline-block select-none align-top font-mono text-[0.62em] font-semibold leading-none tracking-wide text-accent-gold/75">
                     {verse.verse}
                   </sup>
                 )}
@@ -142,6 +145,6 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           );
         })}
       </div>
-    </div>
+    </article>
   );
 };

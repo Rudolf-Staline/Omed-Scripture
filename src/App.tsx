@@ -43,9 +43,9 @@ function App() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('theme-light', 'theme-sepia', 'theme-dark');
-    if (settings.theme === 'Sepia') root.classList.add('theme-sepia');
-    else if (settings.theme === 'Dark') root.classList.add('theme-dark');
-    else root.classList.add('theme-light');
+    const themeName = settings.theme === 'Sepia' ? 'sepia' : settings.theme === 'Dark' ? 'dark' : 'light';
+    root.classList.add(`theme-${themeName}`);
+    root.dataset.theme = themeName;
   }, [settings.theme]);
 
   useEffect(() => {
@@ -113,7 +113,18 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            background: 'var(--color-surface-raised)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-panel)',
+          },
+        }}
+      />
     </Router>
   );
 }

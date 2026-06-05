@@ -4,10 +4,11 @@ import { Sidebar } from './Sidebar';
 
 export const Layout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary font-sans overflow-x-hidden lg:flex">
+    <div className="min-h-screen overflow-x-hidden bg-bg-primary text-text-primary font-sans lg:flex">
       <Sidebar />
-      <main className="min-w-0 flex-1 overflow-y-auto bg-bg-primary pb-20 lg:pb-0">
-        <div className="max-w-5xl mx-auto w-full px-4 py-6 pb-24 sm:px-6 md:px-10 md:py-10 md:pb-10 lg:px-14 lg:py-12">
+      <main className="relative min-w-0 flex-1 overflow-y-auto pb-24 lg:pb-0">
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_72%_8%,color-mix(in_srgb,var(--color-accent)_8%,transparent),transparent_28rem)]" />
+        <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 md:px-10 md:py-9 lg:px-14 lg:py-11">
           <Outlet />
         </div>
       </main>
