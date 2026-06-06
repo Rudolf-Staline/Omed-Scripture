@@ -28,6 +28,17 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
   const highlights = useHighlightsStore((state) => state.highlights);
 
   useEffect(() => {
+    if (!selectedVerseId) return undefined;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedVerseId(null);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedVerseId]);
+
+  useEffect(() => {
     let mounted = true;
     const fetchChapter = async () => {
       setLoading(true);
@@ -106,7 +117,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
   };
 
   return (
-    <article className={`reading-surface ${widthClasses[settings.readingWidth]} mx-auto px-5 py-8 pb-20 sm:px-8 md:px-12 lg:px-14 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
+    <article className={`reading-surface ${widthClasses[settings.readingWidth]} mx-auto px-5 py-7 pb-28 sm:px-8 sm:py-8 md:px-12 lg:px-14 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
       <header className="mb-9 border-b border-border/70 pb-6">
         <p className="omed-kicker mb-3">{translation.toUpperCase()}</p>
         <h2 className="font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
@@ -123,9 +134,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           return (
             <div key={verseId} className="group/verse relative cursor-pointer rounded-xl px-2 py-1 -mx-2 hover:bg-bg-card/35 focus-within:bg-bg-card/45" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
               {isSelected && (
-                <div className="absolute -top-14 left-0 right-0 z-20 flex justify-center">
-                  <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
-                </div>
+                <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
               )}
               <span className={clsx(
                 'transition-all duration-200 rounded-lg px-1.5 py-0.5 -mx-1.5',

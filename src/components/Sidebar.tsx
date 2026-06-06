@@ -1,11 +1,12 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home } from 'lucide-react';
+import { useBibleStore } from '../store/useBibleStore';
+import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home, MoreHorizontal } from 'lucide-react';
 import clsx from 'clsx';
 
-const navItems = [
+const baseNavItems = [
   { to: '/', icon: Home, label: 'Accueil' },
   { to: '/search', icon: Search, label: 'Recherche' },
   { to: '/favorites', icon: Bookmark, label: 'Marque-pages' },
@@ -23,7 +24,28 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) => clsx(
 export const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const synced = useSettingsStore((state) => state.synced);
+  const { translation, bookId, chapter } = useBibleStore();
+  const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const readerPath = `/read/${translation}/${bookId}/${chapter}`;
+  const desktopNavItems = [
+    { to: readerPath, icon: BookOpenText, label: 'Lire' },
+    ...baseNavItems,
+  ];
+  const mobilePrimaryItems = [
+    { to: '/', icon: Home, label: 'Accueil' },
+    { to: readerPath, icon: BookOpenText, label: 'Lire' },
+    { to: '/search', icon: Search, label: 'Recherche' },
+    { to: '/notes', icon: NotebookPen, label: 'Notes' },
+  ];
+  const mobileMoreItems = [
+    { to: '/favorites', icon: Bookmark, label: 'Marque-pages' },
+    { to: '/plans', icon: CalendarRange, label: 'Parcours' },
+    { to: '/settings', icon: SlidersHorizontal, label: 'Réglages' },
+  ];
+  const isMoreActive = mobileMoreItems.some((item) => location.pathname.startsWith(item.to));
 
   return (
     <>
@@ -44,7 +66,7 @@ export const Sidebar: React.FC = () => {
         <div className="px-5 pb-3 text-[11px] font-semibold text-text-muted tracking-[0.2em] uppercase">Navigation</div>
 
         <nav className="flex-1 space-y-1.5 overflow-y-auto px-4">
-          {navItems.map((item) => (
+          {desktopNavItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={navLinkClass} end={item.to === '/'}>
               {({ isActive }) => (
                 <>
@@ -83,13 +105,30 @@ export const Sidebar: React.FC = () => {
         </div>
       </aside>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-6 border-t border-border bg-bg-card/96 px-1.5 py-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden">
-        {[...navItems, { to: '/settings', icon: SlidersHorizontal, label: 'Réglages' }].map((item) => (
-          <NavLink key={item.to} to={item.to} className={({ isActive }) => clsx('flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')}>
-            <item.icon size={18} strokeWidth={1.45} />
-            <span className="max-w-full truncate">{item.label}</span>
-          </NavLink>
-        ))}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-card/96 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden" aria-label="Navigation mobile">
+        {showMore && (
+          <div id="mobile-more-menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+            {mobileMoreItems.map((item) => (
+              <NavLink key={item.to} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary')}>
+                <item.icon size={18} strokeWidth={1.45} />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-5 gap-1">
+          {mobilePrimaryItems.map((item) => (
+            <NavLink key={item.to} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} end={item.to === '/'}>
+              <item.icon size={19} strokeWidth={1.45} />
+              <span className="max-w-full truncate">{item.label}</span>
+            </NavLink>
+          ))}
+          <button type="button" onClick={() => setShowMore((open) => !open)} className={clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isMoreActive || showMore ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} aria-expanded={showMore} aria-controls="mobile-more-menu">
+            <MoreHorizontal size={19} strokeWidth={1.45} />
+            <span>Plus</span>
+          </button>
+        </div>
       </nav>
     </>
   );
