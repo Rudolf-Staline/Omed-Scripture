@@ -87,7 +87,7 @@ export const ReaderPage: React.FC = () => {
               <span>Audio</span>
             </button>
 
-            <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'kjv')} className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
+            <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'darby')} className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
               <GitCompare size={17} strokeWidth={1.5} />
               <span>Comparer</span>
             </button>
@@ -103,7 +103,7 @@ export const ReaderPage: React.FC = () => {
                 <Headphones size={16} strokeWidth={1.5} />
                 Audio
               </button>
-              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'kjv')} className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
+              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'darby')} className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
                 <GitCompare size={16} strokeWidth={1.5} />
                 Comparer
               </button>

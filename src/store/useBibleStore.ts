@@ -25,7 +25,7 @@ const getInitialPosition = () => {
       console.error('Failed to parse position from localStorage', e);
     }
   }
-  return { translation: 'kjv', bookId: 'jean', chapter: 3 };
+  return { translation: 'lsg', bookId: 'jean', chapter: 3 };
 };
 
 export const useBibleStore = create<BibleState>((set) => ({
