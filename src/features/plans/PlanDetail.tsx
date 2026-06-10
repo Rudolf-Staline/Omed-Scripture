@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 import { usePlansStore } from '../../store/usePlansStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { READING_PLANS, type ReadingPlanPassage } from '../../data/readingPlans';
 import { formatBibleReference } from '../../utils/bibleBooks';
 
@@ -17,6 +18,7 @@ export const PlanDetail: React.FC = () => {
   const progress = usePlansStore((state) => state.progress);
   const markDayComplete = usePlansStore((state) => state.markDayComplete);
   const unmarkDayComplete = usePlansStore((state) => state.unmarkDayComplete);
+  const defaultTranslation = useSettingsStore((state) => state.settings.defaultTranslation) || 'lsg';
 
   const plan = READING_PLANS.find((p) => p.id === planId);
   const planProgress = progress[planId || ''];
@@ -94,7 +96,7 @@ export const PlanDetail: React.FC = () => {
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-text-secondary">Lecture suggérée : {reading.passages.map(formatPassage).join(', ')}</p>
                   {firstPassage && (
-                    <button onClick={() => navigate(`/read/kjv/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-2 text-sm font-semibold text-accent-brown hover:text-accent-gold">
+                    <button onClick={() => navigate(`/read/${defaultTranslation}/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-2 text-sm font-semibold text-accent-brown hover:text-accent-gold">
                       <BookOpen size={15} />
                       Ouvrir
                     </button>

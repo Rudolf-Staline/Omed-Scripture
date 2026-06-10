@@ -5,7 +5,7 @@ describe('backup validation', () => {
   it('accepts complete backups with reading position', () => {
     const backup = createBackup({
       settings: {
-        defaultTranslation: 'kjv',
+        defaultTranslation: 'lsg',
         fontSize: 'M',
         lineHeight: 'Relaxed',
         fontFamily: 'Lora',
@@ -19,7 +19,7 @@ describe('backup validation', () => {
       highlights: {},
       notes: [],
       progress: {},
-      position: { translation: 'kjv', bookId: 'jean', chapter: 3 },
+      position: { translation: 'lsg', bookId: 'jean', chapter: 3 },
     });
 
     expect(validateBackup(backup)).toBe(true);
