@@ -2,7 +2,7 @@
 
 Omed Scripture est une application web React/Vite de lecture, comparaison, annotation et sauvegarde biblique. Elle privilégie une interface calme, lisible et utilisable hors ligne lorsque les chapitres ont déjà été mis en cache.
 
-**Application :** https://omed-bible.vercel.app
+**Application :** https://omed-scripture.vercel.app
 
 ## Statut du projet
 
