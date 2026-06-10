@@ -1,0 +1,10 @@
+{
+  "id": "lsg",
+  "name": "Louis Segond 1910",
+  "language": "fr",
+  "source": "static",
+  "books": ["jean"],
+  "chapterCounts": {
+    "jean": 21
+  }
+}

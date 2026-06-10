@@ -1,0 +1,15 @@
+{
+  "bookId": "jean",
+  "bookName": "Jean",
+  "chapters": {
+    "1": [
+      { "verse": 1, "text": "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu." },
+      { "verse": 2, "text": "Elle était au commencement avec Dieu." },
+      { "verse": 3, "text": "Toutes choses ont été faites par elle, et rien de ce qui a été fait n'a été fait sans elle." }
+    ],
+    "3": [
+      { "verse": 16, "text": "Car Dieu a tant aimé le monde qu'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu'il ait la vie éternelle." },
+      { "verse": 17, "text": "Dieu, en effet, n'a pas envoyé son Fils dans le monde pour qu'il juge le monde, mais pour que le monde soit sauvé par lui." }
+    ]
+  }
+}
