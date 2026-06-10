@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, CalendarRange, ChevronRight, NotebookPen, Search } from 'lucide-react';
+import { Bookmark, CalendarRange, ChevronRight, NotebookPen, Search, Sparkles } from 'lucide-react';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useNotesStore } from '../../store/useNotesStore';
@@ -28,23 +28,35 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-8 md:space-y-10">
-      <section className="reading-surface overflow-hidden p-6 md:p-9 lg:p-10">
-        <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-end">
+      <section className="reading-surface relative overflow-hidden p-6 md:p-9 lg:p-10">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full border border-accent-gold/20 bg-accent-gold/8" />
+        <div className="pointer-events-none absolute bottom-0 left-8 h-px w-40 bg-gradient-to-r from-accent-gold/70 to-transparent" />
+        <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div>
-            <p className="omed-kicker mb-4">Accueil · dernière position</p>
+            <p className="omed-kicker mb-4">Accueil · lecture du jour</p>
             <h1 className="max-w-3xl font-display text-4xl leading-tight tracking-tight text-text-primary md:text-5xl">
               Reprendre dans {getBookName(bookId)}, chapitre {chapter}.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-text-secondary">
-              Omed garde la trace du passage ouvert pour que l’interface disparaisse et que la lecture recommence immédiatement.
+              Un point d’entrée calme pour revenir au texte, retrouver vos traces et poursuivre sans bruit.
             </p>
+            <div className="mt-7 rounded-3xl border border-accent-gold/20 bg-accent-gold/8 p-5">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent-gold">
+                <Sparkles size={15} strokeWidth={1.5} />
+                Intention de lecture
+              </div>
+              <p className="text-sm leading-7 text-text-secondary">
+                Ouvrir le chapitre en cours, puis annoter seulement ce qui demande à être gardé.
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-bg-card/55 p-5">
+          <div className="rounded-[1.65rem] border border-border bg-bg-card/70 p-5 shadow-[var(--shadow-panel)]">
             <p className="text-sm text-text-muted">Position conservée</p>
-            <p className="mt-2 font-display text-2xl text-text-primary">{getBookName(bookId)} {chapter}</p>
+            <p className="mt-2 font-display text-3xl text-text-primary">{getBookName(bookId)} {chapter}</p>
             <p className="mt-1 text-xs uppercase tracking-[0.18em] text-accent-gold">{translation.toUpperCase()}</p>
-            <Link to={continuePath} className="omed-button-primary mt-5 w-full px-5 py-3">
+            <div className="my-5 h-px bg-gradient-to-r from-accent-gold/50 via-border to-transparent" />
+            <Link to={continuePath} className="omed-button-primary w-full px-5 py-3">
               Ouvrir le lecteur <ChevronRight size={17} />
             </Link>
           </div>
@@ -61,7 +73,7 @@ export const HomePage: React.FC = () => {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {QUICK_LINKS.map((link) => (
-              <Link key={link.to} to={link.to} className="group flex items-start gap-4 rounded-2xl border border-border bg-bg-card/45 p-4 hover:border-accent-gold/35 hover:bg-bg-card/80">
+              <Link key={link.to} to={link.to} className="group flex items-start gap-4 rounded-2xl border border-border bg-bg-card/45 p-4 transition-colors hover:border-accent-gold/35 hover:bg-bg-card/80">
                 <span className="mt-0.5 rounded-xl border border-border bg-bg-secondary p-2 text-accent-gold">
                   <link.icon size={18} strokeWidth={1.5} />
                 </span>

@@ -106,9 +106,9 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
 
   return (
     <>
-      <div className="border border-border bg-bg-card/95 shadow-[var(--shadow-panel)] backdrop-blur-xl rounded-2xl px-2 py-1.5 flex items-center gap-1">
+      <div className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto flex max-w-md items-center justify-center rounded-3xl border border-border bg-bg-card/98 px-3 py-2 shadow-[var(--shadow-panel)] backdrop-blur-xl sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:inline-flex sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()} role="toolbar" aria-label="Actions du verset sélectionné">
         {showColors ? (
-          <div className="flex items-center gap-2 px-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 px-2">
             {colors.map((c) => (
               <button type="button" key={c.id} onClick={(e) => handleHighlight(c.id, e)} className="w-6 h-6 rounded-full border border-border shadow-sm flex items-center justify-center transition-transform hover:scale-110" style={{ backgroundColor: c.hex }} aria-label={`Surligner en ${c.id}`}>
                 {currentHighlight?.color === c.id && <Check size={12} className="text-black/50" />}
@@ -120,17 +120,17 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
           </div>
         ) : (
           <>
-            <button type="button" aria-label="Ajouter aux favoris" onClick={handleFavorite} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors group" title="Favori">
+            <button type="button" aria-label="Ajouter aux favoris" onClick={handleFavorite} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors group" title="Favori">
               <Heart size={18} className={isFavorite ? 'fill-accent-gold text-accent-gold' : 'group-hover:text-accent-gold'} />
             </button>
-            <button type="button" aria-label="Ajouter une note" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Noter">
+            <button type="button" aria-label="Ajouter une note" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Noter">
               <Edit3 size={18} />
             </button>
-            <button type="button" aria-label="Surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Surligner">
+            <button type="button" aria-label="Surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Surligner">
               <Type size={18} />
             </button>
             <div className="relative">
-              <button type="button" aria-label="Partager" aria-expanded={showShareOptions} onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }} className="p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Partager">
+              <button type="button" aria-label="Partager" aria-expanded={showShareOptions} onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Partager">
                 <Share2 size={18} />
               </button>
               {showShareOptions && (
@@ -142,6 +142,9 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
                 </div>
               )}
             </div>
+            <button type="button" aria-label="Fermer les actions" onClick={(e) => { e.stopPropagation(); onClose(); }} className="min-h-11 min-w-11 rounded-xl p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-text-primary" title="Fermer">
+              <X size={18} />
+            </button>
           </>
         )}
       </div>
