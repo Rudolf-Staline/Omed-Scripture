@@ -32,7 +32,7 @@ interface SettingsState {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-  defaultTranslation: 'kjv',
+  defaultTranslation: 'lsg',
   fontSize: 'M',
   lineHeight: 'Relaxed',
   fontFamily: 'Lora',
