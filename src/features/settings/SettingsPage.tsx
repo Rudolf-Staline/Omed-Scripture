@@ -25,6 +25,8 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
+import { ContentDeck } from '../../components/layout/ContentDeck';
+import { StudyPanel } from '../../components/layout/StudyPanel';
 
 export const SettingsPage: React.FC = () => {
   const { settings, updateSettings, synced, setSynced, loadSettings } = useSettingsStore();
@@ -171,10 +173,22 @@ export const SettingsPage: React.FC = () => {
   );
 
   return (
-    <PageCanvas width="list" className="space-y-6">
-      <PageHero kicker="Atelier · réglages" title="Préférences" icon={Settings} intro="Réglez l'apparence, la lecture, la synchronisation et vos données — par domaine." />
-
-      <div className="grid gap-6 lg:grid-cols-2">
+    <PageCanvas width="wide">
+      <ContentDeck
+        variant="atlas"
+        lead={<PageHero kicker="Atelier · réglages" title="Préférences" icon={Settings} intro="Un panneau de contrôle en atlas : lecture, apparence, synchronisation et données restent séparées sans casser les préférences." />}
+        rail={(
+          <StudyPanel title="État du coffre" eyebrow="Données" icon={Database}>
+            <div className="space-y-3 text-sm text-text-secondary">
+              <p><strong className="text-text-primary">{favorites.length}</strong> favoris</p>
+              <p><strong className="text-text-primary">{notes.length}</strong> notes</p>
+              <p><strong className="text-text-primary">{prayers.length}</strong> prières</p>
+              <p className="rounded-2xl border border-border bg-bg-primary/50 p-3">Sync : {synced ? 'active' : 'locale'}</p>
+            </div>
+          </StudyPanel>
+        )}
+      >
+      <div className="settings-control-map grid gap-6 lg:grid-cols-2">
         <section className="omed-card p-4 sm:p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Palette size={20} className="text-accent-brown" /> Apparence
@@ -364,6 +378,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
       </div>
+      </ContentDeck>
     </PageCanvas>
   );
 };

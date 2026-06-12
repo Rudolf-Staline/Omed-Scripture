@@ -6,7 +6,9 @@ import type { PrayerCategory, PrayerEntry, PrayerStatus } from '../../store/useP
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
 import { FilterBar, FilterChip } from '../../components/layout/FilterBar';
-import { EmptyIllustration } from '../../components/layout/EmptyIllustration';
+import { EmptyScene } from '../../components/layout/EmptyScene';
+import { NotebookLayout } from '../../components/layout/NotebookLayout';
+import { FilterRail } from '../../components/layout/FilterRail';
 
 const CATEGORY_LABELS: Record<PrayerCategory, string> = {
   gratitude: 'Gratitude',
@@ -172,7 +174,9 @@ export const PrayerPage: React.FC = () => {
   };
 
   return (
-    <PageCanvas width="list" className="space-y-6">
+    <PageCanvas width="wide">
+      <NotebookLayout
+        hero={(
       <PageHero
         kicker="Carnet · prière"
         title="Déposer, garder, rendre grâce."
@@ -184,6 +188,40 @@ export const PrayerPage: React.FC = () => {
           </button>
         )}
       />
+        )}
+        tools={(
+          <FilterRail title="Pupitre de prière">
+            <FilterBar label="Statut">
+              {(Object.keys(STATUS_LABELS) as PrayerStatus[]).map((status) => (
+                <FilterChip key={status} active={statusFilter === status} onClick={() => setStatusFilter(status)}>
+                  {STATUS_LABELS[status]} · {counts[status]}
+                </FilterChip>
+              ))}
+            </FilterBar>
+            <label className="relative block" htmlFor="prayer-search">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+              <input
+                id="prayer-search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher…"
+                className="min-h-11 w-full rounded-xl border border-border bg-bg-card/70 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold/60"
+              />
+            </label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value as PrayerCategory | 'toutes')}
+              aria-label="Filtrer par catégorie"
+              className="min-h-11 w-full rounded-xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/60"
+            >
+              <option value="toutes">Toutes les catégories</option>
+              {PRAYER_CATEGORIES.map((category) => (
+                <option key={category} value={category}>{CATEGORY_LABELS[category]}</option>
+              ))}
+            </select>
+          </FilterRail>
+        )}
+      >
 
       {showForm && (
         <section className="omed-panel p-5 md:p-6">
@@ -192,43 +230,9 @@ export const PrayerPage: React.FC = () => {
         </section>
       )}
 
-      <section className="space-y-3">
-        <FilterBar label="Statut">
-          {(Object.keys(STATUS_LABELS) as PrayerStatus[]).map((status) => (
-            <FilterChip key={status} active={statusFilter === status} onClick={() => setStatusFilter(status)}>
-              {STATUS_LABELS[status]} · {counts[status]}
-            </FilterChip>
-          ))}
-        </FilterBar>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="relative flex-1" htmlFor="prayer-search">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input
-              id="prayer-search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher dans vos prières…"
-              className="min-h-11 w-full rounded-xl border border-border bg-bg-card/70 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold/60"
-            />
-          </label>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value as PrayerCategory | 'toutes')}
-            aria-label="Filtrer par catégorie"
-            className="min-h-11 rounded-xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/60"
-          >
-            <option value="toutes">Toutes les catégories</option>
-            {PRAYER_CATEGORIES.map((category) => (
-              <option key={category} value={category}>{CATEGORY_LABELS[category]}</option>
-            ))}
-          </select>
-        </div>
-      </section>
-
       {visiblePrayers.length === 0 ? (
         prayers.length === 0 ? (
-          <EmptyIllustration
+          <EmptyScene
             icon={HandHeart}
             title="Votre carnet est encore silencieux"
             message="Déposez une première prière : gratitude, demande, intercession… Elle restera ici, en privé, sur cet appareil."
@@ -325,6 +329,7 @@ export const PrayerPage: React.FC = () => {
           ))}
         </div>
       )}
+      </NotebookLayout>
     </PageCanvas>
   );
 };

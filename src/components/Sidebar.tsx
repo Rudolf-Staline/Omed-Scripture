@@ -7,6 +7,8 @@ import { useUiStore } from '../store/useUiStore';
 import { Cloud, Compass, Command, MoreHorizontal, Search } from 'lucide-react';
 import clsx from 'clsx';
 import { buildNavGroups, buildMobilePrimary, MOBILE_MORE_ITEMS, SETTINGS_ITEM } from '../data/navigation';
+import { ActionDock } from './layout/ActionDock';
+import { getBookName } from '../utils/bibleBooks';
 
 const railLinkClass = ({ isActive }: { isActive: boolean }) => clsx(
   'group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200',
@@ -66,6 +68,12 @@ export const Sidebar: React.FC = () => {
               <Command size={10} /> K
             </span>
           </button>
+
+          <div className="mt-4 rounded-[1.4rem] border border-border bg-bg-card/42 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Point de carte</p>
+            <p className="mt-1 truncate font-display text-lg text-text-primary">{getBookName(bookId)} {chapter}</p>
+            <button type="button" onClick={() => navigate(readerPath)} className="mt-2 text-xs font-semibold text-accent-brown hover:text-accent-gold">Reprendre la lecture</button>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-5 overflow-y-auto px-4 pb-4" aria-label="Navigation principale">
@@ -125,7 +133,7 @@ export const Sidebar: React.FC = () => {
         />
       )}
 
-      <nav className="omed-mobile-nav fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-card/96 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden" aria-label="Navigation mobile">
+      <ActionDock mobile label="Navigation mobile" className="omed-mobile-nav">
         {showMore && (
           <div id="mobile-more-menu" role="menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
             {MOBILE_MORE_ITEMS.map((item) => (
@@ -137,7 +145,7 @@ export const Sidebar: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-5 gap-1">
+        <div className="grid flex-1 grid-cols-5 gap-1">
           {mobilePrimary.map((item) => (
             <NavLink key={item.label} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} end={item.end}>
               <item.icon size={19} strokeWidth={1.45} />
@@ -149,7 +157,7 @@ export const Sidebar: React.FC = () => {
             <span>Plus</span>
           </button>
         </div>
-      </nav>
+      </ActionDock>
     </>
   );
 };

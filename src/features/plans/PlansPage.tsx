@@ -5,6 +5,7 @@ import { usePlansStore } from '../../store/usePlansStore';
 import { READING_PLANS, type ReadingPlan } from '../../data/readingPlans';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
+import { TimelinePath } from '../../components/layout/TimelinePath';
 
 type Bucket = { id: string; label: string; plans: ReadingPlan[] };
 
@@ -74,6 +75,20 @@ export const PlansPage: React.FC = () => {
           </button>
         )}
       </PageHero>
+
+      {recommended && (
+        <TimelinePath
+          className="mb-7"
+          items={recommended.readings.slice(0, 3).map((reading, index) => ({
+            id: reading.day,
+            title: <>Jour {reading.day}{reading.title ? ` · ${reading.title}` : ''}</>,
+            meta: index === 0 ? 'Point de départ conseillé' : 'Prochaine balise',
+            active: index === 0,
+            body: <span>{reading.passages.map((passage) => passage.chapterEnd ? `${passage.bookId} ${passage.chapterStart}–${passage.chapterEnd}` : `${passage.bookId} ${passage.chapterStart}`).join(', ')}</span>,
+            action: <button type="button" onClick={() => openPlan(recommended.id, false)} className="text-sm font-semibold text-accent-brown hover:text-accent-gold">Ouvrir</button>,
+          }))}
+        />
+      )}
 
       {buckets.map((bucket) => (
         <section key={bucket.id}>
