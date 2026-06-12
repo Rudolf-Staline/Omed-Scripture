@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, Edit3, Type, Share2, Check, X } from 'lucide-react';
+import { BookmarkPlus, Check, Copy, Edit3, Heart, MessageCircle, Palette, Share2, Type, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { Verse } from '../../utils/bibleApi';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
@@ -7,9 +8,7 @@ import type { HighlightColor } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { formatBibleReference } from '../../utils/bibleBooks';
 import { NoteModal } from '../../components/verse-actions/NoteModal';
-import { ActionDock } from '../../components/layout/ActionDock';
 import { createShareVerseImage } from '../../components/verse-actions/shareVerseImage';
-import toast from 'react-hot-toast';
 
 interface VerseActionsProps {
   verse: Verse;
@@ -19,31 +18,50 @@ interface VerseActionsProps {
   onClose: () => void;
 }
 
-const colors: { id: HighlightColor; hex: string }[] = [
-  { id: 'yellow', hex: '#fef08a' },
-  { id: 'blue', hex: '#bfdbfe' },
-  { id: 'green', hex: '#bbf7d0' },
-  { id: 'pink', hex: '#fbcfe8' },
-  { id: 'purple', hex: '#e9d5ff' },
+const colors: { id: HighlightColor; hex: string; label: string }[] = [
+  { id: 'yellow', hex: '#fef08a', label: 'Or' },
+  { id: 'blue', hex: '#bfdbfe', label: 'Bleu' },
+  { id: 'green', hex: '#bbf7d0', label: 'Vert' },
+  { id: 'pink', hex: '#fbcfe8', label: 'Rose' },
+  { id: 'purple', hex: '#ddd6fe', label: 'Violet' },
 ];
 
+const IntentButton: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  helper?: string;
+  onClick: (event: React.MouseEvent) => void;
+  active?: boolean;
+}> = ({ icon, label, helper, onClick, active }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`group flex min-h-14 items-center gap-3 rounded-2xl border px-3 text-left transition-all ${active ? 'border-accent-gold/45 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-card/45 text-text-secondary hover:border-accent-gold/35 hover:text-text-primary'}`}
+  >
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-bg-primary/70 text-accent-gold">{icon}</span>
+    <span className="min-w-0">
+      <span className="block text-sm font-semibold leading-tight">{label}</span>
+      {helper && <span className="mt-0.5 block text-[0.68rem] font-medium uppercase tracking-[0.12em] text-text-muted">{helper}</span>}
+    </span>
+  </button>
+);
+
 export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, translation, bookId, onClose }) => {
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [showColors, setShowColors] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
-  const [showNoteModal, setShowNoteModal] = useState(false);
-
   const favorites = useFavoritesStore((state) => state.favorites);
   const addFavorite = useFavoritesStore((state) => state.addFavorite);
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
+  const addNote = useNotesStore((state) => state.addNote);
   const highlights = useHighlightsStore((state) => state.highlights);
   const addHighlight = useHighlightsStore((state) => state.addHighlight);
   const removeHighlight = useHighlightsStore((state) => state.removeHighlight);
-  const addNote = useNotesStore((state) => state.addNote);
 
-  const isFavorite = favorites.some((f) => f.id === verseId);
-  const currentHighlight = highlights[verseId];
   const reference = formatBibleReference(bookId, verse.chapter, verse.verse);
-  const textToShare = `"${verse.text}"\n— ${reference} (${translation.toUpperCase()})`;
+  const isFavorite = favorites.some((favorite) => favorite.id === verseId);
+  const currentHighlight = highlights[verseId];
+  const textToShare = `« ${verse.text} »\n— ${reference} (${translation.toUpperCase()})`;
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -107,48 +125,66 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
 
   return (
     <>
-      <ActionDock label="Actions du verset sélectionné" className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto max-w-md justify-center verse-action-surface rounded-3xl px-3 py-2 sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()}>
+      <aside
+        className="verse-action-surface fixed inset-x-3 bottom-[6.1rem] z-50 mx-auto max-w-md rounded-[1.8rem] p-3 shadow-[var(--shadow-panel)] lg:sticky lg:top-28 lg:bottom-auto lg:mx-0 lg:max-w-none lg:rounded-[1.55rem] lg:p-4"
+        onClick={(event) => event.stopPropagation()}
+        aria-label="Panneau d’actions du verset sélectionné"
+      >
+        <div className="mb-3 flex items-start justify-between gap-3 border-b border-border/70 pb-3">
+          <div>
+            <p className="text-[0.66rem] font-bold uppercase tracking-[0.2em] text-accent-gold">Verset sélectionné</p>
+            <p className="mt-1 font-display text-lg leading-tight text-text-primary">{reference}</p>
+          </div>
+          <button type="button" aria-label="Fermer les actions" onClick={(e) => { e.stopPropagation(); onClose(); }} className="flex h-10 w-10 items-center justify-center rounded-2xl text-text-muted transition-colors hover:bg-bg-secondary hover:text-text-primary">
+            <X size={18} />
+          </button>
+        </div>
+
         {showColors ? (
-          <div className="flex flex-wrap items-center justify-center gap-2 px-2">
-            {colors.map((c) => (
-              <button type="button" key={c.id} onClick={(e) => handleHighlight(c.id, e)} className="w-6 h-6 rounded-full border border-border shadow-sm flex items-center justify-center transition-transform hover:scale-110" style={{ backgroundColor: c.hex }} aria-label={`Surligner en ${c.id}`}>
-                {currentHighlight?.color === c.id && <Check size={12} className="text-black/50" />}
-              </button>
-            ))}
-            <button type="button" aria-label="Fermer les couleurs" onClick={(e) => { e.stopPropagation(); setShowColors(false); }} className="p-1 hover:bg-bg-secondary rounded ml-2">
-              <X size={16} className="text-text-muted" />
-            </button>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-text-primary"><Palette size={16} className="text-accent-gold" /> Choisir une encre</div>
+            <div className="grid grid-cols-5 gap-2">
+              {colors.map((color) => (
+                <button
+                  type="button"
+                  key={color.id}
+                  onClick={(e) => handleHighlight(color.id, e)}
+                  className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border border-border bg-bg-card/65 text-[0.65rem] font-semibold text-text-secondary transition-transform hover:-translate-y-0.5"
+                  aria-label={`Surligner en ${color.label}`}
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-black/10" style={{ backgroundColor: color.hex }}>
+                    {currentHighlight?.color === color.id && <Check size={12} className="text-black/60" />}
+                  </span>
+                  {color.label}
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={(e) => { e.stopPropagation(); setShowColors(false); }} className="w-full rounded-2xl border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary">Retour aux actions</button>
           </div>
         ) : (
-          <>
-            <button type="button" aria-label="Ajouter aux favoris" onClick={handleFavorite} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors group" title="Favori">
-              <Heart size={18} className={isFavorite ? 'fill-accent-gold text-accent-gold' : 'group-hover:text-accent-gold'} />
-            </button>
-            <button type="button" aria-label="Ajouter une note" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Noter">
-              <Edit3 size={18} />
-            </button>
-            <button type="button" aria-label="Surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Surligner">
-              <Type size={18} />
-            </button>
-            <div className="relative">
-              <button type="button" aria-label="Partager" aria-expanded={showShareOptions} onClick={(e) => { e.stopPropagation(); setShowShareOptions(!showShareOptions); }} className="min-h-11 min-w-11 p-2 hover:bg-bg-secondary rounded-xl text-text-secondary transition-colors hover:text-accent-gold" title="Partager">
-                <Share2 size={18} />
-              </button>
+          <div className="space-y-3">
+            <div>
+              <p className="mb-2 text-[0.66rem] font-bold uppercase tracking-[0.18em] text-text-muted">Garder</p>
+              <IntentButton icon={<Heart size={17} className={isFavorite ? 'fill-accent-gold' : ''} />} label={isFavorite ? 'Favori gardé' : 'Ajouter aux favoris'} helper="mémoire" onClick={handleFavorite} active={isFavorite} />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <IntentButton icon={<Edit3 size={17} />} label="Écrire une note" helper="annoter" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} />
+              <IntentButton icon={<Type size={17} />} label="Marquer" helper="surligner" onClick={(e) => { e.stopPropagation(); setShowColors(true); }} active={Boolean(currentHighlight)} />
+            </div>
+            <div>
+              <IntentButton icon={<Share2 size={17} />} label="Partager" helper="texte ou image" onClick={(e) => { e.stopPropagation(); setShowShareOptions((value) => !value); }} active={showShareOptions} />
               {showShareOptions && (
-                <div className="absolute bottom-full left-1/2 z-50 mb-2 flex w-52 -translate-x-1/2 flex-col verse-action-surface rounded-2xl py-2">
-                  <button type="button" onClick={handleCopyImage} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier l'image</button>
-                  <button type="button" onClick={handleCopyText} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier le texte</button>
-                  <button type="button" onClick={handleShareWhatsApp} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary text-accent-sage">WhatsApp</button>
-                  <button type="button" onClick={handleShareTwitter} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary text-[color:var(--color-info)]">Twitter / X</button>
+                <div className="mt-2 grid gap-2 rounded-2xl border border-border bg-bg-primary/60 p-2 sm:grid-cols-2">
+                  <button type="button" onClick={handleCopyImage} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-text-secondary hover:bg-bg-card hover:text-text-primary"><BookmarkPlus size={15} /> Image</button>
+                  <button type="button" onClick={handleCopyText} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-text-secondary hover:bg-bg-card hover:text-text-primary"><Copy size={15} /> Texte</button>
+                  <button type="button" onClick={handleShareWhatsApp} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-accent-sage hover:bg-bg-card"><MessageCircle size={15} /> WhatsApp</button>
+                  <button type="button" onClick={handleShareTwitter} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-[color:var(--color-info)] hover:bg-bg-card">X / Twitter</button>
                 </div>
               )}
             </div>
-            <button type="button" aria-label="Fermer les actions" onClick={(e) => { e.stopPropagation(); onClose(); }} className="min-h-11 min-w-11 rounded-xl p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-text-primary" title="Fermer">
-              <X size={18} />
-            </button>
-          </>
+          </div>
         )}
-      </ActionDock>
+      </aside>
       {showNoteModal && <NoteModal reference={reference} onCancel={() => setShowNoteModal(false)} onSave={handleSaveNote} />}
     </>
   );
