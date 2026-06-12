@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenText, Bookmark, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun } from 'lucide-react';
+import { BookOpenText, Bookmark, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun, WifiOff, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
@@ -18,6 +18,10 @@ import { getDailyRoutineContent } from '../../utils/dailyRoutine';
 import { getReadingDays } from '../../utils/readingActivity';
 import { getUnifiedDailyActivity, getUnifiedStreak, getUnifiedWeek, timestampsToDayKeys } from '../../utils/dailyActivity';
 import { getPersonalizedDailyPrompt, getTodayGoalStatus } from '../../utils/dailyGoals';
+import { useOnlineStatus } from '../../utils/useOnlineStatus';
+import { useReminderStore } from '../../store/useReminderStore';
+import { getOfflineLibrarySummary } from '../../utils/offlineLibrary';
+import { InstallPrompt } from '../../components/InstallPrompt';
 
 const formatDate = (value?: number) => value ? new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '—';
 
@@ -39,6 +43,9 @@ export const HomePage: React.FC = () => {
   const prayers = usePrayerStore((state) => state.prayers);
   const synced = useSettingsStore((state) => state.synced);
   const preferences = useOnboardingStore((state) => state.preferences);
+  const reminder = useReminderStore((state) => state.preferences);
+  const isOnline = useOnlineStatus();
+  const offlineSummary = getOfflineLibrarySummary();
 
   const routineDays = useDailyRoutineStore((state) => state.days);
   const completeDay = useDailyRoutineStore((state) => state.completeDay);
@@ -164,6 +171,19 @@ export const HomePage: React.FC = () => {
           <Settings size={19} />
         </Link>
       </header>
+
+      <InstallPrompt />
+
+      <section className="grid gap-3 sm:grid-cols-2">
+        <div className="flex items-center gap-3 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary">
+          <WifiOff size={18} className={isOnline ? 'text-accent-sage' : 'text-accent-brown'} />
+          <span><strong className="text-text-primary">{isOnline ? 'En ligne' : 'Hors ligne'}</strong><br />{offlineSummary.chapters.length} chapitre(s) disponibles en cache.</span>
+        </div>
+        <div className="flex items-center gap-3 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary">
+          <Bell size={18} className={reminder.enabled ? 'text-accent-gold' : 'text-text-muted'} />
+          <span><strong className="text-text-primary">Rappel quotidien</strong><br />{reminder.enabled ? `Prévu à ${reminder.time} pendant une session ouverte.` : 'Désactivé. Activez-le dans Paramètres.'}</span>
+        </div>
+      </section>
 
       {/* Verset du jour */}
       <section className="rounded-[2rem] border border-border bg-bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6">

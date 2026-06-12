@@ -227,3 +227,41 @@ Ces clés sont incluses dans la liste des données Omed effaçables de façon ci
 - Les collections peuvent recevoir des favoris depuis l’UI ; l’ajout direct depuis notes et prières reste une suite logique.
 - Discover utilise la recherche existante et des suggestions locales ; il ne promet pas une recherche biblique offline complète.
 - La routine historique reste locale à l’appareil ; onboarding et collections sont synchronisés, mais la routine quotidienne n’est pas encore incluse dans Drive.
+
+## PWA, hors ligne et usage mobile
+
+Omed Scripture est installable comme Progressive Web App sur les navigateurs compatibles. Le manifest (`public/manifest.webmanifest`) définit le nom court, les couleurs, les icônes et le mode `standalone`. En production, un service worker léger met en cache l’app shell et les assets statiques essentiels ; il évite volontairement de mettre en cache agressivement les appels Bible API afin de ne pas servir des réponses obsolètes ou incomplètes.
+
+### Installation
+
+- Chrome/Android : ouvrir l’app, puis utiliser “Installer l’application” ou le prompt affiché par Omed quand le navigateur le permet.
+- iOS/Safari : utiliser le bouton de partage, puis “Sur l’écran d’accueil”. iOS ne déclenche pas toujours l’événement d’installation standard.
+- Desktop : utiliser l’icône d’installation du navigateur si elle est proposée.
+
+### Lecture hors ligne
+
+- Les chapitres consultés récemment sont conservés dans `localStorage` avec une limite prudente.
+- Depuis le Reader, “Sauvegarder hors ligne” épingle un chapitre pour une lecture ultérieure sans réseau.
+- La section Paramètres > Hors ligne affiche le nombre de chapitres, la taille approximative, les chapitres récents/manuels, et permet de nettoyer le cache.
+- La recherche complète, Discover dynamique et les nouveaux chapitres non préparés nécessitent internet.
+- Les chapitres hors ligne restent locaux à l’appareil et ne sont pas synchronisés vers Google Drive.
+
+### Rappels quotidiens
+
+La préférence de rappel quotidien est stockée localement dans `omed_bible_reminders` et peut être synchronisée vers Google Drive avec les autres préférences légères. Les notifications navigateur sont demandées explicitement. Le rappel est honnêtement limité à une session ouverte : Omed ne promet pas de push fiable en arrière-plan ni de rappel natif garanti.
+
+### Audio
+
+L’audio utilise `speechSynthesis`, la synthèse vocale fournie par le navigateur et le système. Les voix, la qualité, les langues et la disponibilité dépendent de l’appareil. Omed n’intègre pas encore de vraie Bible audio enregistrée.
+
+### Données locales et synchronisation
+
+Synchronisé via Google Drive quand l’utilisateur l’active : paramètres, favoris, notes, surlignages, plans, position, prières, onboarding, collections et préférences de rappel.
+
+Local uniquement : service worker, app shell cache, chapitres récemment consultés, chapitres sauvegardés hors ligne et état d’installation PWA. L’export JSON inclut les préférences légères mais pas le gros cache de chapitres.
+
+### Roadmap mobile/offline
+
+- Bibliothèque biblique statique complète pour recherche et lecture 100 % offline.
+- Gestion plus fine des quotas IndexedDB si la taille du contenu augmente.
+- Notifications de rappel plus proches du natif si une stratégie web push sûre est ajoutée.

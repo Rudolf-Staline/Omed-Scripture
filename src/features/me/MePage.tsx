@@ -14,6 +14,8 @@ import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { getTodayGoalStatus, getWeeklyGoalProgress } from '../../utils/dailyGoals';
 import { getBookName } from '../../utils/bibleBooks';
+import { getOfflineLibrarySummary, formatApproxSize } from '../../utils/offlineLibrary';
+import { useReminderStore } from '../../store/useReminderStore';
 
 export const MePage: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -29,6 +31,8 @@ export const MePage: React.FC = () => {
   const collections = useCollectionsStore((state) => state.collections);
   const goal = getTodayGoalStatus(preferences, days);
   const weekly = getWeeklyGoalProgress(days);
+  const reminder = useReminderStore((state) => state.preferences);
+  const offlineSummary = getOfflineLibrarySummary();
   const activePlans = Object.values(progress).filter((plan) => plan.completedDays.length > 0).length;
 
   const stats = [
@@ -39,6 +43,7 @@ export const MePage: React.FC = () => {
     { label: 'Prières', value: prayers.length, icon: HandHeart },
     { label: 'Surlignages', value: Object.keys(highlights).length, icon: BookOpenText },
     { label: 'Collections', value: collections.length, icon: Boxes },
+    { label: 'Offline', value: offlineSummary.chapters.length, icon: Cloud },
   ];
 
   return (
@@ -66,6 +71,11 @@ export const MePage: React.FC = () => {
           <p className="mt-2 text-text-secondary">Dernière position : {getBookName(bookId)} {chapter} · {translation.toUpperCase()}</p>
           <Link to={`/read/${translation}/${bookId}/${chapter}`} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-accent-gold px-4 font-bold text-white"><BookOpenText size={18} /> Ouvrir la Bible</Link>
         </article>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-[1.7rem] border border-border bg-bg-card p-5"><Cloud className="text-accent-gold" /><h2 className="mt-3 text-xl font-bold text-text-primary">Hors ligne</h2><p className="mt-2 text-sm text-text-secondary">{offlineSummary.manualCount} chapitre(s) sauvegardé(s), {offlineSummary.recentCount} récent(s), {formatApproxSize(offlineSummary.totalSizeApprox)} estimés. Le cache reste local à cet appareil.</p><Link to="/settings" className="mt-4 inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Gérer les téléchargements</Link></article>
+        <article className="rounded-[1.7rem] border border-border bg-bg-card p-5"><Sparkles className="text-accent-gold" /><h2 className="mt-3 text-xl font-bold text-text-primary">Rappel quotidien</h2><p className="mt-2 text-sm text-text-secondary">{reminder.enabled ? `Actif à ${reminder.time} pendant une session ouverte.` : 'Désactivé. Aucun push en arrière-plan n’est promis.'}</p><Link to="/settings" className="mt-4 inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Configurer</Link></article>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">

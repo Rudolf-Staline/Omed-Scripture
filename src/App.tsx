@@ -27,11 +27,13 @@ import { usePlansStore } from './store/usePlansStore';
 import { usePrayerStore } from './store/usePrayerStore';
 import { useOnboardingStore } from './store/useOnboardingStore';
 import { useCollectionsStore } from './store/useCollectionsStore';
+import { useReminderStore } from './store/useReminderStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 import { CommandPalette } from './components/CommandPalette';
 import { MeditationOverlay } from './components/MeditationOverlay';
 import { THEME_CLASSES, getThemeMeta } from './data/themes';
+import { getNotificationPermission } from './utils/reminders';
 
 function App() {
   const restoreSession = useAuthStore((state) => state.restoreSession);
@@ -49,6 +51,8 @@ function App() {
   const loadOnboarding = useOnboardingStore((state) => state.loadOnboarding);
   const onboardingCompleted = useOnboardingStore((state) => state.preferences.completed);
   const loadCollections = useCollectionsStore((state) => state.loadCollections);
+  const loadReminders = useReminderStore((state) => state.loadReminders);
+  const reminderPreferences = useReminderStore((state) => state.preferences);
   const setPosition = useBibleStore((state) => state.setPosition);
 
   useEffect(() => {
@@ -82,7 +86,8 @@ function App() {
             remotePosition,
             remotePrayers,
             remoteOnboarding,
-            remoteCollections
+            remoteCollections,
+            remoteReminders
           ] = await Promise.all([
             syncFileFromDrive(DRIVE_FILES.settings, token),
             syncFileFromDrive(DRIVE_FILES.favorites, token),
@@ -92,10 +97,11 @@ function App() {
             syncFileFromDrive(DRIVE_FILES.position, token),
             syncFileFromDrive(DRIVE_FILES.prayers, token),
             syncFileFromDrive(DRIVE_FILES.onboarding, token),
-            syncFileFromDrive(DRIVE_FILES.collections, token)
+            syncFileFromDrive(DRIVE_FILES.collections, token),
+            syncFileFromDrive(DRIVE_FILES.reminders, token)
           ]);
 
-          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteReminders);
           if (hasRemoteData) backupLocalDataBeforeRestore();
 
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -107,6 +113,7 @@ function App() {
           if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
           if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
           if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
+          if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
           if (isDriveSessionInvalidError(err)) {
@@ -118,7 +125,27 @@ function App() {
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, setPosition, expireSession]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadReminders, setPosition, expireSession]);
+
+
+  useEffect(() => {
+    if (!reminderPreferences.enabled) return undefined;
+    let lastFiredKey: string | null = null;
+    const timer = window.setInterval(() => {
+      const now = new Date();
+      const current = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const dayKey = now.toISOString().slice(0, 10);
+      if (current !== reminderPreferences.time || lastFiredKey === dayKey) return;
+      lastFiredKey = dayKey;
+      const message = 'Votre moment quotidien Omed Scripture est prêt.';
+      if (reminderPreferences.useNotifications && getNotificationPermission() === 'granted') {
+        new Notification('Omed Scripture', { body: message, tag: 'omed-daily-reminder' });
+      } else {
+        toast(message);
+      }
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, [reminderPreferences.enabled, reminderPreferences.time, reminderPreferences.useNotifications]);
 
   return (
     <Router>
