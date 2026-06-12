@@ -8,6 +8,7 @@ import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { useDailyRoutineStore, todayKey } from '../../store/useDailyRoutineStore';
 import { DAILY_VERSE_TRANSLATION } from '../../data/dailyVerses';
 import { READING_PLANS } from '../../data/readingPlans';
@@ -16,6 +17,7 @@ import { getBookName } from '../../utils/bibleBooks';
 import { getDailyRoutineContent } from '../../utils/dailyRoutine';
 import { getReadingDays } from '../../utils/readingActivity';
 import { getUnifiedDailyActivity, getUnifiedStreak, getUnifiedWeek, timestampsToDayKeys } from '../../utils/dailyActivity';
+import { getPersonalizedDailyPrompt, getTodayGoalStatus } from '../../utils/dailyGoals';
 
 const formatDate = (value?: number) => value ? new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '—';
 
@@ -36,6 +38,7 @@ export const HomePage: React.FC = () => {
   const progress = usePlansStore((state) => state.progress);
   const prayers = usePrayerStore((state) => state.prayers);
   const synced = useSettingsStore((state) => state.synced);
+  const preferences = useOnboardingStore((state) => state.preferences);
 
   const routineDays = useDailyRoutineStore((state) => state.days);
   const completeDay = useDailyRoutineStore((state) => state.completeDay);
@@ -45,6 +48,8 @@ export const HomePage: React.FC = () => {
   const dayKey = useMemo(() => todayKey(), []);
   const today = routineDays.find((day) => day.date === dayKey);
   const routineDone = Boolean(today?.completedAt);
+  const goalStatus = getTodayGoalStatus(preferences, routineDays);
+  const dailyPrompt = getPersonalizedDailyPrompt(preferences);
   const [noteDraft, setNoteDraft] = useState(today?.note ?? '');
 
   const dailyVerse = routine.verse;
@@ -144,6 +149,7 @@ export const HomePage: React.FC = () => {
     { to: '/notes', label: 'Notes', icon: NotebookPen },
     { to: '/prayer', label: 'Prière', icon: HandHeart },
     { to: '/favorites', label: 'Favoris', icon: Bookmark },
+    { to: '/collections', label: 'Collections', icon: Bookmark },
   ];
 
   return (
@@ -152,9 +158,9 @@ export const HomePage: React.FC = () => {
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-semibold text-accent-gold"><Sun size={16} /> {greeting()}</p>
           <h1 className="mt-0.5 text-2xl font-bold capitalize tracking-tight text-text-primary">{todayLabel}</h1>
-          <p className="mt-1 text-sm text-text-muted">{synced ? 'Synchronisation active' : 'Données enregistrées localement'}</p>
+          <p className="mt-1 text-sm text-text-muted">{synced ? 'Synchronisation active' : 'Données enregistrées localement'} · {goalStatus.label}{preferences.preferredReminderTime ? ` · ${preferences.preferredReminderTime}` : ''}</p>
         </div>
-        <Link to="/settings" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-bg-card text-text-secondary hover:text-text-primary" aria-label="Ouvrir les paramètres">
+        <Link to="/me" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-bg-card text-text-secondary hover:text-text-primary" aria-label="Ouvrir mon espace">
           <Settings size={19} />
         </Link>
       </header>
@@ -183,7 +189,7 @@ export const HomePage: React.FC = () => {
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-accent-gold"><Sparkles size={14} /> Ma routine du jour</p>
-            <h2 className="mt-1 text-xl font-bold text-text-primary">{routineDone ? 'Routine accomplie' : 'Trois pas pour aujourd’hui'}</h2>
+            <h2 className="mt-1 text-xl font-bold text-text-primary">{routineDone ? 'Routine accomplie' : 'Trois pas pour aujourd’hui'}</h2><p className="mt-1 text-sm text-text-secondary">{dailyPrompt}</p>
           </div>
           {routineDone && <span className="flex items-center gap-1.5 rounded-full bg-accent-sage/18 px-3 py-1.5 text-sm font-bold text-accent-sage"><Check size={15} /> Fait</span>}
         </div>

@@ -10,6 +10,8 @@ import { addSearchHistoryEntry, clearSearchHistory, getSearchHistory } from '../
 import { splitByTerm } from '../../utils/highlightTerm';
 import { getBookName } from '../../utils/bibleBooks';
 import { TOPICS } from '../../data/topics';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { getPlansForTopic, getPopularTopics, getRecommendedTopics, getSuggestedPassages, groupSearchResultsByBook } from '../../utils/discover';
 import { READING_PLANS } from '../../data/readingPlans';
 
 type TestamentFilter = 'tous' | 'AT' | 'NT';
@@ -18,6 +20,7 @@ const HighlightedText: React.FC<{ text: string; term: string }> = ({ text, term 
 
 export const SearchPage: React.FC = () => {
   const defaultTranslation = useSettingsStore((state) => state.settings.defaultTranslation);
+  const preferredTopics = useOnboardingStore((state) => state.preferences.topics);
   const [query, setQuery] = useState('');
   const [searchedTerm, setSearchedTerm] = useState('');
   const [translation, setTranslation] = useState(defaultTranslation);
@@ -67,15 +70,10 @@ export const SearchPage: React.FC = () => {
     return true;
   }), [results, bookFilter, testamentFilter]);
 
-  const groupedResults = useMemo(() => {
-    const groups = new Map<string, { bookId: string; name: string; items: SearchResult[] }>();
-    filteredResults.forEach((result) => {
-      const existing = groups.get(result.book_id);
-      if (existing) existing.items.push(result);
-      else groups.set(result.book_id, { bookId: result.book_id, name: getBookName(result.book_id), items: [result] });
-    });
-    return Array.from(groups.values());
-  }, [filteredResults]);
+  const groupedResults = useMemo(() => groupSearchResultsByBook(filteredResults), [filteredResults]);
+  const recommendedTopics = useMemo(() => getRecommendedTopics(preferredTopics), [preferredTopics]);
+  const popularTopics = useMemo(() => getPopularTopics(6), []);
+  const suggestedPassages = useMemo(() => getSuggestedPassages(recommendedTopics, 4), [recommendedTopics]);
 
 
   const selectTopic = (topicId: string) => {
@@ -91,9 +89,7 @@ export const SearchPage: React.FC = () => {
     setBookFilter('tous');
   };
 
-  const linkedPlansForTopic = selectedTopic?.planIds
-    ?.map((planId) => READING_PLANS.find((plan) => plan.id === planId))
-    .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan)) ?? [];
+  const linkedPlansForTopic = selectedTopic ? getPlansForTopic(selectedTopic) : [];
 
   const openResult = (result: SearchResult) => {
     const chapter = Number.parseInt(result.chapter_id.includes('.') ? result.chapter_id.split('.')[1] : result.chapter_id, 10) || 1;
@@ -141,9 +137,9 @@ export const SearchPage: React.FC = () => {
           )}
           {!loading && !hasSearched && !selectedTopic && (
             <div className="space-y-3">
-              <p className="text-sm font-semibold text-text-secondary">Explorez par thème</p>
+              <p className="text-sm font-semibold text-text-secondary">Thèmes recommandés pour vous</p>
               <div className="grid gap-3 sm:grid-cols-2">
-                {TOPICS.map((topic) => (
+                {recommendedTopics.map((topic) => (
                   <article key={topic.id} className="flex flex-col rounded-3xl border border-border bg-bg-card p-4">
                     <button type="button" onClick={() => selectTopic(topic.id)} className="text-left">
                       <p className="text-base font-bold text-text-primary">{topic.label}</p>
@@ -162,6 +158,10 @@ export const SearchPage: React.FC = () => {
                     })()}
                   </article>
                 ))}
+              </div>
+              <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="text-sm font-bold text-text-primary">Thèmes populaires</p><div className="mt-3 flex flex-wrap gap-2">{popularTopics.map((topic) => <button key={topic.id} type="button" onClick={() => selectTopic(topic.id)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{topic.label}</button>)}</div></div>
+                <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="text-sm font-bold text-text-primary">Passages suggérés</p><div className="mt-3 flex flex-wrap gap-2">{suggestedPassages.map((ref) => <button key={`${ref.topicId}-${ref.label}`} type="button" onClick={() => navigate(`/read/${translation}/${ref.bookId}/${ref.chapter}`)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{ref.label}</button>)}</div></div>
               </div>
             </div>
           )}

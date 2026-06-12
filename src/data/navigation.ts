@@ -1,4 +1,4 @@
-import { BookOpenText, Bookmark, CalendarRange, Compass, HandHeart, Home, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { BookOpenText, Bookmark, Boxes, CalendarRange, Compass, HandHeart, Home, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -24,7 +24,9 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
       { to: readerPath, label: 'Bible', icon: BookOpenText },
       { to: '/plans', label: 'Plans', icon: CalendarRange },
       { to: '/discover', label: 'Découvrir', icon: Compass },
-      { to: '/more', label: 'Plus', icon: UserCircle },
+      { to: '/me', label: 'Moi', icon: UserCircle },
+      { to: '/me', label: 'Moi', icon: UserCircle },
+  { to: '/more', label: 'Plus', icon: UserCircle },
     ],
   },
   {
@@ -34,6 +36,7 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
       { to: '/notes', label: 'Notes', icon: NotebookPen },
       { to: '/favorites', label: 'Favoris', icon: Bookmark },
       { to: '/prayer', label: 'Prière', icon: HandHeart },
+      { to: '/collections', label: 'Collections', icon: Boxes },
     ],
   },
 ];
@@ -48,6 +51,7 @@ export const buildMobilePrimary = (readerPath: string): NavItem[] => [
 ];
 
 export const MOBILE_MORE_ITEMS: NavItem[] = [
+  { to: '/me', label: 'Moi', icon: UserCircle },
   { to: '/more', label: 'Plus', icon: UserCircle },
   { to: '/notes', label: 'Notes', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', icon: Bookmark },
