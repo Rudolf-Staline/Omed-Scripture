@@ -10,6 +10,8 @@ export type ReadingPlanDay = {
   passages: ReadingPlanPassage[];
 };
 
+export type PlanDifficulty = 'facile' | 'moyen' | 'engagé';
+
 export type ReadingPlan = {
   id: string;
   title: string;
@@ -17,6 +19,13 @@ export type ReadingPlan = {
   durationDays: number;
   status?: 'ready' | 'planned';
   readings: ReadingPlanDay[];
+  /** Catégorie large affichée dans le catalogue (ex. « Évangile »). */
+  category?: string;
+  /** Thème principal, aligné autant que possible avec les thèmes Découvrir. */
+  theme?: string;
+  difficulty?: PlanDifficulty;
+  /** Mis en avant dans la section « Recommandés ». */
+  recommended?: boolean;
 };
 
 const range = (length: number, build: (day: number) => ReadingPlanDay): ReadingPlanDay[] =>
@@ -28,6 +37,10 @@ export const READING_PLANS: ReadingPlan[] = [
     title: 'Fondations en 7 jours',
     description: 'Sept lectures courtes pour parcourir création, espérance, Évangile et vie nouvelle.',
     durationDays: 7,
+    category: 'Découverte',
+    theme: 'Fondations',
+    difficulty: 'facile',
+    recommended: true,
     readings: [
       { day: 1, title: 'Création', passages: [{ bookId: 'genese', chapterStart: 1 }] },
       { day: 2, title: 'Promesse', passages: [{ bookId: 'genese', chapterStart: 12 }] },
@@ -43,6 +56,10 @@ export const READING_PLANS: ReadingPlan[] = [
     title: 'Évangile de Jean',
     description: 'Un chapitre par jour pour suivre le témoignage de Jean sur Jésus-Christ.',
     durationDays: 21,
+    category: 'Évangile',
+    theme: 'Évangiles',
+    difficulty: 'moyen',
+    recommended: true,
     readings: range(21, (day) => ({
       day,
       title: `Jean ${day}`,
@@ -54,6 +71,9 @@ export const READING_PLANS: ReadingPlan[] = [
     title: 'Panorama biblique en 30 jours',
     description: 'Un parcours de base à travers les grands mouvements de l’histoire biblique.',
     durationDays: 30,
+    category: 'Parcours',
+    theme: 'Panorama',
+    difficulty: 'engagé',
     readings: [
       { day: 1, passages: [{ bookId: 'genese', chapterStart: 1 }] },
       { day: 2, passages: [{ bookId: 'genese', chapterStart: 3 }] },
@@ -92,6 +112,10 @@ export const READING_PLANS: ReadingPlan[] = [
     title: 'Évangile essentiel en 14 jours',
     description: 'Quatorze moments clés de la vie de Jésus, de l’incarnation à l’envoi des disciples.',
     durationDays: 14,
+    category: 'Évangile',
+    theme: 'Évangiles',
+    difficulty: 'facile',
+    recommended: true,
     readings: [
       { day: 1, title: 'La Parole faite chair', passages: [{ bookId: 'jean', chapterStart: 1 }] },
       { day: 2, title: 'La naissance', passages: [{ bookId: 'luc', chapterStart: 2 }] },
@@ -114,6 +138,10 @@ export const READING_PLANS: ReadingPlan[] = [
     title: 'Psaumes de confiance en 7 jours',
     description: 'Sept psaumes pour apprendre à se reposer en Dieu au cœur des circonstances.',
     durationDays: 7,
+    category: 'Psaumes',
+    theme: 'Confiance',
+    difficulty: 'facile',
+    recommended: true,
     readings: [
       { day: 1, title: 'Le berger', passages: [{ bookId: 'psaumes', chapterStart: 23 }] },
       { day: 2, title: 'La lumière', passages: [{ bookId: 'psaumes', chapterStart: 27 }] },
@@ -130,6 +158,9 @@ export const READING_PLANS: ReadingPlan[] = [
     description: 'Structure réservée pour un plan annuel complet. Ce plan n’est pas encore activable afin de ne pas simuler des lectures artificielles.',
     durationDays: 365,
     status: 'planned',
+    category: 'Parcours',
+    theme: 'Annuel',
+    difficulty: 'engagé',
     readings: [],
   },
 ];

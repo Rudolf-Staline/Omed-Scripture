@@ -64,6 +64,16 @@ export const SearchPage: React.FC = () => {
     return true;
   }), [results, bookFilter, testamentFilter]);
 
+  const groupedResults = useMemo(() => {
+    const groups = new Map<string, { bookId: string; name: string; items: SearchResult[] }>();
+    filteredResults.forEach((result) => {
+      const existing = groups.get(result.book_id);
+      if (existing) existing.items.push(result);
+      else groups.set(result.book_id, { bookId: result.book_id, name: getBookName(result.book_id), items: [result] });
+    });
+    return Array.from(groups.values());
+  }, [filteredResults]);
+
   const openResult = (result: SearchResult) => {
     const chapter = Number.parseInt(result.chapter_id.includes('.') ? result.chapter_id.split('.')[1] : result.chapter_id, 10) || 1;
     const book = BIBLE_BOOKS.find((item) => item.id === result.book_id.toLowerCase()) ?? BIBLE_BOOKS.find((item) => item.id.toLowerCase().startsWith(result.book_id.toLowerCase()));
@@ -120,8 +130,13 @@ export const SearchPage: React.FC = () => {
               </div>
             </div>
           )}
-          {!loading && results.length > 0 && <p className="text-sm font-semibold text-text-secondary">{filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''} · {translationName}</p>}
-          {filteredResults.map((result, index) => <article key={`${result.book_id}-${result.chapter_id}-${index}`} className="rounded-3xl border border-border bg-bg-card p-4"><p className="font-bold text-accent-gold">{result.reference}</p><p className="mt-2 leading-7 text-text-primary"><HighlightedText text={result.text} term={searchedTerm} /></p><button type="button" onClick={() => openResult(result)} className="mt-3 min-h-10 rounded-2xl border border-border bg-bg-primary px-3 text-sm font-semibold text-text-primary">Ouvrir le chapitre</button></article>)}
+          {!loading && results.length > 0 && <p className="text-sm font-semibold text-text-secondary">{filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''} · {groupedResults.length} livre{groupedResults.length > 1 ? 's' : ''} · {translationName}</p>}
+          {groupedResults.map((group) => (
+            <section key={group.bookId} className="space-y-2">
+              <h3 className="sticky top-0 z-10 bg-bg-primary/90 py-1 text-sm font-bold uppercase tracking-wide text-accent-gold backdrop-blur">{group.name} <span className="text-text-muted">· {group.items.length}</span></h3>
+              {group.items.map((result, index) => <article key={`${result.book_id}-${result.chapter_id}-${index}`} className="rounded-3xl border border-border bg-bg-card p-4"><p className="font-bold text-accent-gold">{result.reference}</p><p className="mt-2 leading-7 text-text-primary"><HighlightedText text={result.text} term={searchedTerm} /></p><button type="button" onClick={() => openResult(result)} className="mt-3 min-h-10 rounded-2xl border border-border bg-bg-primary px-3 text-sm font-semibold text-text-primary">Ouvrir le chapitre</button></article>)}
+            </section>
+          ))}
         </section>
       </section>
     </div>

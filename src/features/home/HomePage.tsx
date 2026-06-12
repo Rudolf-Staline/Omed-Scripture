@@ -14,7 +14,8 @@ import { READING_PLANS } from '../../data/readingPlans';
 import { FEATURED_TRANSLATIONS } from '../../data/translations';
 import { getBookName } from '../../utils/bibleBooks';
 import { getDailyRoutineContent } from '../../utils/dailyRoutine';
-import { getReadingStreak, getWeekActivity } from '../../utils/readingActivity';
+import { getReadingDays } from '../../utils/readingActivity';
+import { collectActivityDays, getUnifiedStreak, getUnifiedWeek, timestampsToDayKeys } from '../../utils/dailyActivity';
 
 const formatDate = (value?: number) => value ? new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '—';
 
@@ -39,7 +40,6 @@ export const HomePage: React.FC = () => {
   const routineDays = useDailyRoutineStore((state) => state.days);
   const completeDay = useDailyRoutineStore((state) => state.completeDay);
   const setRoutineNote = useDailyRoutineStore((state) => state.setNote);
-  const routineStreak = useDailyRoutineStore((state) => state.streak);
 
   const routine = useMemo(() => getDailyRoutineContent(), []);
   const dayKey = useMemo(() => todayKey(), []);
@@ -57,8 +57,13 @@ export const HomePage: React.FC = () => {
   const translationLabel = FEATURED_TRANSLATIONS.find((item) => item.id === translation)?.short ?? translation.toUpperCase();
   const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  const week = useMemo(() => getWeekActivity(), []);
-  const readingStreak = useMemo(() => getReadingStreak(), []);
+  const unifiedDays = useMemo(() => collectActivityDays({
+    readingDays: getReadingDays(),
+    routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
+    extraDays: timestampsToDayKeys(prayers.map((prayer) => prayer.lastPrayedAt)),
+  }), [routineDays, prayers]);
+  const unifiedStreak = useMemo(() => getUnifiedStreak(unifiedDays), [unifiedDays]);
+  const week = useMemo(() => getUnifiedWeek(unifiedDays), [unifiedDays]);
 
   const activePlan = useMemo(() => {
     return READING_PLANS
@@ -225,20 +230,20 @@ export const HomePage: React.FC = () => {
       <section className="rounded-[1.7rem] border border-border bg-bg-card p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-text-primary">Ma progression</h2>
-          <span className="flex items-center gap-1.5 rounded-full bg-accent-gold/12 px-3 py-1 text-sm font-bold text-accent-gold"><Flame size={15} /> {routineStreak()} j routine</span>
+          <span className="flex items-center gap-1.5 rounded-full bg-accent-gold/12 px-3 py-1 text-sm font-bold text-accent-gold"><Flame size={15} /> {unifiedStreak} jour{unifiedStreak > 1 ? 's' : ''}</span>
         </div>
+        <p className="mb-3 text-sm text-text-secondary">Série quotidienne — un jour compte dès qu’une lecture, une routine ou une prière est faite.</p>
         <div className="grid grid-cols-7 gap-1.5">
           {week.map((day) => (
             <div key={day.dayKey} className="flex flex-col items-center gap-1.5">
               <span className="text-xs font-semibold text-text-muted">{day.label}</span>
-              <span className={`flex h-9 w-full items-center justify-center rounded-xl text-xs font-bold ${day.read ? 'bg-accent-gold text-white' : day.isToday ? 'border border-accent-gold/50 text-accent-gold' : 'bg-bg-secondary text-text-muted'}`}>
-                {day.read ? <Check size={15} /> : day.label[0]}
+              <span className={`flex h-9 w-full items-center justify-center rounded-xl text-xs font-bold ${day.active ? 'bg-accent-gold text-white' : day.isToday ? 'border border-accent-gold/50 text-accent-gold' : 'bg-bg-secondary text-text-muted'}`}>
+                {day.active ? <Check size={15} /> : day.label[0]}
               </span>
             </div>
           ))}
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-2xl bg-bg-secondary p-3"><p className="text-xl font-bold text-text-primary">{readingStreak}</p><p className="text-xs text-text-muted">Série lecture</p></div>
+        <div className="mt-4 grid grid-cols-2 gap-2 text-center">
           <div className="rounded-2xl bg-bg-secondary p-3"><p className="text-xl font-bold text-text-primary">{completedPlans}</p><p className="text-xs text-text-muted">Plans finis</p></div>
           <div className="rounded-2xl bg-bg-secondary p-3"><p className="text-xl font-bold text-text-primary">{favorites.length}</p><p className="text-xs text-text-muted">Favoris</p></div>
         </div>

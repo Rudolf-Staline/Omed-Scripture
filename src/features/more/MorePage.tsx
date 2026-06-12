@@ -7,7 +7,8 @@ import { useNotesStore } from '../../store/useNotesStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
-import { getReadingStreak } from '../../utils/readingActivity';
+import { getReadingDays } from '../../utils/readingActivity';
+import { collectActivityDays, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
 
 const menu = [
   { to: '/notes', label: 'Notes', description: 'Annotations et tags personnels', icon: NotebookPen },
@@ -22,10 +23,14 @@ export const MorePage: React.FC = () => {
   const notes = useNotesStore((state) => state.notes);
   const favorites = useFavoritesStore((state) => state.favorites);
   const prayers = usePrayerStore((state) => state.prayers);
-  const routineStreak = useDailyRoutineStore((state) => state.streak);
+  const routineDays = useDailyRoutineStore((state) => state.days);
 
   const activePrayers = useMemo(() => prayers.filter((prayer) => prayer.status === 'active').length, [prayers]);
-  const readingStreak = useMemo(() => getReadingStreak(), []);
+  const unifiedStreak = useMemo(() => getUnifiedStreak(collectActivityDays({
+    readingDays: getReadingDays(),
+    routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
+    extraDays: timestampsToDayKeys(prayers.map((prayer) => prayer.lastPrayedAt)),
+  })), [routineDays, prayers]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -43,8 +48,8 @@ export const MorePage: React.FC = () => {
       <section className="rounded-3xl border border-border bg-bg-card p-4" aria-label="Progression">
         <div className="flex items-center gap-2">
           <Flame size={18} className="text-accent-gold" />
-          <p className="font-semibold text-text-primary">Série routine : {routineStreak()} jour{routineStreak() > 1 ? 's' : ''}</p>
-          <span className="ml-auto text-sm text-text-muted">Lecture : {readingStreak} j</span>
+          <p className="font-semibold text-text-primary">Série quotidienne : {unifiedStreak} jour{unifiedStreak > 1 ? 's' : ''}</p>
+          <span className="ml-auto text-sm text-text-muted">lecture · routine · prière</span>
         </div>
       </section>
 
