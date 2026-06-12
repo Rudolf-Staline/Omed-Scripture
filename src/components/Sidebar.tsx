@@ -1,20 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
-import { useSettingsStore } from '../store/useSettingsStore';
-import { useBibleStore } from '../store/useBibleStore';
-import { useUiStore } from '../store/useUiStore';
-import { Cloud, Compass, Command, MoreHorizontal, Search } from 'lucide-react';
 import clsx from 'clsx';
-import { buildNavGroups, buildMobilePrimary, MOBILE_MORE_ITEMS, SETTINGS_ITEM } from '../data/navigation';
-import { ActionDock } from './layout/ActionDock';
+import { BookOpenText, ChevronUp, Cloud, Command, Compass, MoreHorizontal, Search, Sparkles } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
+import { useBibleStore } from '../store/useBibleStore';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useUiStore } from '../store/useUiStore';
+import { buildMobilePrimary, buildNavGroups, MOBILE_MORE_ITEMS, SETTINGS_ITEM } from '../data/navigation';
 import { getBookName } from '../utils/bibleBooks';
 
-const railLinkClass = ({ isActive }: { isActive: boolean }) => clsx(
-  'group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200',
+const railItemClass = ({ isActive }: { isActive: boolean }) => clsx(
+  'group relative flex h-14 w-14 items-center justify-center rounded-[1.35rem] border text-text-muted transition-all duration-200',
   isActive
-    ? 'bg-bg-card/90 text-text-primary shadow-[0_18px_45px_-35px_var(--color-shadow)]'
-    : 'text-text-secondary hover:bg-bg-card/55 hover:text-text-primary'
+    ? 'border-accent-gold/55 bg-accent-gold/16 text-accent-gold shadow-[0_20px_55px_-34px_var(--color-shadow)]'
+    : 'border-transparent hover:border-border hover:bg-bg-card/70 hover:text-text-primary'
+);
+
+const MobileNavLink: React.FC<{
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  end?: boolean;
+  prominent?: boolean;
+  onClick?: () => void;
+}> = ({ to, label, icon: Icon, end, prominent, onClick }) => (
+  <NavLink
+    to={to}
+    end={end}
+    onClick={onClick}
+    className={({ isActive }) => clsx(
+      'relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-[1.35rem] px-2 text-[0.68rem] font-semibold transition-all',
+      prominent ? '-mt-7 min-h-[4.65rem] min-w-[4.65rem] flex-none border border-accent-gold/45 bg-accent-gold text-[#181008] shadow-[0_18px_46px_-24px_var(--color-shadow)]' : '',
+      !prominent && isActive ? 'bg-bg-card text-accent-gold' : !prominent ? 'text-text-muted hover:bg-bg-card/70 hover:text-text-primary' : '',
+      prominent && isActive ? 'ring-4 ring-accent-gold/20' : ''
+    )}
+  >
+    <Icon size={prominent ? 24 : 19} strokeWidth={1.55} />
+    <span>{label}</span>
+  </NavLink>
 );
 
 export const Sidebar: React.FC = () => {
@@ -28,6 +51,14 @@ export const Sidebar: React.FC = () => {
 
   const readerPath = `/read/${translation}/${bookId}/${chapter}`;
   const navGroups = buildNavGroups(readerPath);
+  const flatItems = navGroups.flatMap((group) => group.items);
+  const byLabel = Object.fromEntries(flatItems.map((item) => [item.label, item]));
+  const instrumentGroups = [
+    { id: 'lire', label: 'Lire', items: [byLabel.Accueil, byLabel.Lire].filter(Boolean) },
+    { id: 'etudier', label: 'Étudier', items: [byLabel.Recherche].filter(Boolean) },
+    { id: 'cheminer', label: 'Cheminer', items: [byLabel.Parcours].filter(Boolean) },
+    { id: 'personnel', label: 'Personnel', items: [byLabel['Marque-pages'], byLabel.Notes, byLabel.Prière].filter(Boolean) },
+  ];
   const mobilePrimary = buildMobilePrimary(readerPath);
   const isMoreActive = MOBILE_MORE_ITEMS.some((item) => location.pathname.startsWith(item.to));
 
@@ -42,52 +73,41 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* ===== Rail latéral desktop, regroupé par domaines ===== */}
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col border-r border-border bg-bg-secondary/86 shadow-[18px_0_70px_-60px_var(--color-shadow)] backdrop-blur-xl">
-        <div className="px-6 pb-5 pt-8">
-          <button type="button" onClick={() => navigate('/')} className="group flex w-full items-center gap-3 text-left" aria-label="Retour à l'accueil Omed Scripture">
-            <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-accent-gold/30 bg-accent-gold/10 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-              <span className="omed-starfield absolute inset-0" aria-hidden="true" />
-              <Compass size={22} strokeWidth={1.4} className="relative" />
-            </span>
-            <span>
-              <span className="block font-display text-[1.42rem] font-semibold leading-none tracking-tight text-text-primary">Omed</span>
-              <span className="mt-1 block text-xs uppercase tracking-[0.22em] text-text-muted">Scripture</span>
-            </span>
-          </button>
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[6.25rem] lg:flex-col lg:items-center border-r border-border/70 bg-bg-deep/78 py-5 shadow-[24px_0_90px_-72px_var(--color-shadow)] backdrop-blur-2xl" aria-label="Rail d’instruments Omed">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-[1.6rem] border border-accent-gold/35 bg-bg-card/60 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          aria-label="Retour à l’accueil Omed Scripture"
+        >
+          <span className="omed-starfield absolute inset-0 opacity-70" aria-hidden="true" />
+          <Compass size={28} strokeWidth={1.35} className="relative" />
+        </button>
 
-          <button
-            type="button"
-            onClick={openCommandPalette}
-            className="mt-5 flex w-full items-center gap-2 rounded-xl border border-border bg-bg-card/50 px-3 py-2.5 text-sm text-text-muted transition-colors hover:border-accent-gold/35 hover:text-text-primary"
-            aria-label="Ouvrir la palette de commandes"
-          >
-            <Search size={15} strokeWidth={1.6} />
-            <span className="flex-1 text-left">Commandes…</span>
-            <span className="flex items-center gap-0.5 rounded-md border border-border px-1.5 py-0.5 text-[11px] font-semibold">
-              <Command size={10} /> K
-            </span>
-          </button>
+        <button
+          type="button"
+          onClick={openCommandPalette}
+          className="mt-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-bg-card/45 text-text-muted transition-colors hover:border-accent-gold/35 hover:text-accent-gold"
+          aria-label="Ouvrir la palette de commandes"
+          title="Commandes"
+        >
+          <Command size={19} strokeWidth={1.45} />
+        </button>
 
-          <div className="mt-4 rounded-[1.4rem] border border-border bg-bg-card/42 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Point de carte</p>
-            <p className="mt-1 truncate font-display text-lg text-text-primary">{getBookName(bookId)} {chapter}</p>
-            <button type="button" onClick={() => navigate(readerPath)} className="mt-2 text-xs font-semibold text-accent-brown hover:text-accent-gold">Reprendre la lecture</button>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-5 overflow-y-auto px-4 pb-4" aria-label="Navigation principale">
-          {navGroups.map((group) => (
-            <div key={group.id}>
-              <p className="px-3.5 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-text-muted">{group.label}</p>
-              <div className="space-y-1">
+        <nav className="mt-7 flex flex-1 flex-col items-center gap-6 overflow-y-auto px-3" aria-label="Navigation principale">
+          {instrumentGroups.map((group) => (
+            <div key={group.id} className="flex flex-col items-center gap-2">
+              <p className="vertical-rail-label text-[0.62rem] font-bold uppercase tracking-[0.22em] text-text-muted">{group.label}</p>
+              <div className="flex flex-col items-center gap-2">
                 {group.items.map((item) => (
-                  <NavLink key={item.label} to={item.to} className={railLinkClass} end={item.end}>
+                  <NavLink key={item.label} to={item.to} end={item.end} className={railItemClass} title={item.label} aria-label={item.label}>
                     {({ isActive }) => (
                       <>
-                        <span className={clsx('absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-accent-gold transition-opacity', isActive ? 'opacity-100' : 'opacity-0')} />
-                        <item.icon size={18} strokeWidth={1.45} className={isActive ? 'text-accent-gold' : 'text-text-muted group-hover:text-accent-gold'} />
-                        <span className="font-medium">{item.label}</span>
+                        <span className={clsx('absolute -right-1 h-8 w-1 rounded-full bg-accent-gold transition-opacity', isActive ? 'opacity-100' : 'opacity-0')} />
+                        <item.icon size={21} strokeWidth={1.45} />
+                        <span className="pointer-events-none absolute left-[4.45rem] z-40 whitespace-nowrap rounded-xl border border-border bg-bg-card px-3 py-2 text-xs font-semibold text-text-primary opacity-0 shadow-[var(--shadow-panel)] transition-opacity group-hover:opacity-100">
+                          {item.label}
+                        </span>
                       </>
                     )}
                   </NavLink>
@@ -97,67 +117,72 @@ export const Sidebar: React.FC = () => {
           ))}
         </nav>
 
-        <div className="m-4 mt-auto omed-card p-4">
-          {user ? (
-            <div className="mb-4 flex items-center gap-3">
-              {user.picture ? <img src={user.picture} alt={user.name} className="h-10 w-10 rounded-full ring-1 ring-border" /> : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-brown text-bg-card font-bold">{user.name.charAt(0)}</div>}
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-text-primary">{user.name}</div>
-                <div className="truncate text-xs text-text-muted">{user.email}</div>
-              </div>
-            </div>
-          ) : (
-            <button type="button" onClick={() => navigate('/login')} className="mb-4 w-full rounded-xl border border-border px-3 py-2 text-left text-sm text-text-secondary hover:border-accent-gold/40 hover:text-text-primary">Se connecter</button>
-          )}
-
-          <div className="space-y-1.5 border-t border-border/70 pt-3">
-            <NavLink to={SETTINGS_ITEM.to} className={railLinkClass}>
-              <SETTINGS_ITEM.icon size={17} strokeWidth={1.5} />
-              {SETTINGS_ITEM.label}
-            </NavLink>
-            <div className="flex items-center gap-3 rounded-xl px-3.5 py-2 text-sm text-text-muted">
-              <Cloud size={17} strokeWidth={1.5} className={synced ? 'text-accent-sage' : ''} />
-              <span>{synced ? 'Sync active' : 'Sync locale'}</span>
-            </div>
+        <div className="flex flex-col items-center gap-3 border-t border-border/70 pt-4">
+          <button
+            type="button"
+            onClick={() => navigate(readerPath)}
+            className="group flex h-14 w-14 items-center justify-center rounded-[1.3rem] border border-accent-gold/25 bg-accent-gold/10 text-accent-gold transition-transform hover:-translate-y-0.5"
+            title={`Reprendre ${getBookName(bookId)} ${chapter}`}
+            aria-label={`Reprendre la lecture ${getBookName(bookId)} ${chapter}`}
+          >
+            <BookOpenText size={21} strokeWidth={1.5} />
+          </button>
+          <NavLink to={SETTINGS_ITEM.to} className={railItemClass} title={SETTINGS_ITEM.label} aria-label={SETTINGS_ITEM.label}>
+            <SETTINGS_ITEM.icon size={20} strokeWidth={1.45} />
+          </NavLink>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border bg-bg-card/45 text-text-muted" title={synced ? 'Synchronisé' : 'Hors synchro'}>
+            {synced ? <Cloud size={17} strokeWidth={1.45} className="text-accent-sage" /> : <Sparkles size={17} strokeWidth={1.45} />}
           </div>
+          <button type="button" onClick={() => { if (!user) navigate('/login'); }} className="h-9 w-9 overflow-hidden rounded-full border border-border bg-bg-card text-center text-xs font-bold leading-9 text-text-secondary transition-colors hover:border-accent-gold/40 hover:text-accent-gold" title={user?.email ?? 'Se connecter'} aria-label={user ? `Profil ${user.email}` : 'Se connecter'}>
+            {(user?.email?.[0] ?? 'O').toUpperCase()}
+          </button>
         </div>
       </aside>
 
-      {/* ===== Dock de navigation mobile ===== */}
-      {showMore && (
-        <button
-          type="button"
-          className="fixed inset-0 z-30 bg-transparent lg:hidden"
-          aria-label="Fermer le menu mobile"
-          onClick={() => setShowMore(false)}
-        />
-      )}
-
-      <ActionDock mobile label="Navigation mobile" className="omed-mobile-nav">
+      <div className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 lg:hidden">
         {showMore && (
-          <div id="mobile-more-menu" role="menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
-            {MOBILE_MORE_ITEMS.map((item) => (
-              <NavLink key={item.label} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary')}>
-                <item.icon size={18} strokeWidth={1.45} />
-                {item.label}
-              </NavLink>
-            ))}
+          <div className="mb-3 rounded-[1.8rem] border border-border bg-bg-card/96 p-3 shadow-[var(--shadow-panel)] backdrop-blur-xl" role="dialog" aria-label="Navigation secondaire">
+            <div className="mb-2 flex items-center justify-between px-1">
+              <p className="omed-kicker">Instruments</p>
+              <button type="button" onClick={() => setShowMore(false)} className="rounded-full p-2 text-text-muted hover:bg-bg-secondary" aria-label="Fermer le menu secondaire">
+                <ChevronUp size={18} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {MOBILE_MORE_ITEMS.map((item) => (
+                <NavLink key={item.label} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-12 items-center gap-2 rounded-2xl border px-3 text-sm font-semibold', isActive ? 'border-accent-gold/40 bg-accent-gold/12 text-accent-gold' : 'border-border bg-bg-secondary/60 text-text-secondary')}>
+                  <item.icon size={17} strokeWidth={1.5} />
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           </div>
         )}
-
-        <div className="grid flex-1 grid-cols-5 gap-1">
-          {mobilePrimary.map((item) => (
-            <NavLink key={item.label} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} end={item.end}>
-              <item.icon size={19} strokeWidth={1.45} />
-              <span className="max-w-full truncate">{item.label}</span>
-            </NavLink>
-          ))}
-          <button type="button" onClick={() => setShowMore((open) => !open)} aria-label="Afficher les destinations supplémentaires" className={clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isMoreActive || showMore ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} aria-expanded={showMore} aria-controls="mobile-more-menu">
-            <MoreHorizontal size={19} strokeWidth={1.45} />
+        <nav className="grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-end gap-1 rounded-[2rem] border border-border bg-bg-primary/94 p-2 shadow-[0_24px_80px_-36px_var(--color-shadow)] backdrop-blur-2xl" aria-label="Dock de navigation mobile">
+          <MobileNavLink {...mobilePrimary[0]} />
+          <MobileNavLink {...mobilePrimary[2]} />
+          <MobileNavLink to={readerPath} label="Lire" icon={BookOpenText} prominent />
+          <MobileNavLink {...mobilePrimary[3]} />
+          <button
+            type="button"
+            onClick={() => setShowMore((value) => !value)}
+            aria-expanded={showMore}
+            className={clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.35rem] px-2 text-[0.68rem] font-semibold transition-all', isMoreActive || showMore ? 'bg-bg-card text-accent-gold' : 'text-text-muted hover:bg-bg-card/70')}
+          >
+            <MoreHorizontal size={20} strokeWidth={1.55} />
             <span>Plus</span>
           </button>
-        </div>
-      </ActionDock>
+        </nav>
+      </div>
+
+      <button
+        type="button"
+        onClick={openCommandPalette}
+        className="fixed right-4 top-4 z-40 flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-bg-card/90 text-text-muted shadow-[var(--shadow-soft)] backdrop-blur-xl transition-colors hover:text-accent-gold lg:hidden"
+        aria-label="Ouvrir la recherche et les commandes"
+      >
+        <Search size={18} strokeWidth={1.5} />
+      </button>
     </>
   );
 };
