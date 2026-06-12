@@ -3,6 +3,7 @@ import type { FavoriteVerse } from '../store/useFavoritesStore';
 import type { Highlight } from '../store/useHighlightsStore';
 import type { Note } from '../store/useNotesStore';
 import type { PlanProgress } from '../store/usePlansStore';
+import type { PrayerEntry } from '../store/usePrayerStore';
 import type { Settings } from '../store/useSettingsStore';
 import type { BibleState } from '../store/useBibleStore';
 
@@ -19,6 +20,7 @@ export interface OmedBackup {
   notes: Note[];
   progress: Record<string, PlanProgress>;
   position: ReadingPositionBackup;
+  prayers?: PrayerEntry[]; // optionnel : absent des sauvegardes antérieures
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -48,7 +50,8 @@ export const validateBackup = (value: unknown): value is OmedBackup => {
     isRecord(value.highlights) &&
     Array.isArray(value.notes) &&
     isRecord(value.progress) &&
-    isValidReadingPosition(value.position)
+    isValidReadingPosition(value.position) &&
+    (value.prayers === undefined || Array.isArray(value.prayers))
   );
 };
 

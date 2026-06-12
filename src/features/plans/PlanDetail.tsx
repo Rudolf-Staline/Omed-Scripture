@@ -35,7 +35,10 @@ export const PlanDetail: React.FC = () => {
 
   const completedCount = planProgress.completedDays.length;
   const percentage = Math.round((completedCount / plan.durationDays) * 100);
-  const currentDay = Math.min(completedCount + 1, plan.durationDays);
+  const completedSet = new Set(planProgress.completedDays);
+  const nextReading = plan.readings.find((reading) => !completedSet.has(reading.day)) ?? null;
+  const currentDay = nextReading ? nextReading.day : plan.durationDays;
+  const isFinished = completedCount >= plan.durationDays;
 
   return (
     <div className="mx-auto max-w-4xl py-4 md:py-8">
@@ -66,6 +69,30 @@ export const PlanDetail: React.FC = () => {
         <div className="h-2.5 w-full overflow-hidden rounded-full bg-bg-secondary">
           <div className="h-full rounded-full bg-accent-gold transition-all duration-500 ease-out" style={{ width: `${percentage}%` }} />
         </div>
+
+        {isFinished ? (
+          <p className="mt-5 rounded-2xl border border-accent-sage/35 bg-accent-sage/10 p-4 text-sm font-semibold leading-6 text-accent-sage">
+            Parcours achevé. Que cette lecture continue de porter du fruit.
+          </p>
+        ) : nextReading && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent-gold/30 bg-accent-gold/8 p-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-gold">Reprendre ici</p>
+              <p className="mt-1 font-semibold text-text-primary">
+                Jour {nextReading.day}{nextReading.title ? ` · ${nextReading.title}` : ''} — {nextReading.passages.map(formatPassage).join(', ')}
+              </p>
+            </div>
+            {nextReading.passages[0] && (
+              <button
+                onClick={() => navigate(`/read/${defaultTranslation}/${nextReading.passages[0].bookId}/${nextReading.passages[0].chapterStart}`)}
+                className="omed-button-primary min-h-11 px-4 text-sm"
+              >
+                <BookOpen size={15} />
+                Ouvrir la lecture du jour
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">

@@ -99,6 +99,33 @@ describe('useNotesStore', () => {
     expect(JSON.parse(localStorage.getItem(OMED_STORAGE_KEYS.notes)!)).toEqual([]);
   });
 
+  it('adds a note with tags and keeps old notes without tags valid', async () => {
+    const legacyNote = { id: 'note-old', verseId: 'lsg-jean-1-1', text: 'Sans tags', verseText: '...', dateAdded: 1, dateModified: 1 };
+    localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify([legacyNote]));
+
+    const store = await setupStore();
+    store.getState().addNote({ verseId: 'lsg-jean-3-16', text: 'Avec tags', verseText: '...', tags: ['grâce', 'salut'] });
+
+    const state = store.getState().notes;
+    expect(state).toHaveLength(2);
+    expect(state[0].tags).toBeUndefined();
+    expect(state[1].tags).toEqual(['grâce', 'salut']);
+  });
+
+  it('updates tags through updateNote', async () => {
+    const mockNotes = [{ id: 'note-1', verseId: 'lsg-jean-3-16', text: 'Texte', verseText: '...', dateAdded: 100, dateModified: 100, tags: ['ancien'] }];
+    localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(mockNotes));
+
+    const store = await setupStore();
+    store.getState().updateNote('note-1', 'Texte', ['nouveau']);
+    expect(store.getState().notes[0].tags).toEqual(['nouveau']);
+
+    // Sans argument tags, les tags existants sont conservés.
+    store.getState().updateNote('note-1', 'Texte révisé');
+    expect(store.getState().notes[0].tags).toEqual(['nouveau']);
+    expect(store.getState().notes[0].text).toBe('Texte révisé');
+  });
+
   it('does not touch other localStorage keys', async () => {
     localStorage.setItem('other_key', 'val');
     const store = await setupStore();

@@ -62,8 +62,8 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
     setShowColors(false);
   };
 
-  const handleSaveNote = (text: string) => {
-    addNote({ verseId, text, verseText: verse.text });
+  const handleSaveNote = (text: string, tags: string[]) => {
+    addNote({ verseId, text, verseText: verse.text, ...(tags.length > 0 ? { tags } : {}) });
     setShowNoteModal(false);
     onClose();
     toast.success('Note enregistrée !');
