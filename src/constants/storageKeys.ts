@@ -16,6 +16,7 @@ export const OMED_STORAGE_KEYS = {
   dailyRoutine: 'omed_bible_daily_routine',
   onboarding: 'omed_bible_onboarding',
   collections: 'omed_bible_collections',
+  memory: 'omed_bible_memory',
   reminders: 'omed_bible_reminders',
   pwaInstallDismissed: 'omed_pwa_install_dismissed',
 } as const;
