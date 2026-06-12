@@ -25,8 +25,6 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
       { to: '/plans', label: 'Plans', icon: CalendarRange },
       { to: '/discover', label: 'Découvrir', icon: Compass },
       { to: '/me', label: 'Moi', icon: UserCircle },
-      { to: '/me', label: 'Moi', icon: UserCircle },
-  { to: '/more', label: 'Plus', icon: UserCircle },
     ],
   },
   {
@@ -56,5 +54,6 @@ export const MOBILE_MORE_ITEMS: NavItem[] = [
   { to: '/notes', label: 'Notes', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', icon: Bookmark },
   { to: '/prayer', label: 'Prière', icon: HandHeart },
+  { to: '/collections', label: 'Collections', icon: Boxes },
   { to: '/settings', label: 'Paramètres', icon: Settings },
 ];
