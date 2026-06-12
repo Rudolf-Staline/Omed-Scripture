@@ -74,6 +74,10 @@ automatiquement couverte par « Effacer toutes les données » et par la sauvega
 
 Rétrocompatibilité : les notes sans `tags` et les exports JSON sans `prayers` restent valides.
 
+Résilience : chaque `getInitial*` lit `localStorage` dans un `try/catch` et valide la forme des données
+(JSON invalide, type inattendu) avant usage. Si le stockage est indisponible, le store retombe sur ses
+valeurs par défaut sans jamais empêcher le démarrage de l'application (couvert par `storeResilience.test.ts`).
+
 ## Synchronisation Drive
 
 Chaque store pousse son fichier JSON dans l'espace AppData après mutation (si connecté et sync active).
@@ -84,6 +88,7 @@ Aucun `localStorage.clear()` global n'est utilisé.
 ## Verset du jour et activité
 
 - `src/utils/dailyVerse.ts` : sélection déterministe par date (jour de l'année + année) dans la liste locale
-  `src/data/dailyVerses.ts` (LSG, domaine public). Aucune API externe.
+  `src/data/dailyVerses.ts` (LSG, domaine public). Aucune API externe. Le verset est toujours rattaché à la
+  traduction `DAILY_VERSE_TRANSLATION` (`lsg`) pour le lien, le favori et le partage.
 - `src/utils/readingActivity.ts` : journal local des jours de lecture (alimenté par le lecteur), qui fournit
   la progression hebdomadaire et la série de jours consécutifs affichées sur l'accueil.

@@ -107,7 +107,7 @@ export const Sidebar: React.FC = () => {
         </div>
       </aside>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-card/96 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden" aria-label="Navigation mobile">
+      <nav className="omed-mobile-nav fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-card/96 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden" aria-label="Navigation mobile">
         {showMore && (
           <div id="mobile-more-menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
             {mobileMoreItems.map((item) => (

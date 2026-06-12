@@ -20,13 +20,14 @@ interface HighlightsState {
 }
 
 const getInitialHighlights = (): Record<string, Highlight> => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.highlights);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error('Failed to parse highlights from localStorage', e);
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.highlights);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
     }
+  } catch (e) {
+    console.error('Failed to read highlights from localStorage', e);
   }
   return {};
 };

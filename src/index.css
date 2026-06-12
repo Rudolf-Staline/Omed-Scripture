@@ -245,4 +245,10 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Mode focus du lecteur : masque la navigation mobile globale pour ne pas
+     chevaucher la barre flottante du lecteur. */
+  body.omed-focus-reading .omed-mobile-nav {
+    display: none;
+  }
 }

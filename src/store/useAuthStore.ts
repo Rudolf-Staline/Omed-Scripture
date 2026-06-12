@@ -40,9 +40,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, token: null, sessionExpired: false });
   },
   restoreSession: () => {
-    const token = localStorage.getItem(OMED_STORAGE_KEYS.authToken);
-    const userStr = localStorage.getItem(OMED_STORAGE_KEYS.authUser);
-    const expiresAt = Number(localStorage.getItem(OMED_STORAGE_KEYS.authExpiresAt) || '0');
+    let token: string | null = null;
+    let userStr: string | null = null;
+    let expiresAt = 0;
+    try {
+      token = localStorage.getItem(OMED_STORAGE_KEYS.authToken);
+      userStr = localStorage.getItem(OMED_STORAGE_KEYS.authUser);
+      expiresAt = Number(localStorage.getItem(OMED_STORAGE_KEYS.authExpiresAt) || '0');
+    } catch (e) {
+      console.error('Failed to read session from localStorage', e);
+      return;
+    }
 
     if (!token || !userStr) return;
 

@@ -44,19 +44,21 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const getInitialSettings = (): Settings => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.settings);
-  if (stored) {
-    try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-    } catch (e) {
-      console.error('Failed to parse settings from localStorage', e);
-    }
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.settings);
+    if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+  } catch (e) {
+    console.error('Failed to read settings from localStorage', e);
   }
   return DEFAULT_SETTINGS;
 };
 
 const getInitialSynced = (): boolean => {
-  return localStorage.getItem(OMED_STORAGE_KEYS.synced) === 'true';
+  try {
+    return localStorage.getItem(OMED_STORAGE_KEYS.synced) === 'true';
+  } catch {
+    return false;
+  }
 };
 
 export const useSettingsStore = create<SettingsState>((set) => ({

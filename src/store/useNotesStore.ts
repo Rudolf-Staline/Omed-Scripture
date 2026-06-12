@@ -23,13 +23,14 @@ interface NotesState {
 }
 
 const getInitialNotes = (): Note[] => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.notes);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error('Failed to parse notes from localStorage', e);
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.notes);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
     }
+  } catch (e) {
+    console.error('Failed to read notes from localStorage', e);
   }
   return [];
 };
