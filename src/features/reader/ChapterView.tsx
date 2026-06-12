@@ -84,7 +84,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
     [verses, highlights, translation, bookId, chapter]
   );
 
-  if (loading) return <LoadingState title="Chargement du manuscrit" message="Nous ouvrons ce passage." />;
+  if (loading) return <LoadingState title="Chargement du chapitre" message="Préparation du texte biblique." />;
   if (error) return <ErrorState title="Chapitre indisponible" message={error} />;
   if (verses.length === 0) return <EmptyState title="Chapitre vide" message="Aucun verset n’a été reçu pour ce passage. Essayez un autre chapitre ou une autre traduction." />;
 
@@ -107,24 +107,23 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
 
   return (
     <article className={clsx(
-      'codex-manuscript relative mx-auto overflow-visible rounded-[2rem] border border-border bg-[color-mix(in_srgb,var(--color-surface-raised)_72%,var(--color-bg-card))] shadow-[var(--shadow-panel)]',
-      comparison ? 'p-4 sm:p-5 lg:p-6' : 'px-3 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-9',
-      focus ? 'max-w-5xl border-accent-gold/25 bg-bg-card/82' : widthClasses[settings.readingWidth],
+      'relative mx-auto overflow-visible rounded-[1.7rem] border border-border bg-bg-card shadow-[var(--shadow-soft)]',
+      comparison ? 'p-4 sm:p-5' : 'px-3 py-5 sm:px-6 sm:py-7 lg:px-8',
+      focus ? 'max-w-4xl border-accent-gold/25' : widthClasses[settings.readingWidth],
       fontClass,
       sizeClasses[settings.fontSize],
       leadingClasses[settings.lineHeight]
     )}>
-      <div className="pointer-events-none absolute inset-y-8 left-14 hidden w-px bg-gradient-to-b from-transparent via-accent-gold/20 to-transparent md:block" />
       <header className={clsx('grid gap-4 border-b border-border/70 pb-6', comparison ? 'mb-5' : 'mb-8 md:grid-cols-[1fr_auto] md:items-end')}>
         <div>
-          <p className="omed-kicker mb-3">{comparison ? 'Témoin parallèle' : 'Manuscrit interactif'} · {translation.toUpperCase()}</p>
-          <h2 className={clsx('font-display font-semibold tracking-[-0.04em] text-text-primary', comparison ? 'text-3xl' : 'text-4xl sm:text-5xl lg:text-6xl')}>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted">{comparison ? 'Comparaison' : 'Lecture'} · {translation.toUpperCase()}</p>
+          <h2 className={clsx('font-bold tracking-tight text-text-primary', comparison ? 'text-2xl' : 'text-3xl sm:text-4xl')}>
             {verses[0]?.book_name ?? bookId} {chapter}
           </h2>
         </div>
         {!comparison && (
           <div className="rounded-[1.4rem] border border-border bg-bg-primary/45 p-4 text-sm text-text-secondary">
-            <div className="flex items-center gap-2 font-semibold text-text-primary"><Feather size={16} className="text-accent-gold" /> Marge</div>
+            <div className="flex items-center gap-2 font-semibold text-text-primary"><Feather size={16} className="text-accent-gold" /> Notes et surlignages</div>
             <p className="mt-1">{annotatedCount} annotation{annotatedCount > 1 ? 's' : ''} visible{annotatedCount > 1 ? 's' : ''} · {verses.length} versets</p>
           </div>
         )}
@@ -143,10 +142,10 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           const highlight = highlights[verseId];
 
           return (
-            <section key={verseId} id={verseId} className={clsx('group/verse grid gap-3 rounded-[1.5rem] transition-all lg:grid-cols-[4.2rem_minmax(0,1fr)_18rem]', isSelected ? 'bg-bg-primary/50 p-3 ring-1 ring-accent-gold/32' : 'p-2 hover:bg-bg-primary/30')}>
+            <section key={verseId} id={verseId} className={clsx('group/verse grid gap-2 rounded-[1.25rem] transition-all lg:grid-cols-[3rem_minmax(0,1fr)_18rem]', isSelected ? 'bg-bg-secondary p-3 ring-1 ring-accent-gold/35' : 'p-2 hover:bg-bg-secondary/70')}>
               <button
                 type="button"
-                className={clsx('flex min-h-11 items-center justify-center rounded-2xl border text-sm font-bold transition-colors', isSelected ? 'border-accent-gold/50 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-card/40 text-text-muted group-hover/verse:text-accent-gold')}
+                className={clsx('flex min-h-10 items-start justify-center rounded-xl pt-2 text-sm font-bold transition-colors', isSelected ? 'bg-accent-gold/14 text-accent-gold' : 'text-text-muted group-hover/verse:text-accent-gold')}
                 aria-label={`${formatBibleReference(bookId, chapter, verse.verse)}. Afficher les actions.`}
                 onClick={() => setSelectedVerseId(isSelected ? null : verseId)}
               >
@@ -162,7 +161,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
                     setSelectedVerseId(isSelected ? null : verseId);
                   }
                 }}
-                className="min-w-0 rounded-[1.35rem] px-2 py-2 text-left focus:outline-none focus:ring-2 focus:ring-accent-gold/40"
+                className="min-w-0 rounded-xl px-2 py-2 text-left focus:outline-none focus:ring-2 focus:ring-accent-gold/40"
               >
                 <span className={clsx('decoration-accent-gold/35 rounded-xl px-1 py-0.5 text-text-primary/95 transition-all', highlight ? getHighlightStyle(highlight.color) : '', isSelected ? 'text-text-primary' : '')}>
                   {verse.text}

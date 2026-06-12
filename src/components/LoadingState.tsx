@@ -9,7 +9,7 @@ interface LoadingStateProps {
 }
 
 export const LoadingState: React.FC<LoadingStateProps> = ({
-  title = 'Ouverture du scriptorium',
+  title = 'Chargement',
   message = 'Nous préparons le passage et ses marges.',
   compact = false,
 }) => (

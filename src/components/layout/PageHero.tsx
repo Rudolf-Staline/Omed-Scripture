@@ -14,7 +14,7 @@ interface PageHeroProps {
 
 /**
  * Bloc d'entrée éditorial commun à toutes les pages. Compose un en-tête de
- * « marge de scriptorium » : filet vertical, kicker, grand titre serif,
+ * « marge de application » : filet vertical, kicker, grand titre serif,
  * intro, et un emplacement d'actions. Donne aux pages un rythme éditorial
  * homogène plutôt qu'un titre nu par page.
  */

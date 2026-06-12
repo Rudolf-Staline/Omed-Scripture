@@ -93,9 +93,9 @@ export const FavoritesPage: React.FC = () => {
         hero={(
           <PageHero
             kicker="Carnet · marque-pages"
-            title="Marque-pages"
+            title="Favoris"
             icon={Bookmark}
-            intro="Les passages que vous avez choisi de garder, présentés comme des fragments de carte biblique."
+            intro="Les passages que vous avez choisi de garder, présentés comme des passages sauvegardés."
           />
         )}
         tools={(

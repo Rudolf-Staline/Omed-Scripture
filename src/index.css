@@ -21,7 +21,7 @@
 }
 
 @layer base {
-  /* ===== Atlas Nocturne — nuit d'observatoire (sombre par défaut) ===== */
+  /* ===== Interface moderne — mode sombre (sombre par défaut) ===== */
   :root,
   .theme-dark,
   [data-theme="dark"] {
@@ -55,7 +55,7 @@
     --transition-ui: 170ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  /* ===== Atlas de jour — vélin froid de cartographe ===== */
+  /* ===== Mode clair — vélin froid de cartographe ===== */
   .theme-light,
   [data-theme="light"] {
     color-scheme: light;
@@ -336,7 +336,7 @@
     box-shadow: var(--shadow-panel);
   }
 
-  /* Marge de scriptorium : filet vertical le long du bord gauche */
+  /* Marge de lecture : filet vertical le long du bord gauche */
   .reading-surface::before {
     content: "";
     position: absolute;
@@ -375,7 +375,7 @@
     text-transform: uppercase;
   }
 
-  /* Voûte étoilée : semis discret de points façon carte du ciel */
+  /* Voûte étoilée : semis discret de points façon fond discret */
   .omed-starfield {
     background-image:
       radial-gradient(1.4px 1.4px at 12% 26%, var(--constellation), transparent),
@@ -418,8 +418,8 @@
   }
 }
 
-/* Scriptorium Atlas structural helpers added after the React recomposition. */
-.scriptorium-page-frame { isolation: isolate; }
+/* Interface moderne structural helpers added after the React recomposition. */
+.application-page-frame { isolation: isolate; }
 .content-deck__rail { min-width: 0; }
 .notebook-paper {
   background-image: linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 28%, transparent) 1px, transparent 1px);
@@ -440,7 +440,7 @@
 }
 
 @layer components {
-  .codex-shell::before {
+  .app-shell::before {
     content: "";
     position: fixed;
     inset: 0;
@@ -459,24 +459,24 @@
     transform: rotate(180deg);
   }
 
-  .chapel-portal {
+  .home-portal {
     background:
       radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 23rem),
       linear-gradient(135deg, color-mix(in srgb, var(--color-surface-raised) 58%, transparent), color-mix(in srgb, var(--color-bg-card) 72%, transparent));
   }
 
-  .codex-manuscript {
+  .reader-text {
     background-image:
       linear-gradient(90deg, transparent 0, transparent 4.4rem, color-mix(in srgb, var(--color-accent) 11%, transparent) 4.42rem, transparent 4.48rem),
       radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--paper-grain) 80%, transparent), transparent 28rem);
   }
 
-  .reader-chapel--focus {
+  .reader-page--focus {
     margin-inline: calc(-1 * min(3.5rem, 4vw));
     padding-top: clamp(0.5rem, 2vw, 2rem);
   }
 
-  .omed-focus-reading .codex-stage {
+  .omed-focus-reading .app-stage {
     padding-bottom: 0;
   }
 
@@ -486,14 +486,14 @@
       display: none;
     }
 
-    .codex-manuscript {
+    .reader-text {
       background-image: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--paper-grain) 80%, transparent), transparent 28rem);
     }
   }
 
   @media (max-width: 430px) {
-    .chapel-portal,
-    .codex-manuscript {
+    .home-portal,
+    .reader-text {
       border-radius: 1.55rem;
     }
   }

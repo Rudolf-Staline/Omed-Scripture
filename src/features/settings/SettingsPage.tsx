@@ -176,7 +176,7 @@ export const SettingsPage: React.FC = () => {
     <PageCanvas width="wide">
       <ContentDeck
         variant="atlas"
-        lead={<PageHero kicker="Atelier · réglages" title="Préférences" icon={Settings} intro="Un panneau de contrôle en atlas : lecture, apparence, synchronisation et données restent séparées sans casser les préférences." />}
+        lead={<PageHero kicker="Réglages" title="Paramètres" icon={Settings} intro="Lecture, apparence, synchronisation et données restent organisées simplement." />}
         rail={(
           <StudyPanel title="État du coffre" eyebrow="Données" icon={Database}>
             <div className="space-y-3 text-sm text-text-secondary">
@@ -195,7 +195,7 @@ export const SettingsPage: React.FC = () => {
           </h2>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Thème — Atlas Nocturne</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Thème</label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Thème visuel">
                 {THEMES.map((theme) => {
                   const active = settings.theme === theme.id;
