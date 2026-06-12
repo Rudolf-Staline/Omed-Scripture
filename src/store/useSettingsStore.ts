@@ -6,7 +6,7 @@ import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 export type FontSize = 'S' | 'M' | 'L' | 'XL';
 export type LineHeight = 'Normal' | 'Relaxed' | 'Large';
 export type FontFamily = 'Lora' | 'Inter';
-export type Theme = 'Light' | 'Sepia' | 'Dark';
+export type Theme = 'Light' | 'Sepia' | 'Dark' | 'Nocturne' | 'Aube';
 export type Language = 'Français' | 'English';
 export type ReadingWidth = 'Narrow' | 'Comfortable' | 'Wide';
 export type ReadingDensity = 'Compact' | 'Aired';

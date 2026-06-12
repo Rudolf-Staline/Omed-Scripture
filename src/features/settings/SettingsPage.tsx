@@ -4,7 +4,6 @@ import type {
   FontSize,
   LineHeight,
   FontFamily,
-  Theme,
   Language,
   ReadingWidth,
   ReadingDensity,
@@ -17,6 +16,7 @@ import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
+import { THEMES } from '../../data/themes';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
@@ -41,7 +41,6 @@ export const SettingsPage: React.FC = () => {
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
   const lineHeights: LineHeight[] = ['Normal', 'Relaxed', 'Large'];
   const fontFamilies: FontFamily[] = ['Lora', 'Inter'];
-  const themes: Theme[] = ['Light', 'Sepia', 'Dark'];
   const languages: Language[] = ['Français', 'English'];
   const readingWidths: ReadingWidth[] = ['Narrow', 'Comfortable', 'Wide'];
   const readingDensities: ReadingDensity[] = ['Compact', 'Aired'];
@@ -184,8 +183,36 @@ export const SettingsPage: React.FC = () => {
           </h2>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Thème</label>
-              <SegmentedControl values={themes} selected={settings.theme} onSelect={(theme) => updateSettings({ theme })} />
+              <label className="block text-sm font-medium text-text-secondary mb-2">Thème — Atlas Nocturne</label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Thème visuel">
+                {THEMES.map((theme) => {
+                  const active = settings.theme === theme.id;
+                  return (
+                    <button
+                      type="button"
+                      key={theme.id}
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => updateSettings({ theme: theme.id })}
+                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${
+                        active
+                          ? 'border-accent-gold/55 bg-accent-gold/10'
+                          : 'border-border bg-bg-primary hover:border-accent-gold/30'
+                      }`}
+                    >
+                      <span className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-border" aria-hidden="true">
+                        {theme.swatch.map((color, index) => (
+                          <span key={index} className="h-full flex-1" style={{ backgroundColor: color }} />
+                        ))}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-text-primary">{theme.label}</span>
+                        <span className="block truncate text-xs text-text-muted">{theme.mood}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Police de lecture</label>

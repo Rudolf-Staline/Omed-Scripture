@@ -4,6 +4,20 @@ Omed Scripture est une application web React/Vite de lecture, comparaison, annot
 
 **Application :** https://omed-scripture.vercel.app
 
+## Identité visuelle — « Atlas Nocturne »
+
+L'interface adopte une direction artistique d'*observatoire-scriptorium* : la sensation d'un vieil atlas céleste consulté à la lampe. Fonds bleu-sarcelle de nuit et encre d'ardoise, texte parchemin froid, accent laiton d'astrolabe, secondaire vert-de-gris (patine), accent émotionnel braise/cuivre, et un motif discret de constellation. Cinq ambiances sont disponibles dans les préférences :
+
+| Thème | Ambiance |
+|---|---|
+| Nuit d'observatoire | Bleu-sarcelle profond et laiton (sombre par défaut) |
+| Encre profonde | Nuit minimale, lune d'argent (contraste élevé) |
+| Atlas de jour | Vélin froid de cartographe (clair) |
+| Aube | Lumière douce, rose et ambre (clair) |
+| Parchemin | Chaleur nostalgique (clair) |
+
+Tout passe par un système de tokens CSS (`src/index.css`) ; changer une ambiance ne touche qu'aux variables, pas aux composants.
+
 ## Statut du projet
 
 Le projet est en stabilisation progressive. Les fonctionnalités principales sont disponibles, avec des protections renforcées sur les données locales, les sauvegardes et la synchronisation Google Drive AppData.
@@ -11,6 +25,9 @@ Le projet est en stabilisation progressive. Les fonctionnalités principales son
 ## Fonctionnalités
 
 - Lecture par livre et chapitre, avec mode focus (plein texte) et mode étude (notes, surlignages et favoris du chapitre en panneau latéral).
+- **Palette de commandes** (⌘K / Ctrl+K) : aller à une page, changer de thème ou entrer en méditation au clavier.
+- **Mode méditation** : un verset en plein écran avec un halo de respiration lent (respecte `prefers-reduced-motion`), lancé depuis l'accueil ou la palette de commandes.
+- **Cinq thèmes visuels** avec aperçu par échantillons dans les préférences (voir « Identité visuelle »).
 - Progression visible dans le livre (chapitre courant / total).
 - Comparaison de deux traductions, avec empilement lisible sur mobile.
 - Verset du jour local et déterministe (sans API externe), avec ouverture du chapitre, copie, partage et mise en favori.

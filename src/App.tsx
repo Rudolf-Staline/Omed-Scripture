@@ -23,6 +23,9 @@ import { usePlansStore } from './store/usePlansStore';
 import { usePrayerStore } from './store/usePrayerStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
+import { CommandPalette } from './components/CommandPalette';
+import { MeditationOverlay } from './components/MeditationOverlay';
+import { THEME_CLASSES, getThemeMeta } from './data/themes';
 
 function App() {
   const restoreSession = useAuthStore((state) => state.restoreSession);
@@ -45,10 +48,10 @@ function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('theme-light', 'theme-sepia', 'theme-dark');
-    const themeName = settings.theme === 'Sepia' ? 'sepia' : settings.theme === 'Dark' ? 'dark' : 'light';
-    root.classList.add(`theme-${themeName}`);
-    root.dataset.theme = themeName;
+    root.classList.remove(...THEME_CLASSES);
+    const meta = getThemeMeta(settings.theme);
+    root.classList.add(meta.cssClass);
+    root.dataset.theme = meta.cssClass.replace('theme-', '');
   }, [settings.theme]);
 
   useEffect(() => {
@@ -121,6 +124,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <CommandPalette />
+      <MeditationOverlay />
       <Toaster
         position="top-right"
         toastOptions={{

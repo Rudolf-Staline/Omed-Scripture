@@ -11,36 +11,39 @@
   --color-text-secondary: var(--color-muted);
   --color-text-muted: var(--color-subtle);
   --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
   --color-shadow: var(--color-shadow);
 
-  --font-display: Georgia, Charter, Cambria, serif;
-  --font-body: Georgia, Charter, Cambria, serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, Georgia, serif;
+  --font-body: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, Cambria, serif;
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
+  /* ===== Atlas Nocturne — nuit d'observatoire (sombre par défaut) ===== */
   :root,
   .theme-dark,
   [data-theme="dark"] {
     color-scheme: dark;
-    --color-bg: #0b1118;
-    --color-bg-deep: #05070b;
-    --color-surface: #15171a;
-    --color-surface-soft: #101419;
-    --color-surface-raised: #1c1d1f;
-    --color-text: #f7efe2;
-    --color-muted: #d2c7b5;
-    --color-subtle: #948775;
-    --color-accent: #c4a15d;
-    --color-olive: #7f8b6f;
-    --color-copper: #b36d49;
-    --color-danger: #c36a55;
-    --color-info: #708998;
-    --color-border: rgba(247, 239, 226, 0.12);
-    --color-border-strong: rgba(196, 161, 93, 0.36);
-    --color-shadow: rgba(0, 0, 0, 0.58);
-    --paper-grain: rgba(247, 239, 226, 0.026);
+    --color-bg: #0a1517;
+    --color-bg-deep: #050c0d;
+    --color-surface: #10201f;
+    --color-surface-soft: #0c1817;
+    --color-surface-raised: #182c2a;
+    --color-text: #ecf1ea;
+    --color-muted: #aebcb6;
+    --color-subtle: #748480;
+    --color-accent: #cba968;
+    --color-olive: #4fa093;
+    --color-copper: #c5734c;
+    --color-danger: #cb6150;
+    --color-info: #6fa0b0;
+    --color-border: rgba(236, 241, 234, 0.12);
+    --color-border-strong: rgba(203, 169, 104, 0.34);
+    --color-shadow: rgba(0, 0, 0, 0.6);
+    --paper-grain: rgba(236, 241, 234, 0.022);
+    --constellation: rgba(203, 169, 104, 0.5);
     --shadow-soft: 0 18px 70px -46px var(--color-shadow);
     --shadow-panel: 0 24px 90px -54px var(--color-shadow);
     --shadow-lift: 0 18px 44px -36px var(--color-shadow);
@@ -48,51 +51,104 @@
     --radius-md: 0.85rem;
     --radius-lg: 1.15rem;
     --radius-xl: 1.65rem;
-    --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 34%, transparent);
-    --transition-ui: 160ms ease;
+    --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 36%, transparent);
+    --transition-ui: 170ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
+  /* ===== Atlas de jour — vélin froid de cartographe ===== */
   .theme-light,
   [data-theme="light"] {
     color-scheme: light;
-    --color-bg: #f3eadc;
-    --color-bg-deep: #e2d5c1;
-    --color-surface: #fff8eb;
-    --color-surface-soft: #eadfce;
-    --color-surface-raised: #fffdf7;
-    --color-text: #2a2118;
-    --color-muted: #625244;
-    --color-subtle: #897766;
-    --color-accent: #9b7737;
-    --color-olive: #596f51;
-    --color-copper: #a7603f;
-    --color-danger: #a84d3f;
-    --color-info: #526f7f;
-    --color-border: rgba(42, 33, 24, 0.15);
-    --color-border-strong: rgba(155, 119, 55, 0.36);
-    --color-shadow: rgba(42, 33, 24, 0.2);
-    --paper-grain: rgba(42, 33, 24, 0.028);
+    --color-bg: #e9ece5;
+    --color-bg-deep: #d4dbd1;
+    --color-surface: #f5f7f0;
+    --color-surface-soft: #e2e8de;
+    --color-surface-raised: #fcfdf8;
+    --color-text: #1c2a28;
+    --color-muted: #4c605c;
+    --color-subtle: #778b86;
+    --color-accent: #8c6c2b;
+    --color-olive: #387b70;
+    --color-copper: #ab5b37;
+    --color-danger: #a94a3c;
+    --color-info: #4c6f7d;
+    --color-border: rgba(28, 42, 40, 0.15);
+    --color-border-strong: rgba(140, 108, 43, 0.38);
+    --color-shadow: rgba(28, 42, 40, 0.2);
+    --paper-grain: rgba(28, 42, 40, 0.03);
+    --constellation: rgba(140, 108, 43, 0.42);
   }
 
+  /* ===== Parchemin — l'ambiance chaude nostalgique ===== */
   .theme-sepia,
   [data-theme="sepia"] {
     color-scheme: light;
-    --color-bg: #eadcca;
-    --color-bg-deep: #d6c2a9;
-    --color-surface: #f8ead6;
-    --color-surface-soft: #dfccb2;
-    --color-surface-raised: #fff3df;
-    --color-text: #302317;
-    --color-muted: #665340;
-    --color-subtle: #8c7862;
-    --color-accent: #a77b38;
-    --color-olive: #62724f;
-    --color-copper: #a7603f;
+    --color-bg: #ece0cb;
+    --color-bg-deep: #d7c3a5;
+    --color-surface: #f8ead3;
+    --color-surface-soft: #ddcaae;
+    --color-surface-raised: #fff3dc;
+    --color-text: #2c2113;
+    --color-muted: #63513b;
+    --color-subtle: #8a755f;
+    --color-accent: #a87a32;
+    --color-olive: #5f7250;
+    --color-copper: #a85f3c;
     --color-danger: #a95343;
     --color-info: #627c89;
-    --color-border: rgba(48, 35, 23, 0.17);
-    --color-border-strong: rgba(167, 123, 56, 0.36);
-    --color-shadow: rgba(48, 35, 23, 0.18);
+    --color-border: rgba(44, 33, 19, 0.17);
+    --color-border-strong: rgba(168, 122, 50, 0.36);
+    --color-shadow: rgba(44, 33, 19, 0.18);
+    --paper-grain: rgba(44, 33, 19, 0.03);
+    --constellation: rgba(168, 122, 50, 0.4);
+  }
+
+  /* ===== Encre profonde — nuit minimale, contraste élevé (lune d'argent) ===== */
+  .theme-nocturne,
+  [data-theme="nocturne"] {
+    color-scheme: dark;
+    --color-bg: #070b0d;
+    --color-bg-deep: #020405;
+    --color-surface: #0d1316;
+    --color-surface-soft: #090e10;
+    --color-surface-raised: #141d21;
+    --color-text: #e8edef;
+    --color-muted: #a6b2b6;
+    --color-subtle: #6c797d;
+    --color-accent: #97b6c4;
+    --color-olive: #5aa79a;
+    --color-copper: #b97a5a;
+    --color-danger: #c66a58;
+    --color-info: #8bb3c5;
+    --color-border: rgba(232, 237, 239, 0.11);
+    --color-border-strong: rgba(151, 182, 196, 0.32);
+    --color-shadow: rgba(0, 0, 0, 0.7);
+    --paper-grain: rgba(232, 237, 239, 0.02);
+    --constellation: rgba(151, 182, 196, 0.5);
+  }
+
+  /* ===== Aube — lumière douce du matin, rose et ambre ===== */
+  .theme-aube,
+  [data-theme="aube"] {
+    color-scheme: light;
+    --color-bg: #f3ebe5;
+    --color-bg-deep: #e6d6cb;
+    --color-surface: #fbf4ee;
+    --color-surface-soft: #efe1d7;
+    --color-surface-raised: #fffaf5;
+    --color-text: #3a2b27;
+    --color-muted: #6f574e;
+    --color-subtle: #9a8077;
+    --color-accent: #b07a3e;
+    --color-olive: #7a8a62;
+    --color-copper: #bf6948;
+    --color-danger: #b85546;
+    --color-info: #7a8aa0;
+    --color-border: rgba(58, 43, 39, 0.15);
+    --color-border-strong: rgba(176, 122, 62, 0.36);
+    --color-shadow: rgba(58, 43, 39, 0.18);
+    --paper-grain: rgba(58, 43, 39, 0.028);
+    --constellation: rgba(176, 122, 62, 0.42);
   }
 
   * { border-color: var(--color-border); }
@@ -103,16 +159,18 @@
     min-width: 320px;
     min-height: 100vh;
     background:
-      radial-gradient(circle at 12% -4%, color-mix(in srgb, var(--color-accent) 13%, transparent) 0, transparent 28rem),
-      radial-gradient(circle at 100% 12%, color-mix(in srgb, var(--color-olive) 10%, transparent) 0, transparent 30rem),
-      linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-deep) 100%);
+      radial-gradient(circle at 14% -6%, color-mix(in srgb, var(--color-accent) 14%, transparent) 0, transparent 30rem),
+      radial-gradient(circle at 100% 8%, color-mix(in srgb, var(--color-olive) 12%, transparent) 0, transparent 32rem),
+      radial-gradient(circle at 50% 120%, color-mix(in srgb, var(--color-copper) 8%, transparent) 0, transparent 34rem),
+      linear-gradient(150deg, var(--color-bg) 0%, var(--color-bg-deep) 100%);
     color: var(--color-text);
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.35s ease, color 0.35s ease;
   }
 
+  /* Trame discrète façon papier millimétré d'atlas */
   body::before {
     content: "";
     pointer-events: none;
@@ -122,8 +180,8 @@
     background-image:
       linear-gradient(var(--paper-grain) 1px, transparent 1px),
       linear-gradient(90deg, var(--paper-grain) 1px, transparent 1px);
-    background-size: 34px 34px;
-    mask-image: linear-gradient(to bottom, black, transparent 82%);
+    background-size: 36px 36px;
+    mask-image: linear-gradient(to bottom, black, transparent 84%);
   }
 
   ::selection { background: color-mix(in srgb, var(--color-accent) 34%, transparent); color: var(--color-text); }
@@ -170,7 +228,7 @@
     position: relative;
     overflow: hidden;
     background:
-      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 64%, transparent), color-mix(in srgb, var(--color-surface) 94%, var(--color-bg) 6%));
+      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 66%, transparent), color-mix(in srgb, var(--color-surface) 94%, var(--color-bg) 6%));
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-soft);
@@ -182,8 +240,8 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 34%);
-    opacity: 0.45;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 11%, transparent), transparent 36%);
+    opacity: 0.5;
   }
 
   .omed-card > * { position: relative; }
@@ -198,8 +256,8 @@
     position: relative;
     overflow: hidden;
     background:
-      linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 28%),
-      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 76%, transparent), var(--color-surface));
+      linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 30%),
+      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 78%, transparent), var(--color-surface));
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-panel);
@@ -216,7 +274,7 @@
     color: var(--color-subtle);
     font-size: 0.72rem;
     font-weight: 800;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
   }
 
@@ -229,19 +287,20 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-md);
-    font-weight: 750;
+    font-weight: 700;
   }
 
   .omed-button-primary {
-    border: 1px solid color-mix(in srgb, var(--color-accent) 74%, black 10%);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 96%, white 8%), color-mix(in srgb, var(--color-accent) 80%, black 20%));
-    color: #171109;
-    box-shadow: 0 14px 36px -24px var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 70%, black 12%);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 98%, white 10%), color-mix(in srgb, var(--color-accent) 78%, black 22%));
+    color: #14110a;
+    box-shadow: 0 14px 34px -22px var(--color-accent), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
 
   .omed-button-secondary {
-    border: 1px solid color-mix(in srgb, var(--color-olive) 42%, var(--color-border));
-    background: linear-gradient(180deg, color-mix(in srgb, var(--color-olive) 20%, var(--color-surface)), color-mix(in srgb, var(--color-surface) 84%, transparent));
+    border: 1px solid color-mix(in srgb, var(--color-olive) 44%, var(--color-border));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-olive) 22%, var(--color-surface)), color-mix(in srgb, var(--color-surface) 84%, transparent));
     color: var(--color-text);
   }
 
@@ -256,8 +315,12 @@
   .omed-button-ghost:hover {
     transform: translateY(-1px);
     border-color: var(--color-border-strong);
-    filter: saturate(1.04);
+    filter: saturate(1.05);
   }
+
+  .omed-button-primary:active,
+  .omed-button-secondary:active,
+  .omed-button-ghost:active { transform: translateY(0); }
 
   .omed-button-ghost:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-surface-raised) 82%, transparent); }
 
@@ -267,12 +330,13 @@
     border-radius: var(--radius-xl);
     background:
       linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 18%),
-      radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--color-olive) 8%, transparent), transparent 20rem),
+      radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--color-olive) 9%, transparent), transparent 22rem),
       linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 96%, var(--color-accent) 4%), color-mix(in srgb, var(--color-surface-soft) 92%, var(--color-bg) 8%));
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-panel);
   }
 
+  /* Marge de scriptorium : filet vertical le long du bord gauche */
   .reading-surface::before {
     content: "";
     position: absolute;
@@ -286,7 +350,7 @@
   .verse-action-surface {
     border: 1px solid var(--color-border-strong);
     background:
-      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 88%, transparent), color-mix(in srgb, var(--color-surface) 98%, transparent));
+      linear-gradient(180deg, color-mix(in srgb, var(--color-surface-raised) 90%, transparent), color-mix(in srgb, var(--color-surface) 98%, transparent));
     box-shadow: var(--shadow-panel);
     backdrop-filter: blur(18px);
   }
@@ -309,6 +373,34 @@
     font-weight: 800;
     letter-spacing: 0.11em;
     text-transform: uppercase;
+  }
+
+  /* Voûte étoilée : semis discret de points façon carte du ciel */
+  .omed-starfield {
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 26%, var(--constellation), transparent),
+      radial-gradient(1.2px 1.2px at 32% 64%, var(--constellation), transparent),
+      radial-gradient(1.6px 1.6px at 58% 18%, var(--constellation), transparent),
+      radial-gradient(1.1px 1.1px at 74% 52%, var(--constellation), transparent),
+      radial-gradient(1.3px 1.3px at 88% 30%, var(--constellation), transparent),
+      radial-gradient(1.1px 1.1px at 46% 82%, var(--constellation), transparent);
+    opacity: 0.55;
+  }
+
+  /* Anneau de respiration du mode méditation */
+  .meditation-ring {
+    animation: omed-breathe 9s ease-in-out infinite;
+  }
+
+  @keyframes omed-breathe {
+    0%, 100% { transform: scale(0.82); opacity: 0.45; }
+    50% { transform: scale(1.12); opacity: 0.9; }
+  }
+
+  .omed-fade-in { animation: omed-fade-in 220ms ease both; }
+  @keyframes omed-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .text-balance { text-wrap: balance; }

@@ -3,7 +3,8 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useBibleStore } from '../store/useBibleStore';
-import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home, MoreHorizontal, HandHeart } from 'lucide-react';
+import { useUiStore } from '../store/useUiStore';
+import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home, MoreHorizontal, HandHeart, Compass, Command } from 'lucide-react';
 import clsx from 'clsx';
 
 const baseNavItems = [
@@ -26,6 +27,7 @@ export const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const synced = useSettingsStore((state) => state.synced);
   const { translation, bookId, chapter } = useBibleStore();
+  const openCommandPalette = useUiStore((state) => state.openCommandPalette);
   const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,17 +65,31 @@ export const Sidebar: React.FC = () => {
   return (
     <>
       <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col border-r border-border bg-bg-secondary/86 shadow-[18px_0_70px_-60px_var(--color-shadow)] backdrop-blur-xl">
-        <div className="relative px-6 pb-7 pt-8">
+        <div className="relative px-6 pb-6 pt-8">
           <button type="button" onClick={() => navigate('/')} className="group flex w-full items-center gap-3 text-left" aria-label="Retour à l'accueil Omed Scripture">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent-gold/30 bg-accent-gold/10 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-              <BookOpenText size={22} strokeWidth={1.45} />
+            <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-accent-gold/30 bg-accent-gold/10 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <span className="omed-starfield absolute inset-0" aria-hidden="true" />
+              <Compass size={22} strokeWidth={1.4} className="relative" />
             </span>
             <span>
               <span className="block font-display text-[1.42rem] font-semibold leading-none tracking-tight text-text-primary">Omed</span>
               <span className="mt-1 block text-xs uppercase tracking-[0.22em] text-text-muted">Scripture</span>
             </span>
           </button>
-          <p className="mt-6 max-w-[13rem] text-sm leading-relaxed text-text-secondary">Un scriptorium discret pour lire, noter et revenir au texte.</p>
+          <p className="mt-5 max-w-[13rem] text-sm leading-relaxed text-text-secondary">Un atlas nocturne pour habiter les Écritures, noter et revenir au texte.</p>
+
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="mt-5 flex w-full items-center gap-2 rounded-xl border border-border bg-bg-card/50 px-3 py-2.5 text-sm text-text-muted transition-colors hover:border-accent-gold/35 hover:text-text-primary"
+            aria-label="Ouvrir la palette de commandes"
+          >
+            <Search size={15} strokeWidth={1.6} />
+            <span className="flex-1 text-left">Commandes…</span>
+            <span className="flex items-center gap-0.5 rounded-md border border-border px-1.5 py-0.5 text-[11px] font-semibold">
+              <Command size={10} /> K
+            </span>
+          </button>
         </div>
 
         <div className="px-5 pb-3 text-[11px] font-semibold text-text-muted tracking-[0.2em] uppercase">Navigation</div>

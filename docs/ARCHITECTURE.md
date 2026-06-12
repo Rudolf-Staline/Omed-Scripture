@@ -7,13 +7,27 @@ Vue d'ensemble courte et pratique. Pour les fonctionnalités, voir le README.
 ```text
 src/features/   pages (home, reader, search, notes, prayer, favorites, plans, settings, auth)
 src/components/ composants transverses (Layout, Sidebar, états vides/erreur/chargement, AudioPlayer)
-src/store/      stores Zustand persistés en localStorage, sync Drive optionnelle
-src/utils/      logique métier hors composants (API Bible, cache, activité, verset du jour…)
-src/data/       données statiques typées (livres, traductions, plans, versets du jour)
+src/store/      stores Zustand (persistés en localStorage + sync Drive), plus useUiStore éphémère
+src/utils/      logique métier hors composants (API Bible, cache, activité, verset du jour, commandPalette…)
+src/data/       données statiques typées (livres, traductions, plans, versets du jour, thèmes)
 src/constants/  clés localStorage centralisées (OMED_STORAGE_KEYS)
 api/            fonctions serverless Vercel (proxy API.Bible, clé côté serveur)
 public/bibles/  contenu biblique statique (provider local)
 ```
+
+## Thèmes (Atlas Nocturne)
+
+`src/data/themes.ts` est la source unique : chaque ambiance déclare sa classe CSS (`theme-*`), son libellé,
+ses échantillons d'aperçu et son schéma clair/sombre. `App.tsx` applique la classe sur `<html>` ; `src/index.css`
+définit les variables de chaque thème. Le choix est stocké dans `settings.theme` (déjà synchronisé via Drive) ;
+les anciennes valeurs `Light`/`Sepia`/`Dark` restent valides, deux ambiances (`Nocturne`, `Aube`) ont été ajoutées.
+
+## Interface éphémère (command palette, méditation)
+
+`src/store/useUiStore.ts` porte un état d'interface **non persisté** : ouverture de la palette de commandes
+(⌘K) et verset en cours de méditation. Le catalogue de commandes et son filtrage (insensible aux accents) sont
+des fonctions pures dans `src/utils/commandPalette.ts` (testées). Aucune nouvelle clé localStorage n'est introduite,
+donc la restauration Drive est inchangée.
 
 ## Chargement d'un chapitre
 

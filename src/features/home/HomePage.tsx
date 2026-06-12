@@ -11,6 +11,7 @@ import {
   Flame,
   HandHeart,
   Heart,
+  Moon,
   NotebookPen,
   Search,
   Share2,
@@ -24,6 +25,7 @@ import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useUiStore } from '../../store/useUiStore';
 import { READING_PLANS } from '../../data/readingPlans';
 import { formatBibleReference, getBookName } from '../../utils/bibleBooks';
 import { getDailyVerse } from '../../utils/dailyVerse';
@@ -54,6 +56,7 @@ export const HomePage: React.FC = () => {
   const progress = usePlansStore((state) => state.progress);
   const synced = useSettingsStore((state) => state.synced);
   const user = useAuthStore((state) => state.user);
+  const openMeditation = useUiStore((state) => state.openMeditation);
 
   const continuePath = `/read/${translation}/${bookId}/${chapter}`;
 
@@ -138,6 +141,7 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-8 md:space-y-10">
       <section className="reading-surface relative overflow-hidden p-6 md:p-9 lg:p-10">
+        <div className="omed-starfield pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full border border-accent-gold/20 bg-accent-gold/8" />
         <div className="pointer-events-none absolute bottom-0 left-8 h-px w-40 bg-gradient-to-r from-accent-gold/70 to-transparent" />
         <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
@@ -225,6 +229,10 @@ export const HomePage: React.FC = () => {
             <button type="button" onClick={handleShareDailyVerse} className="omed-button-ghost min-h-11 px-4 text-sm" aria-label="Partager le verset du jour">
               <Share2 size={16} strokeWidth={1.6} />
               Partager
+            </button>
+            <button type="button" onClick={() => openMeditation(dailyVerse)} className="omed-button-secondary min-h-11 px-4 text-sm" aria-label="Méditer le verset du jour en plein écran">
+              <Moon size={16} strokeWidth={1.6} />
+              Méditer
             </button>
             <button
               type="button"
