@@ -49,10 +49,11 @@ export const FavoritesPage: React.FC = () => {
         <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">Aucun passage sauvegardé pour le moment.</h2>
         <p className="text-text-secondary">Vos marque-pages bibliques apparaîtront ici.</p>
         <button
-          onClick={() => navigate('/')}
+          type="button"
+          onClick={() => navigate('/reader')}
           className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold"
         >
-          Commencer à lire
+          Ouvrir le lecteur
         </button>
       </div>
     );
@@ -60,18 +61,18 @@ export const FavoritesPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-4xl py-4 md:py-8">
-      <div className="mb-8 flex flex-col gap-4 rounded-[1.5rem] border border-border bg-bg-card/52 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-8 flex flex-col gap-4 rounded-[1.5rem] border border-border bg-bg-card/52 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <h1 className="flex items-center gap-3 font-display text-3xl font-semibold text-text-primary">
           <Bookmark className="text-accent-gold" />
           Marque-pages
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <label htmlFor="bookmark-sort" className="text-sm text-text-secondary">Trier</label>
           <select
             id="bookmark-sort"
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as 'date' | 'biblical')}
-            className="rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
+            className="min-h-11 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
           >
             <option value="date">Date d'ajout (récent)</option>
             <option value="biblical">Ordre biblique</option>
@@ -84,9 +85,9 @@ export const FavoritesPage: React.FC = () => {
           const reference = formatBibleReference(verse.bookId, verse.chapter, verse.verse);
 
           return (
-            <div key={verse.id} className="group rounded-[1.35rem] border border-border bg-bg-card/62 p-6 shadow-[var(--shadow-soft)] transition-all hover:border-accent-gold/35">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2">
+            <div key={verse.id} className="group rounded-[1.35rem] border border-border bg-bg-card/62 p-4 shadow-[var(--shadow-soft)] transition-all hover:border-accent-gold/35 sm:p-6">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-display font-semibold text-lg text-text-primary">{reference}</h3>
                   <span className="rounded-full border border-border bg-bg-secondary px-2.5 py-1 font-mono text-xs font-semibold text-text-muted">
                     {getTranslationName(verse.translation)}
@@ -95,21 +96,25 @@ export const FavoritesPage: React.FC = () => {
 
                 <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <button
+                    type="button"
                     onClick={(e) => handleShare(verse.text, reference, e)}
-                    className="rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold"
+                    className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold"
                     title="Partager"
+                    aria-label={`Copier ${reference}`}
                   >
                     <Share2 size={16} />
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       if (window.confirm('Retirer ce passage des marque-pages ?')) {
                         removeFavorite(verse.id);
                         toast.success('Marque-page retiré.');
                       }
                     }}
-                    className="rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-[color:var(--color-danger)]"
+                    className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-[color:var(--color-danger)]"
                     title="Supprimer"
+                    aria-label={`Supprimer ${reference}`}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -121,6 +126,7 @@ export const FavoritesPage: React.FC = () => {
               </p>
 
               <button
+                type="button"
                 onClick={() => navigate(`/read/${verse.translation}/${verse.bookId}/${verse.chapter}`)}
                 className="inline-flex items-center gap-1 text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold"
               >

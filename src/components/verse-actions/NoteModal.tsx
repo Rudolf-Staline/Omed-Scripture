@@ -30,14 +30,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ reference, onCancel, onSav
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4" onClick={onCancel}>
-      <div role="dialog" aria-modal="true" aria-labelledby="note-modal-title" className="w-full max-w-lg rounded-2xl border border-border bg-bg-card p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 px-3 py-3 sm:items-center sm:px-4" onClick={onCancel}>
+      <div role="dialog" aria-modal="true" aria-labelledby="note-modal-title" className="max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-border bg-bg-card p-4 shadow-xl sm:p-6" onClick={(event) => event.stopPropagation()}>
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-text-muted">Nouvelle note</p>
             <h2 id="note-modal-title" className="font-display text-xl font-semibold text-text-primary">{reference}</h2>
           </div>
-          <button type="button" onClick={onCancel} className="rounded-lg p-1 text-text-muted hover:bg-bg-secondary hover:text-text-primary" aria-label="Fermer">
+          <button type="button" onClick={onCancel} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted hover:bg-bg-secondary hover:text-text-primary" aria-label="Fermer">
             <X size={20} />
           </button>
         </div>
@@ -50,7 +50,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ reference, onCancel, onSav
           ref={textareaRef}
           value={text}
           onChange={(event) => setText(event.target.value)}
-          className="mt-2 min-h-[150px] w-full rounded-lg border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
+          className="mt-2 min-h-[140px] w-full rounded-lg border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold sm:min-h-[150px]"
           placeholder="Écrivez votre réflexion…"
         />
 
@@ -66,11 +66,11 @@ export const NoteModal: React.FC<NoteModalProps> = ({ reference, onCancel, onSav
           placeholder="grâce, prière, étude…"
         />
 
-        <div className="mt-5 flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="rounded-lg px-4 py-2 font-medium text-text-muted transition-colors hover:bg-bg-secondary">
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button type="button" onClick={onCancel} className="min-h-11 rounded-lg px-4 py-2 font-medium text-text-muted transition-colors hover:bg-bg-secondary">
             Annuler
           </button>
-          <button type="button" onClick={save} disabled={!text.trim()} className="rounded-lg bg-accent-gold px-4 py-2 font-medium text-white transition-colors hover:bg-accent-brown disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={save} disabled={!text.trim()} className="min-h-11 rounded-lg bg-accent-gold px-4 py-2 font-medium text-[#171109] transition-colors hover:bg-accent-brown disabled:cursor-not-allowed disabled:opacity-50">
             Enregistrer
           </button>
         </div>

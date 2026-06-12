@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -49,11 +49,22 @@ export const Sidebar: React.FC = () => {
   ];
   const isMoreActive = mobileMoreItems.some((item) => location.pathname.startsWith(item.to));
 
+  useEffect(() => {
+    if (!showMore) return undefined;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowMore(false);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [showMore]);
+
   return (
     <>
       <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col border-r border-border bg-bg-secondary/86 shadow-[18px_0_70px_-60px_var(--color-shadow)] backdrop-blur-xl">
         <div className="relative px-6 pb-7 pt-8">
-          <button type="button" onClick={() => navigate('/')} className="group flex w-full items-center gap-3 text-left">
+          <button type="button" onClick={() => navigate('/')} className="group flex w-full items-center gap-3 text-left" aria-label="Retour à l'accueil Omed Scripture">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent-gold/30 bg-accent-gold/10 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
               <BookOpenText size={22} strokeWidth={1.45} />
             </span>
@@ -107,9 +118,18 @@ export const Sidebar: React.FC = () => {
         </div>
       </aside>
 
+      {showMore && (
+        <button
+          type="button"
+          className="fixed inset-0 z-30 bg-transparent lg:hidden"
+          aria-label="Fermer le menu mobile"
+          onClick={() => setShowMore(false)}
+        />
+      )}
+
       <nav className="omed-mobile-nav fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-card/96 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_50px_-34px_var(--color-shadow)] backdrop-blur-xl lg:hidden" aria-label="Navigation mobile">
         {showMore && (
-          <div id="mobile-more-menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+          <div id="mobile-more-menu" role="menu" className="absolute bottom-full right-2 mb-2 w-56 overflow-hidden rounded-3xl border border-border bg-bg-card/98 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
             {mobileMoreItems.map((item) => (
               <NavLink key={item.to} to={item.to} onClick={() => setShowMore(false)} className={({ isActive }) => clsx('flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-colors', isActive ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary')}>
                 <item.icon size={18} strokeWidth={1.45} />
@@ -126,7 +146,7 @@ export const Sidebar: React.FC = () => {
               <span className="max-w-full truncate">{item.label}</span>
             </NavLink>
           ))}
-          <button type="button" onClick={() => setShowMore((open) => !open)} className={clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isMoreActive || showMore ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} aria-expanded={showMore} aria-controls="mobile-more-menu">
+          <button type="button" onClick={() => setShowMore((open) => !open)} aria-label="Afficher les destinations supplémentaires" className={clsx('flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 py-1 text-[11px] font-semibold transition-colors', isMoreActive || showMore ? 'bg-accent-gold/12 text-accent-gold' : 'text-text-muted hover:text-text-primary')} aria-expanded={showMore} aria-controls="mobile-more-menu">
             <MoreHorizontal size={19} strokeWidth={1.45} />
             <span>Plus</span>
           </button>
