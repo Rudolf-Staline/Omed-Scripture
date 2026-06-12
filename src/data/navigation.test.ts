@@ -33,7 +33,7 @@ describe('navigation', () => {
       ...buildNavGroups(READER).flatMap((g) => g.items.map((i) => i.to)),
       SETTINGS_ITEM.to,
     ]);
-    ['/', READER, '/search', '/plans', '/favorites', '/notes', '/prayer', '/settings', '/more'].forEach((route) => {
+    ['/', READER, '/discover', '/plans', '/favorites', '/notes', '/prayer', '/settings', '/more'].forEach((route) => {
       expect(railTargets.has(route)).toBe(true);
     });
   });

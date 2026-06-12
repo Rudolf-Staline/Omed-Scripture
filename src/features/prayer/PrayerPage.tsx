@@ -123,6 +123,7 @@ export const PrayerPage: React.FC = () => {
   const addPrayer = usePrayerStore((state) => state.addPrayer);
   const updatePrayer = usePrayerStore((state) => state.updatePrayer);
   const setPrayerStatus = usePrayerStore((state) => state.setPrayerStatus);
+  const markPrayed = usePrayerStore((state) => state.markPrayed);
   const removePrayer = usePrayerStore((state) => state.removePrayer);
 
   const [showForm, setShowForm] = useState(false);
@@ -269,6 +270,12 @@ export const PrayerPage: React.FC = () => {
                           <span className="rounded-full border border-accent-sage/35 bg-accent-sage/12 px-2.5 py-0.5 font-semibold text-accent-sage">Exaucée</span>
                         )}
                         {entry.verseRef && <span className="text-text-muted">· {entry.verseRef}</span>}
+                        {typeof entry.prayedCount === 'number' && entry.prayedCount > 0 && (
+                          <span className="text-text-muted">· prié {entry.prayedCount}×</span>
+                        )}
+                        {entry.status === 'answered' && entry.answeredAt && (
+                          <span className="text-accent-sage">· exaucée le {formatDate(entry.answeredAt)}</span>
+                        )}
                       </div>
                     </div>
                     <p className="text-xs text-text-muted">{formatDate(entry.dateAdded)}</p>
@@ -277,6 +284,15 @@ export const PrayerPage: React.FC = () => {
                   <p className="whitespace-pre-wrap font-body leading-8 text-text-primary/95">{entry.content}</p>
 
                   <footer className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/70 pt-4">
+                    {entry.status === 'active' && (
+                      <button
+                        type="button"
+                        onClick={() => { markPrayed(entry.id); toast.success('Amen 🙏'); }}
+                        className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-accent-gold/40 px-3 text-sm font-semibold text-accent-gold transition-colors hover:bg-accent-gold/12"
+                      >
+                        <HandHeart size={15} /> J’ai prié
+                      </button>
+                    )}
                     {entry.status === 'active' && (
                       <button
                         type="button"

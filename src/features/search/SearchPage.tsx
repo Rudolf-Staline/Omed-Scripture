@@ -9,8 +9,9 @@ import { ErrorState } from '../../components/ErrorState';
 import { addSearchHistoryEntry, clearSearchHistory, getSearchHistory } from '../../utils/searchHistory';
 import { splitByTerm } from '../../utils/highlightTerm';
 import { getBookName } from '../../utils/bibleBooks';
+import { TOPICS } from '../../data/topics';
+import { READING_PLANS } from '../../data/readingPlans';
 
-const THEMES = ['foi', 'paix', 'prière', 'amour', 'courage', 'sagesse', 'pardon', 'espérance'];
 type TestamentFilter = 'tous' | 'AT' | 'NT';
 
 const HighlightedText: React.FC<{ text: string; term: string }> = ({ text, term }) => <>{splitByTerm(text, term).map((segment, index) => segment.match ? <mark key={index} className="rounded bg-accent-gold/25 px-0.5 text-text-primary">{segment.text}</mark> : <React.Fragment key={index}>{segment.text}</React.Fragment>)}</>;
@@ -85,7 +86,7 @@ export const SearchPage: React.FC = () => {
       <section className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">
           {results.length > 0 && <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted"><SlidersHorizontal size={14} /> Filtres</p><div className="flex flex-wrap gap-2">{(['tous', 'AT', 'NT'] as TestamentFilter[]).map((value) => <button key={value} type="button" onClick={() => setTestamentFilter(value)} className={`rounded-full px-3 py-1.5 text-sm font-semibold ${testamentFilter === value ? 'bg-accent-gold text-white' : 'bg-bg-secondary text-text-secondary'}`}>{value === 'tous' ? 'Tous' : value}</button>)}</div>{booksInResults.length > 1 && <select value={bookFilter} onChange={(event) => setBookFilter(event.target.value)} className="mt-3 min-h-11 w-full rounded-2xl border border-border bg-bg-primary px-3 text-sm text-text-primary"><option value="tous">Tous les livres</option>{booksInResults.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}</select>}</div>}
-          <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted"><Sparkles size={14} /> Thèmes</p><div className="flex flex-wrap gap-2">{THEMES.map((theme) => <button key={theme} type="button" onClick={() => runSearch(theme)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{theme}</button>)}</div></div>
+          <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted"><Sparkles size={14} /> Thèmes</p><div className="flex flex-wrap gap-2">{TOPICS.map((topic) => <button key={topic.id} type="button" onClick={() => runSearch(topic.query)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{topic.label}</button>)}</div></div>
           {history.length > 0 && <div className="rounded-3xl border border-border bg-bg-card p-4"><div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted"><History size={14} /> Historique</p><button type="button" onClick={() => { clearSearchHistory(); setHistory([]); }} className="text-text-muted" aria-label="Effacer l’historique"><X size={15} /></button></div><div className="flex flex-wrap gap-2">{history.map((entry) => <button key={entry} type="button" onClick={() => runSearch(entry)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary">{entry}</button>)}</div></div>}
         </aside>
 
@@ -93,7 +94,32 @@ export const SearchPage: React.FC = () => {
           {error && <ErrorState compact title="Recherche interrompue" message={error} />}
           {loading && <div className="rounded-3xl border border-border bg-bg-card p-5 text-text-secondary"><Loader2 className="mr-2 inline animate-spin" size={16} /> Recherche en cours…</div>}
           {!loading && !error && hasSearched && results.length === 0 && <EmptyState compact title="Aucun passage trouvé" message="Essayez un mot plus court, une autre traduction ou un thème proposé." />}
-          {!loading && !hasSearched && <div className="rounded-3xl border border-dashed border-border bg-bg-card p-8 text-center text-text-secondary">Lancez une recherche ou touchez un thème pour découvrir des passages.</div>}
+          {!loading && !hasSearched && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-text-secondary">Explorez par thème</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {TOPICS.map((topic) => (
+                  <article key={topic.id} className="flex flex-col rounded-3xl border border-border bg-bg-card p-4">
+                    <button type="button" onClick={() => runSearch(topic.query)} className="text-left">
+                      <p className="text-base font-bold text-text-primary">{topic.label}</p>
+                      <p className="mt-0.5 text-sm text-text-secondary">{topic.description}</p>
+                    </button>
+                    {topic.references && topic.references.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {topic.references.map((ref) => (
+                          <button key={ref.label} type="button" onClick={() => navigate(`/read/${translation}/${ref.bookId}/${ref.chapter}`)} className="rounded-full bg-bg-secondary px-2.5 py-1 text-xs font-semibold text-text-secondary hover:text-text-primary">{ref.label}</button>
+                        ))}
+                      </div>
+                    )}
+                    {topic.planIds && topic.planIds.length > 0 && (() => {
+                      const plan = READING_PLANS.find((item) => item.id === topic.planIds?.[0]);
+                      return plan ? <button type="button" onClick={() => navigate(`/plans/${plan.id}`)} className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent-gold">Plan lié : {plan.title}</button> : null;
+                    })()}
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
           {!loading && results.length > 0 && <p className="text-sm font-semibold text-text-secondary">{filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''} · {translationName}</p>}
           {filteredResults.map((result, index) => <article key={`${result.book_id}-${result.chapter_id}-${index}`} className="rounded-3xl border border-border bg-bg-card p-4"><p className="font-bold text-accent-gold">{result.reference}</p><p className="mt-2 leading-7 text-text-primary"><HighlightedText text={result.text} term={searchedTerm} /></p><button type="button" onClick={() => openResult(result)} className="mt-3 min-h-10 rounded-2xl border border-border bg-bg-primary px-3 text-sm font-semibold text-text-primary">Ouvrir le chapitre</button></article>)}
         </section>

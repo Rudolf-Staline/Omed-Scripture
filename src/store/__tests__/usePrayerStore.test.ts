@@ -121,6 +121,36 @@ describe('usePrayerStore', () => {
     expect(store.getState().prayers[0].status).toBe('archived');
   });
 
+  it('records an answeredAt timestamp when marked answered', async () => {
+    localStorage.setItem(OMED_STORAGE_KEYS.prayers, JSON.stringify([validPrayer]));
+    const store = await setupStore();
+
+    store.getState().setPrayerStatus('prayer-1', 'answered');
+    expect(store.getState().prayers[0].answeredAt).toEqual(expect.any(Number));
+  });
+
+  it('increments prayedCount and stores lastPrayedAt on "j\'ai prié"', async () => {
+    localStorage.setItem(OMED_STORAGE_KEYS.prayers, JSON.stringify([validPrayer]));
+    const store = await setupStore();
+
+    store.getState().markPrayed('prayer-1');
+    store.getState().markPrayed('prayer-1');
+
+    const entry = store.getState().prayers[0];
+    expect(entry.prayedCount).toBe(2);
+    expect(entry.lastPrayedAt).toEqual(expect.any(Number));
+    expect(JSON.parse(localStorage.getItem(OMED_STORAGE_KEYS.prayers)!)[0].prayedCount).toBe(2);
+  });
+
+  it('keeps optional prayed fields through validation on load', async () => {
+    localStorage.setItem(
+      OMED_STORAGE_KEYS.prayers,
+      JSON.stringify([{ ...validPrayer, prayedCount: 3, lastPrayedAt: 200, answeredAt: 300 }])
+    );
+    const store = await setupStore();
+    expect(store.getState().prayers[0].prayedCount).toBe(3);
+  });
+
   it('removes an entry', async () => {
     localStorage.setItem(OMED_STORAGE_KEYS.prayers, JSON.stringify([validPrayer]));
     const store = await setupStore();

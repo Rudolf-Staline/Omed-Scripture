@@ -116,6 +116,7 @@ function App() {
           <Route path="/reader" element={<ReaderPage />} />
           <Route path="/read/:translation/:bookId/:chapter" element={<ReaderPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/discover" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/notes" element={<NotesPage />} />
           <Route path="/prayer" element={<PrayerPage />} />

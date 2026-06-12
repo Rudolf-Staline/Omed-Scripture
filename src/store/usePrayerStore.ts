@@ -16,6 +16,9 @@ export interface PrayerEntry {
   dateAdded: number;
   dateModified: number;
   verseRef?: string; // référence libre, ex. "Jean 3:16"
+  prayedCount?: number; // nombre de fois où l'utilisateur a marqué "j'ai prié"
+  lastPrayedAt?: number; // dernier horodatage "j'ai prié"
+  answeredAt?: number; // date d'exaucement (quand status devient "answered")
 }
 
 export const PRAYER_CATEGORIES: PrayerCategory[] = ['gratitude', 'demande', 'confession', 'intercession', 'meditation', 'autre'];
@@ -26,6 +29,7 @@ interface PrayerState {
   addPrayer: (entry: Omit<PrayerEntry, 'id' | 'status' | 'dateAdded' | 'dateModified'>) => void;
   updatePrayer: (id: string, patch: Partial<Pick<PrayerEntry, 'title' | 'content' | 'category' | 'verseRef'>>) => void;
   setPrayerStatus: (id: string, status: PrayerStatus) => void;
+  markPrayed: (id: string) => void;
   removePrayer: (id: string) => void;
   loadPrayers: (prayers: PrayerEntry[]) => void;
 }
@@ -40,7 +44,10 @@ const isPrayerEntry = (value: unknown): value is PrayerEntry => {
     PRAYER_CATEGORIES.includes(entry.category) &&
     PRAYER_STATUSES.includes(entry.status) &&
     typeof entry.dateAdded === 'number' &&
-    typeof entry.dateModified === 'number'
+    typeof entry.dateModified === 'number' &&
+    (entry.prayedCount === undefined || typeof entry.prayedCount === 'number') &&
+    (entry.lastPrayedAt === undefined || typeof entry.lastPrayedAt === 'number') &&
+    (entry.answeredAt === undefined || typeof entry.answeredAt === 'number')
   );
 };
 
@@ -93,8 +100,27 @@ export const usePrayerStore = create<PrayerState>((set) => ({
     }),
   setPrayerStatus: (id, status) =>
     set((state) => {
+      const now = Date.now();
       const prayers = state.prayers.map((entry) =>
-        entry.id === id ? { ...entry, status, dateModified: Date.now() } : entry
+        entry.id === id
+          ? {
+              ...entry,
+              status,
+              dateModified: now,
+              ...(status === 'answered' ? { answeredAt: entry.answeredAt ?? now } : {}),
+            }
+          : entry
+      );
+      persistPrayers(prayers);
+      return { prayers };
+    }),
+  markPrayed: (id) =>
+    set((state) => {
+      const now = Date.now();
+      const prayers = state.prayers.map((entry) =>
+        entry.id === id
+          ? { ...entry, prayedCount: (entry.prayedCount ?? 0) + 1, lastPrayedAt: now, dateModified: now }
+          : entry
       );
       persistPrayers(prayers);
       return { prayers };

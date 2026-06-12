@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, ChevronRight, Cloud, Download, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { Bookmark, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
+import { getReadingStreak } from '../../utils/readingActivity';
 
 const menu = [
   { to: '/notes', label: 'Notes', description: 'Annotations et tags personnels', icon: NotebookPen },
@@ -20,8 +22,10 @@ export const MorePage: React.FC = () => {
   const notes = useNotesStore((state) => state.notes);
   const favorites = useFavoritesStore((state) => state.favorites);
   const prayers = usePrayerStore((state) => state.prayers);
+  const routineStreak = useDailyRoutineStore((state) => state.streak);
 
   const activePrayers = useMemo(() => prayers.filter((prayer) => prayer.status === 'active').length, [prayers]);
+  const readingStreak = useMemo(() => getReadingStreak(), []);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -35,6 +39,14 @@ export const MorePage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      <section className="rounded-3xl border border-border bg-bg-card p-4" aria-label="Progression">
+        <div className="flex items-center gap-2">
+          <Flame size={18} className="text-accent-gold" />
+          <p className="font-semibold text-text-primary">Série routine : {routineStreak()} jour{routineStreak() > 1 ? 's' : ''}</p>
+          <span className="ml-auto text-sm text-text-muted">Lecture : {readingStreak} j</span>
+        </div>
+      </section>
 
       <section className="grid grid-cols-3 gap-3" aria-label="Résumé personnel">
         <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{notes.length}</p><p className="text-xs text-text-muted">Notes</p></div>
