@@ -96,43 +96,61 @@ export const PlanDetail: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        <h2 className="font-display text-2xl font-semibold text-text-primary">Étapes du parcours</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <h2 className="font-display text-2xl font-semibold text-text-primary">Le chemin</h2>
+
+        {/* Chemin vertical : filet de liaison + nœuds d'étape */}
+        <ol className="relative ml-3 space-y-3 border-l border-border pl-6">
           {plan.readings.map((reading) => {
             const isCompleted = planProgress.completedDays.includes(reading.day);
+            const isCurrent = !isCompleted && reading.day === currentDay;
             const firstPassage = reading.passages[0];
 
             return (
-              <div key={reading.day} className={`rounded-[1.25rem] border p-4 transition-colors ${isCompleted ? 'border-accent-sage/40 bg-accent-sage/12' : 'border-border bg-bg-card/60'}`}>
-                <div className="flex items-center justify-between mb-3 gap-3">
-                  <div>
-                    <p className="text-xs text-text-muted">Étape</p>
-                    <p className="font-semibold text-text-primary">Jour {reading.day}{reading.title ? ` · ${reading.title}` : ''}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (isCompleted) unmarkDayComplete(plan.id, reading.day);
-                      else markDayComplete(plan.id, reading.day);
-                    }}
-                    className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
-                  >
-                    {isCompleted ? 'Marqué comme fait' : 'Marquer comme fait'}
-                  </button>
-                </div>
+              <li key={reading.day} className="relative">
+                {/* Nœud sur le filet */}
+                <span
+                  aria-hidden="true"
+                  className={`absolute -left-[1.95rem] top-4 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                    isCompleted
+                      ? 'border-accent-sage bg-accent-sage/30'
+                      : isCurrent
+                        ? 'border-accent-gold bg-accent-gold/25'
+                        : 'border-border bg-bg-card'
+                  }`}
+                >
+                  {isCompleted && <span className="h-1.5 w-1.5 rounded-full bg-accent-sage" />}
+                </span>
 
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-text-secondary">Lecture suggérée : {reading.passages.map(formatPassage).join(', ')}</p>
-                  {firstPassage && (
-                    <button onClick={() => navigate(`/read/${defaultTranslation}/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-2 text-sm font-semibold text-accent-brown hover:text-accent-gold">
-                      <BookOpen size={15} />
-                      Ouvrir
+                <div className={`rounded-[1.25rem] border p-4 transition-colors ${
+                  isCurrent ? 'border-accent-gold/45 bg-accent-gold/8' : isCompleted ? 'border-accent-sage/30 bg-accent-sage/8' : 'border-border bg-bg-card/60'
+                }`}>
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-semibold text-text-primary">
+                      Jour {reading.day}{reading.title ? ` · ${reading.title}` : ''}
+                      {isCurrent && <span className="ml-2 rounded-full border border-accent-gold/40 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-gold">Aujourd'hui</span>}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => { if (isCompleted) unmarkDayComplete(plan.id, reading.day); else markDayComplete(plan.id, reading.day); }}
+                      className={`min-h-9 rounded-xl border px-3 text-xs font-semibold transition-colors ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
+                      aria-pressed={isCompleted}
+                    >
+                      {isCompleted ? 'Fait ✓' : 'Marquer comme fait'}
                     </button>
-                  )}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm text-text-secondary">{reading.passages.map(formatPassage).join(', ')}</p>
+                    {firstPassage && (
+                      <button type="button" onClick={() => navigate(`/read/${defaultTranslation}/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold">
+                        <BookOpen size={15} /> Ouvrir
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </div>
     </div>
   );

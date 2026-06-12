@@ -1,23 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { useNotesStore } from '../../store/useNotesStore';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, Trash2, Check, X, Search, BookOpenText, Copy, Tag } from 'lucide-react';
+import { Edit3, Trash2, Check, X, Search, NotebookPen, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
-import clsx from 'clsx';
 import { formatBibleReference, getBookName, getBookOrder } from '../../utils/bibleBooks';
 import { formatTagsInput, parseTagsInput } from '../../utils/noteTags';
+import { PageCanvas } from '../../components/layout/PageCanvas';
+import { PageHero } from '../../components/layout/PageHero';
+import { FilterBar, FilterChip } from '../../components/layout/FilterBar';
+import { EmptyIllustration } from '../../components/layout/EmptyIllustration';
 
 const formatDate = (value?: number) => {
   if (!value) return 'Date indisponible';
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return 'Date indisponible';
-  return parsed.toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
 type SortMode = 'date' | 'biblical';
@@ -49,9 +46,7 @@ export const NotesPage: React.FC = () => {
 
   const booksInNotes = useMemo(() => {
     const ids = new Set(notes.map((note) => splitVerseId(note.verseId).bookId).filter(Boolean));
-    return Array.from(ids)
-      .map((id) => ({ id, name: getBookName(id) }))
-      .sort((a, b) => getBookOrder(a.id) - getBookOrder(b.id));
+    return Array.from(ids).map((id) => ({ id, name: getBookName(id) })).sort((a, b) => getBookOrder(a.id) - getBookOrder(b.id));
   }, [notes]);
 
   const handleEditClick = (noteId: string, currentText: string, currentTags?: string[]) => {
@@ -77,9 +72,8 @@ export const NotesPage: React.FC = () => {
   };
 
   const handleCopyNote = async (noteText: string, verseText: string, reference: string) => {
-    const content = `« ${verseText} »\n— ${reference}\n\nNote : ${noteText}`;
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(`« ${verseText} »\n— ${reference}\n\nNote : ${noteText}`);
       toast.success('Note copiée avec sa référence !');
     } catch {
       toast.error('Impossible de copier la note.');
@@ -88,14 +82,11 @@ export const NotesPage: React.FC = () => {
 
   const visibleNotes = useMemo(() => {
     const term = query.trim().toLowerCase();
-
     const filtered = notes.filter((note) => {
       const { translation, bookId, chapter, verse } = splitVerseId(note.verseId);
-
       if (tagFilter && !(note.tags ?? []).includes(tagFilter)) return false;
       if (bookFilter !== 'tous' && bookId !== bookFilter) return false;
       if (!term) return true;
-
       const reference = formatBibleReference(bookId, chapter, verse).toLowerCase();
       return (
         note.text.toLowerCase().includes(term) ||
@@ -106,10 +97,7 @@ export const NotesPage: React.FC = () => {
       );
     });
 
-    if (sortMode === 'date') {
-      return filtered.sort((a, b) => (b.dateModified ?? 0) - (a.dateModified ?? 0));
-    }
-
+    if (sortMode === 'date') return filtered.sort((a, b) => (b.dateModified ?? 0) - (a.dateModified ?? 0));
     return filtered.sort((a, b) => {
       const idA = splitVerseId(a.verseId);
       const idB = splitVerseId(b.verseId);
@@ -123,229 +111,119 @@ export const NotesPage: React.FC = () => {
 
   if (notes.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl py-20 text-center">
-        <BookOpenText size={46} className="mx-auto mb-4 text-accent-gold opacity-70" />
-        <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">Carnet de notes</h2>
-        <p className="text-text-secondary max-w-lg mx-auto">
-          Vos notes apparaîtront ici lorsque vous annoterez un passage. Touchez un verset dans le lecteur pour commencer.
-        </p>
-        <button
-          onClick={() => navigate('/')}
-          className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold"
-        >
-          Commencer à lire
-        </button>
-      </div>
+      <PageCanvas width="reading">
+        <EmptyIllustration icon={NotebookPen} title="Carnet d'étude" message="Vos notes apparaîtront ici. Touchez un verset dans le lecteur pour annoter un passage." actionLabel="Ouvrir le lecteur" to="/reader" />
+      </PageCanvas>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-4 md:py-8">
-      <h1 className="font-display text-4xl font-semibold tracking-tight text-text-primary">Mes notes d'étude</h1>
-      <p className="mt-3 mb-7 max-w-2xl text-text-secondary">
-        Un espace personnel pour conserver ce qui vous parle pendant la lecture.
-      </p>
+    <PageCanvas width="wide" className="space-y-6">
+      <PageHero kicker="Carnet · étude" title="Mes notes d'étude" icon={NotebookPen} intro="Un espace personnel pour conserver ce qui vous parle pendant la lecture." />
 
-      <div className="mb-6 space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="relative flex-1">
+      <div className="grid gap-6 lg:grid-cols-[16rem_1fr] lg:items-start">
+        {/* Rail de filtres */}
+        <aside className="space-y-4 lg:sticky lg:top-6">
+          <label className="relative block">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher par référence, tag ou contenu…"
-              className="min-h-12 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold"
-            />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher…" aria-label="Rechercher dans les notes" className="min-h-11 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold" />
           </label>
-          {booksInNotes.length > 1 && (
-            <select
-              value={bookFilter}
-              onChange={(e) => setBookFilter(e.target.value)}
-              aria-label="Filtrer par livre"
-              className="min-h-12 rounded-2xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
-            >
-              <option value="tous">Tous les livres</option>
-              {booksInNotes.map((book) => (
-                <option key={book.id} value={book.id}>{book.name}</option>
-              ))}
-            </select>
-          )}
-          <select
-            value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as SortMode)}
-            aria-label="Trier les notes"
-            className="min-h-12 rounded-2xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
-          >
-            <option value="date">Plus récentes</option>
-            <option value="biblical">Ordre biblique</option>
-          </select>
-        </div>
 
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Tag size={14} className="text-text-muted" aria-hidden="true" />
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => setTagFilter(tagFilter === tag ? null : tag)}
-                aria-pressed={tagFilter === tag}
-                className={clsx(
-                  'min-h-8 rounded-full border px-3 text-xs font-semibold transition-colors',
-                  tagFilter === tag
-                    ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold'
-                    : 'border-border bg-bg-card/55 text-text-secondary hover:border-accent-gold/30 hover:text-text-primary'
-                )}
-              >
-                #{tag}
-              </button>
-            ))}
-            {tagFilter && (
-              <button type="button" onClick={() => setTagFilter(null)} className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-text-primary">
-                <X size={12} /> Réinitialiser
-              </button>
+          <div className="omed-panel-soft p-4">
+            <p className="omed-kicker mb-3">Trier</p>
+            <FilterBar label="">
+              <FilterChip active={sortMode === 'date'} onClick={() => setSortMode('date')}>Récentes</FilterChip>
+              <FilterChip active={sortMode === 'biblical'} onClick={() => setSortMode('biblical')}>Ordre biblique</FilterChip>
+            </FilterBar>
+
+            {booksInNotes.length > 1 && (
+              <label className="mt-4 block">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">Livre</span>
+                <select value={bookFilter} onChange={(e) => setBookFilter(e.target.value)} aria-label="Filtrer par livre" className="min-h-10 w-full rounded-xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold">
+                  <option value="tous">Tous les livres</option>
+                  {booksInNotes.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}
+                </select>
+              </label>
             )}
           </div>
-        )}
-      </div>
 
-      {visibleNotes.length === 0 ? (
-        <div className="rounded-[1.5rem] border border-border bg-bg-card/60 p-10 text-center">
-          <h2 className="font-display text-xl text-text-primary mb-2">Aucun résultat</h2>
-          <p className="text-text-secondary">
-            Aucune note ne correspond à ces critères. Essayez un autre mot-clé ou réinitialisez les filtres.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-5">
-          {visibleNotes.map((note) => {
-            const { translation, bookId, chapter, verse } = splitVerseId(note.verseId);
-            const reference = formatBibleReference(bookId, chapter || '?', verse || '?');
-            const hasVerseText = Boolean(note.verseText && note.verseText.trim());
-            const createdAt = formatDate(note.dateAdded);
-            const modifiedAt = formatDate(note.dateModified);
+          {allTags.length > 0 && (
+            <div className="omed-panel-soft p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="omed-kicker">Tags</p>
+                {tagFilter && <button type="button" onClick={() => setTagFilter(null)} className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-text-primary"><X size={12} /> Tout</button>}
+              </div>
+              <FilterBar label="">
+                {allTags.map((tag) => (
+                  <FilterChip key={tag} active={tagFilter === tag} onClick={() => setTagFilter(tagFilter === tag ? null : tag)}>#{tag}</FilterChip>
+                ))}
+              </FilterBar>
+            </div>
+          )}
+        </aside>
 
-            return (
-              <article key={note.id} className="omed-card p-5">
-                <header className="flex flex-wrap justify-between items-start gap-3 mb-4">
-                  <div>
-                    <h2 className="font-display text-lg font-semibold text-text-primary">{reference}</h2>
-                    <p className="mt-1 text-xs uppercase tracking-[0.16em] text-accent-gold">
-                      Traduction : {translation || 'n/a'}
-                    </p>
-                  </div>
+        {/* Liste des notes */}
+        <div className="min-w-0">
+          {visibleNotes.length === 0 ? (
+            <div className="empty-state px-6 py-12 text-center">
+              <h2 className="mb-2 font-display text-xl text-text-primary">Aucun résultat</h2>
+              <p className="text-sm text-text-secondary">Aucune note ne correspond à ces critères. Essayez un autre mot-clé ou réinitialisez les filtres.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {visibleNotes.map((note) => {
+                const { translation, bookId, chapter, verse } = splitVerseId(note.verseId);
+                const reference = formatBibleReference(bookId, chapter || '?', verse || '?');
+                const hasVerseText = Boolean(note.verseText && note.verseText.trim());
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleCopyNote(note.text, note.verseText, reference)}
-                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-accent-gold/50 hover:text-accent-gold"
-                      title="Copier la note avec sa référence"
-                    >
-                      <Copy size={14} /> Copier
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(note.id, note.text, note.tags)}
-                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-accent-gold/50 hover:text-accent-gold"
-                      title="Modifier"
-                    >
-                      <Edit3 size={14} /> Modifier
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Supprimer cette note ?')) {
-                          removeNote(note.id);
-                          toast.success('Note supprimée.');
-                        }
-                      }}
-                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-[color:var(--color-danger)]/50 hover:text-[color:var(--color-danger)]"
-                      title="Supprimer"
-                    >
-                      <Trash2 size={14} /> Supprimer
-                    </button>
-                  </div>
-                </header>
+                return (
+                  <article key={note.id} className="omed-card p-4 sm:p-5">
+                    <header className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h2 className="font-display text-lg font-semibold text-text-primary">{reference}</h2>
+                        <p className="mt-0.5 text-xs uppercase tracking-[0.16em] text-accent-gold">{translation || 'n/a'} · {formatDate(note.dateModified)}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button type="button" onClick={() => handleCopyNote(note.text, note.verseText, reference)} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold" aria-label="Copier la note avec sa référence"><Copy size={15} /></button>
+                        <button type="button" onClick={() => handleEditClick(note.id, note.text, note.tags)} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold" aria-label="Modifier la note"><Edit3 size={15} /></button>
+                        <button type="button" onClick={() => { if (window.confirm('Supprimer cette note ?')) { removeNote(note.id); toast.success('Note supprimée.'); } }} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-[color:var(--color-danger)]" aria-label="Supprimer la note"><Trash2 size={15} /></button>
+                      </div>
+                    </header>
 
-                <section className="space-y-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-text-muted mb-1">Extrait</p>
-                    <p className="border-l border-accent-gold/40 pl-3 text-sm italic leading-7 text-text-secondary">
-                      {hasVerseText ? `« ${note.verseText} »` : 'Extrait indisponible pour ce verset.'}
-                    </p>
-                  </div>
+                    {hasVerseText && (
+                      <p className="mb-3 border-l-2 border-accent-gold/40 pl-3 text-sm italic leading-7 text-text-secondary">« {note.verseText} »</p>
+                    )}
 
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-text-muted mb-1">Note</p>
                     {editingId === note.id ? (
                       <div>
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          className="min-h-[130px] w-full rounded-2xl border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
-                        />
-                        <label className="mt-3 block text-xs uppercase tracking-wide text-text-muted" htmlFor={`note-tags-${note.id}`}>
-                          Tags (séparés par des virgules)
-                        </label>
-                        <input
-                          id={`note-tags-${note.id}`}
-                          value={editTags}
-                          onChange={(e) => setEditTags(e.target.value)}
-                          placeholder="grâce, prière, étude…"
-                          className="mt-1 w-full rounded-2xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
-                        />
-                        <div className="flex justify-end gap-2 mt-3">
-                          <button
-                            onClick={handleCancelEdit}
-                            className="inline-flex items-center gap-1 rounded-xl px-4 py-2 font-medium text-text-muted transition-colors hover:bg-bg-secondary"
-                          >
-                            <X size={16} /> Annuler
-                          </button>
-                          <button
-                            onClick={() => handleSaveEdit(note.id)}
-                            className="omed-button-primary px-4 py-2"
-                          >
-                            <Check size={16} /> Enregistrer
-                          </button>
+                        <textarea value={editText} onChange={(e) => setEditText(e.target.value)} aria-label="Texte de la note" className="min-h-[120px] w-full rounded-2xl border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold" />
+                        <label className="mt-3 block text-xs uppercase tracking-wide text-text-muted" htmlFor={`note-tags-${note.id}`}>Tags (séparés par des virgules)</label>
+                        <input id={`note-tags-${note.id}`} value={editTags} onChange={(e) => setEditTags(e.target.value)} placeholder="grâce, prière, étude…" className="mt-1 w-full rounded-2xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold" />
+                        <div className="mt-3 flex justify-end gap-2">
+                          <button type="button" onClick={handleCancelEdit} className="inline-flex items-center gap-1 rounded-xl px-4 py-2 font-medium text-text-muted transition-colors hover:bg-bg-secondary"><X size={16} /> Annuler</button>
+                          <button type="button" onClick={() => handleSaveEdit(note.id)} className="omed-button-primary px-4 py-2"><Check size={16} /> Enregistrer</button>
                         </div>
                       </div>
                     ) : (
                       <>
                         <p className="whitespace-pre-wrap font-body leading-8 text-text-primary">{note.text}</p>
-                        {note.tags && note.tags.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {note.tags.map((tag) => (
-                              <button
-                                key={tag}
-                                type="button"
-                                onClick={() => setTagFilter(tag)}
-                                className="rounded-full border border-accent-gold/25 bg-accent-gold/8 px-2.5 py-0.5 text-xs font-semibold text-accent-gold transition-colors hover:border-accent-gold/50"
-                              >
-                                #{tag}
-                              </button>
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-wrap gap-1.5">
+                            {(note.tags ?? []).map((tag) => (
+                              <button key={tag} type="button" onClick={() => setTagFilter(tag)} className="rounded-full border border-accent-gold/25 bg-accent-gold/8 px-2.5 py-0.5 text-xs font-semibold text-accent-gold transition-colors hover:border-accent-gold/50">#{tag}</button>
                             ))}
                           </div>
-                        )}
+                          <button type="button" onClick={() => navigate(`/read/${translation}/${bookId}/${chapter}`)} className="text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold">Relire le chapitre</button>
+                        </div>
                       </>
                     )}
-                  </div>
-                </section>
-
-                <footer className="mt-5 pt-4 border-t border-border/70 flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
-                  <div className="space-y-0.5">
-                    <p>Créée le {createdAt}</p>
-                    <p>Dernière modification : {modifiedAt}</p>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/read/${translation}/${bookId}/${chapter}`)}
-                    className="font-semibold text-accent-brown transition-colors hover:text-accent-gold"
-                  >
-                    Relire le chapitre
-                  </button>
-                </footer>
-              </article>
-            );
-          })}
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </PageCanvas>
   );
 };

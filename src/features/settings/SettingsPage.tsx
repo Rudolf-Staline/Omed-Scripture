@@ -23,6 +23,8 @@ import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidE
 import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { PageCanvas } from '../../components/layout/PageCanvas';
+import { PageHero } from '../../components/layout/PageHero';
 
 export const SettingsPage: React.FC = () => {
   const { settings, updateSettings, synced, setSynced, loadSettings } = useSettingsStore();
@@ -169,12 +171,8 @@ export const SettingsPage: React.FC = () => {
   );
 
   return (
-    <div className="mx-auto max-w-5xl py-4 md:py-8">
-      <h1 className="flex items-center gap-3 font-display text-4xl font-semibold tracking-tight text-text-primary">
-        <Settings className="text-accent-gold" />
-        Préférences
-      </h1>
-      <p className="mt-3 mb-8 max-w-2xl text-text-secondary">Personnalisez votre expérience de lecture biblique en toute simplicité.</p>
+    <PageCanvas width="list" className="space-y-6">
+      <PageHero kicker="Atelier · réglages" title="Préférences" icon={Settings} intro="Réglez l'apparence, la lecture, la synchronisation et vos données — par domaine." />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="omed-card p-4 sm:p-6">
@@ -366,6 +364,6 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
       </div>
-    </div>
+    </PageCanvas>
   );
 };

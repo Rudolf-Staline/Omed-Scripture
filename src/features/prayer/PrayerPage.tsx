@@ -1,9 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { HandHeart, Plus, Search, Check, X, Archive, Trash2, Edit3, Undo2, Sparkles } from 'lucide-react';
+import { HandHeart, Plus, Search, Check, X, Archive, Trash2, Edit3, Undo2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import clsx from 'clsx';
 import { usePrayerStore, PRAYER_CATEGORIES } from '../../store/usePrayerStore';
 import type { PrayerCategory, PrayerEntry, PrayerStatus } from '../../store/usePrayerStore';
+import { PageCanvas } from '../../components/layout/PageCanvas';
+import { PageHero } from '../../components/layout/PageHero';
+import { FilterBar, FilterChip } from '../../components/layout/FilterBar';
+import { EmptyIllustration } from '../../components/layout/EmptyIllustration';
 
 const CATEGORY_LABELS: Record<PrayerCategory, string> = {
   gratitude: 'Gratitude',
@@ -169,50 +172,34 @@ export const PrayerPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl py-4 md:py-8">
-      <section className="reading-surface mb-7 p-6 md:p-8">
-        <p className="omed-kicker mb-3">Carnet de prière</p>
-        <h1 className="flex items-center gap-3 font-display text-4xl tracking-tight text-text-primary md:text-5xl">
-          <HandHeart className="text-accent-gold" strokeWidth={1.4} />
-          Déposer, garder, rendre grâce.
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary md:text-base">
-          Un espace sobre pour confier vos prières, suivre celles qui sont exaucées et garder mémoire de la fidélité de Dieu.
-        </p>
-        {!showForm && (
-          <button type="button" onClick={() => { setShowForm(true); setEditingId(null); }} className="omed-button-primary mt-6 min-h-12 px-5">
+    <PageCanvas width="list" className="space-y-6">
+      <PageHero
+        kicker="Carnet · prière"
+        title="Déposer, garder, rendre grâce."
+        icon={HandHeart}
+        intro="Un espace sobre pour confier vos prières, suivre celles qui sont exaucées et garder mémoire de la fidélité de Dieu."
+        actions={!showForm && (
+          <button type="button" onClick={() => { setShowForm(true); setEditingId(null); }} className="omed-button-primary min-h-11 px-5">
             <Plus size={17} /> Nouvelle prière
           </button>
         )}
-      </section>
+      />
 
       {showForm && (
-        <section className="omed-panel mb-7 p-5 md:p-6">
+        <section className="omed-panel p-5 md:p-6">
           <h2 className="mb-4 font-display text-2xl text-text-primary">Nouvelle prière</h2>
           <PrayerForm initial={EMPTY_FORM} submitLabel="Déposer" onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
         </section>
       )}
 
-      <section className="mb-6 space-y-3">
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrer par statut">
+      <section className="space-y-3">
+        <FilterBar label="Statut">
           {(Object.keys(STATUS_LABELS) as PrayerStatus[]).map((status) => (
-            <button
-              key={status}
-              type="button"
-              role="tab"
-              aria-selected={statusFilter === status}
-              onClick={() => setStatusFilter(status)}
-              className={clsx(
-                'min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors',
-                statusFilter === status
-                  ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold'
-                  : 'border-border bg-bg-card/55 text-text-secondary hover:border-accent-gold/30 hover:text-text-primary'
-              )}
-            >
+            <FilterChip key={status} active={statusFilter === status} onClick={() => setStatusFilter(status)}>
               {STATUS_LABELS[status]} · {counts[status]}
-            </button>
+            </FilterChip>
           ))}
-        </div>
+        </FilterBar>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <label className="relative flex-1" htmlFor="prayer-search">
@@ -240,17 +227,20 @@ export const PrayerPage: React.FC = () => {
       </section>
 
       {visiblePrayers.length === 0 ? (
-        <div className="empty-state p-10 text-center">
-          <Sparkles size={32} className="mx-auto mb-4 text-accent-gold/70" />
-          <h2 className="font-display text-xl text-text-primary">
-            {prayers.length === 0 ? 'Votre carnet est encore silencieux.' : 'Aucune prière ne correspond à ces filtres.'}
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-secondary">
-            {prayers.length === 0
-              ? 'Déposez une première prière : gratitude, demande, intercession… Elle restera ici, en privé, sur cet appareil.'
-              : 'Élargissez la recherche ou changez de statut pour retrouver vos prières.'}
-          </p>
-        </div>
+        prayers.length === 0 ? (
+          <EmptyIllustration
+            icon={HandHeart}
+            title="Votre carnet est encore silencieux"
+            message="Déposez une première prière : gratitude, demande, intercession… Elle restera ici, en privé, sur cet appareil."
+            actionLabel="Déposer une prière"
+            onAction={() => { setShowForm(true); setEditingId(null); }}
+          />
+        ) : (
+          <div className="empty-state p-10 text-center">
+            <h2 className="font-display text-xl text-text-primary">Aucune prière ne correspond à ces filtres.</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-secondary">Élargissez la recherche ou changez de statut pour retrouver vos prières.</p>
+          </div>
+        )
       ) : (
         <div className="space-y-4">
           {visiblePrayers.map((entry) => (
@@ -335,6 +325,6 @@ export const PrayerPage: React.FC = () => {
           ))}
         </div>
       )}
-    </div>
+    </PageCanvas>
   );
 };
