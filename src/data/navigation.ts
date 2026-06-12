@@ -1,4 +1,4 @@
-import { BookOpenText, Bookmark, CalendarRange, Compass, HandHeart, Home, NotebookPen, Search, Settings, UserCircle } from 'lucide-react';
+import { BookOpenText, Bookmark, CalendarRange, Compass, HandHeart, Home, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -23,7 +23,7 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
       { to: '/', label: 'Accueil', icon: Home, end: true },
       { to: readerPath, label: 'Bible', icon: BookOpenText },
       { to: '/plans', label: 'Plans', icon: CalendarRange },
-      { to: '/search', label: 'Découvrir', icon: Search },
+      { to: '/discover', label: 'Découvrir', icon: Compass },
       { to: '/more', label: 'Plus', icon: UserCircle },
     ],
   },
@@ -44,7 +44,7 @@ export const buildMobilePrimary = (readerPath: string): NavItem[] => [
   { to: '/', label: 'Accueil', icon: Home, end: true },
   { to: readerPath, label: 'Bible', icon: BookOpenText },
   { to: '/plans', label: 'Plans', icon: CalendarRange },
-  { to: '/search', label: 'Découvrir', icon: Compass },
+  { to: '/discover', label: 'Découvrir', icon: Compass },
 ];
 
 export const MOBILE_MORE_ITEMS: NavItem[] = [

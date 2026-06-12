@@ -22,8 +22,28 @@ Tout passe par un système de tokens CSS (`src/index.css`) ; changer une ambianc
 
 Le projet est en stabilisation progressive. Les fonctionnalités principales sont disponibles, avec des protections renforcées sur les données locales, les sauvegardes et la synchronisation Google Drive AppData.
 
+## Navigation
+
+L'application est pensée mobile-first autour de cinq destinations, accessibles
+via une barre d'onglets en bas sur mobile et un rail latéral compact sur desktop :
+
+| Onglet | Route | Contenu |
+|---|---|---|
+| Accueil (Today) | `/` | Verset du jour, routine quotidienne, progression, reprise, raccourcis |
+| Bible | `/reader`, `/read/:translation/:bookId/:chapter` | Lecture, audio, comparaison, focus, étude |
+| Plans | `/plans`, `/plans/:planId` | Parcours en cours et recommandés |
+| Découvrir | `/discover` (alias de `/search`) | Recherche, thèmes bibliques, suggestions, historique |
+| Moi | `/more` | Notes, favoris, prières, progression, sync, export, paramètres |
+
+Les anciennes routes restent valides : `/search`, `/notes`, `/favorites`,
+`/prayer`, `/settings` fonctionnent comme avant.
+
 ## Fonctionnalités
 
+- **Accueil « Today »** : salutation et date du jour, verset du jour, routine quotidienne, progression (séries, semaine), reprise de lecture, plan en cours, raccourcis et activité récente.
+- **Routine quotidienne** (locale, sans API) : verset du jour, prière guidée du jour, lecture courte recommandée, note rapide, bouton « Commencer aujourd'hui », série (streak) et historique des jours complétés.
+- **Découvrir** : douze thèmes bibliques (Foi, Paix, Prière, Amour, Courage, Sagesse, Espérance, Pardon, Famille, Travail, Peur, Gratitude) avec description, passages suggérés et plans liés ; un clic lance une recherche réelle.
+- **Carte de verset (Verse Image)** : génération locale d'une image carrée du verset (canvas, sans dépendance lourde), copie image/texte et partage WhatsApp / X depuis les actions de verset.
 - Lecture par livre et chapitre, avec mode focus (plein texte) et mode étude (notes, surlignages et favoris du chapitre en panneau latéral).
 - **Palette de commandes** (⌘K / Ctrl+K) : aller à une page, changer de thème ou entrer en méditation au clavier.
 - **Mode méditation** : un verset en plein écran avec un halo de respiration lent (respecte `prefers-reduced-motion`), lancé depuis l'accueil ou la palette de commandes.
@@ -35,7 +55,7 @@ Le projet est en stabilisation progressive. Les fonctionnalités principales son
 - Recherche de versets : choix de traduction, historique récent, suggestions thématiques, filtres par testament et par livre, surlignage du terme recherché.
 - Favoris triables par date ou ordre biblique canonique.
 - Notes avec tags optionnels, filtres par tag et par livre, tri par date ou ordre biblique, copie avec référence.
-- Carnet de prière : catégories (gratitude, demande, confession, intercession, méditation), statuts (en cours, exaucée, archivée), verset lié optionnel, recherche et filtres.
+- Carnet de prière : catégories (gratitude, demande, confession, intercession, méditation), statuts (en cours, exaucée, archivée), bouton « J'ai prié » (compteur et dernier horodatage), date d'exaucement, verset lié optionnel, recherche et filtres.
 - Plans de lecture réels : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
 - Audio via `speechSynthesis`, déclenché uniquement par l’utilisateur.
 - Export JSON local (incluant les prières) et synchronisation Google Drive AppData.
@@ -104,6 +124,8 @@ Le chargement d’un chapitre tente d’abord un provider statique local (`src/u
 
 La synchronisation utilise le scope Google Drive AppData. Les fichiers applicatifs synchronisés concernent : préférences, marque-pages, notes, surlignages, parcours, prières et position de lecture.
 
+La routine quotidienne (`omed_bible_daily_routine`) est volontairement **locale uniquement** pour ne pas modifier le flux de synchronisation existant : elle est typée, validée au chargement (tolérante au JSON invalide) et testée, mais n'est pas envoyée vers Drive (voir « Limites connues »).
+
 Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde locale pré-restauration dans `localStorage` avec une clé `omed_scripture_pre_restore_*`, afin de réduire le risque d’écrasement brutal.
 
 ## Confidentialité des données
@@ -120,6 +142,9 @@ Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde local
 - L’initialisation des stores tolère un `localStorage` indisponible (mode privé, stockage désactivé) en retombant sur des valeurs par défaut, sans bloquer l’application. Les écritures peuvent toutefois échouer silencieusement si le quota est atteint.
 - `speechSynthesis` dépend du navigateur, des voix installées et de la plateforme.
 - Les traductions API.Bible préparées côté serveur nécessitent `BIBLE_API_KEY` et un mapping de livres robuste avant exposition produit.
+- La routine quotidienne et son historique restent locaux à l'appareil (clé `omed_bible_daily_routine`) et ne sont pas encore synchronisés via Google Drive ni inclus dans l'export JSON.
+- La carte de verset s'appuie sur l'API Canvas et le presse-papier/Web Share du navigateur ; le rendu et la copie image dépendent du support de `ClipboardItem` et des polices disponibles.
+- Aucune notification locale en arrière-plan n'est implémentée : les rappels fiables nécessiteraient un service worker dédié, hors périmètre actuel.
 
 ## Roadmap
 
@@ -129,6 +154,8 @@ Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde local
 - Bible LSG statique complète dans `public/bibles/` pour une lecture et une recherche entièrement hors ligne.
 - Amélioration du stockage OAuth pour réduire encore la persistance locale.
 - Couverture de tests plus large sur stores et synchronisation.
+- Synchronisation Drive et export JSON de la routine quotidienne (actuellement locale uniquement).
+- Notifications/rappels quotidiens locaux via service worker.
 
 ## Structure du projet
 

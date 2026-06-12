@@ -13,6 +13,7 @@ export const OMED_STORAGE_KEYS = {
   prayers: 'omed_bible_prayers',
   searchHistory: 'omed_bible_search_history',
   readingActivity: 'omed_bible_reading_activity',
+  dailyRoutine: 'omed_bible_daily_routine',
 } as const;
 
 export const OMED_LOCAL_STORAGE_KEYS = Object.values(OMED_STORAGE_KEYS);
