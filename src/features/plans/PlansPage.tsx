@@ -19,7 +19,7 @@ export const PlansPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-5xl py-4 md:py-8">
-      <section className="mb-8 rounded-[1.75rem] border border-border bg-bg-card/55 p-6 shadow-[var(--shadow-soft)] md:p-8">
+      <section className="mb-8 omed-card p-6 md:p-8">
         <p className="omed-kicker mb-3">Parcours de lecture</p>
         <h1 className="flex items-center gap-3 font-display text-4xl font-semibold tracking-tight text-text-primary">
           <Calendar className="text-accent-gold" strokeWidth={1.5} />
@@ -41,7 +41,7 @@ export const PlansPage: React.FC = () => {
             <article
               key={plan.id}
               onClick={() => handlePlanClick(plan.id, isPlanned)}
-              className={`group relative overflow-hidden rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)] transition-all ${
+              className={`group relative overflow-hidden omed-card p-6 transition-all ${
                 isPlanned ? 'opacity-70' : 'cursor-pointer hover:-translate-y-0.5 hover:border-accent-gold/35'
               }`}
             >

@@ -17,7 +17,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div role="alert" className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
+    <div role="alert" className={compact ? 'empty-state px-5 py-10 text-center' : 'empty-state px-6 py-16 text-center'}>
       <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/10 text-[color:var(--color-danger)]">
         <AlertTriangle size={24} aria-hidden="true" />
       </div>

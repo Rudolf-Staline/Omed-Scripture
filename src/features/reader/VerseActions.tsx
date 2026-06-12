@@ -106,7 +106,7 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
 
   return (
     <>
-      <div className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto flex max-w-md items-center justify-center rounded-3xl border border-border bg-bg-card/98 px-3 py-2 shadow-[var(--shadow-panel)] backdrop-blur-xl sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:inline-flex sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()} role="toolbar" aria-label="Actions du verset sélectionné">
+      <div className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto flex max-w-md items-center justify-center verse-action-surface rounded-3xl px-3 py-2 sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:inline-flex sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()} role="toolbar" aria-label="Actions du verset sélectionné">
         {showColors ? (
           <div className="flex flex-wrap items-center justify-center gap-2 px-2">
             {colors.map((c) => (
@@ -134,7 +134,7 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
                 <Share2 size={18} />
               </button>
               {showShareOptions && (
-                <div className="absolute bottom-full left-1/2 z-50 mb-2 flex w-52 -translate-x-1/2 flex-col rounded-2xl border border-border bg-bg-card/98 py-2 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+                <div className="absolute bottom-full left-1/2 z-50 mb-2 flex w-52 -translate-x-1/2 flex-col verse-action-surface rounded-2xl py-2">
                   <button type="button" onClick={handleCopyImage} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier l'image</button>
                   <button type="button" onClick={handleCopyText} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary">Copier le texte</button>
                   <button type="button" onClick={handleShareWhatsApp} className="px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary text-accent-sage">WhatsApp</button>

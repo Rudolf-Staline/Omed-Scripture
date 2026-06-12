@@ -117,10 +117,10 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
   };
 
   return (
-    <article className={`reading-surface ${widthClasses[settings.readingWidth]} mx-auto px-5 py-7 pb-28 sm:px-8 sm:py-8 md:px-12 lg:px-14 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
-      <header className="mb-9 border-b border-border/70 pb-6">
+    <article className={`reading-surface ${widthClasses[settings.readingWidth]} mx-auto px-5 py-8 pb-28 sm:px-8 sm:py-10 md:px-12 lg:px-16 ${fontClass} ${sizeClasses[settings.fontSize]} ${leadingClasses[settings.lineHeight]}`}>
+      <header className="mb-9 border-b border-border/70 pb-6 text-center sm:text-left">
         <p className="omed-kicker mb-3">{translation.toUpperCase()}</p>
-        <h2 className="font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
           {verses.length > 0 ? `${verses[0].book_name} ${chapter}` : `${bookId} ${chapter}`}
         </h2>
       </header>
@@ -132,12 +132,12 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           const highlight = highlights[verseId];
 
           return (
-            <div key={verseId} className="group/verse relative cursor-pointer rounded-xl px-2 py-1 -mx-2 hover:bg-bg-card/35 focus-within:bg-bg-card/45" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
+            <div key={verseId} className="group/verse relative -mx-2 cursor-pointer rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus-within:bg-bg-card/45 sm:-mx-3 sm:px-3" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
               {isSelected && (
                 <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
               )}
               <span className={clsx(
-                'transition-all duration-200 rounded-lg px-1.5 py-0.5 -mx-1.5',
+                'transition-all duration-200 rounded-lg px-1.5 py-0.5 -mx-1.5 decoration-accent-gold/35',
                 highlight ? getHighlightStyle(highlight.color) : '',
                 isSelected ? 'bg-bg-card ring-1 ring-accent-gold/30 shadow-sm' : ''
               )}>

@@ -123,18 +123,18 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ translation, bookId, c
   const translationName = FEATURED_TRANSLATIONS.find((t) => t.id === translation)?.short || translation;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 min-h-16 bg-bg-card border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50 flex flex-col">
+    <div className="verse-action-surface fixed bottom-0 left-0 right-0 z-50 flex min-h-16 flex-col border-x-0 border-b-0">
       <div className="flex-1 flex items-center justify-between gap-3 px-4 sm:px-6 max-w-4xl mx-auto w-full py-3">
         <div className="flex-1 flex items-center min-w-0">
           <div className="truncate">
             <h4 className="font-display font-semibold text-text-primary truncate">{getBookName(bookId)} {chapter}</h4>
             <p className="text-xs text-text-muted uppercase tracking-wider">{translationName}</p>
-            {message && <p className="text-xs normal-case tracking-normal text-red-500">{message}</p>}
+            {message && <p className="text-xs normal-case tracking-normal text-[color:var(--color-danger)]">{message}</p>}
           </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center gap-2">
-          <button onClick={togglePlay} disabled={isLoading || Boolean(message)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${isLoading || message ? 'bg-bg-secondary text-text-muted cursor-not-allowed' : 'bg-accent-gold text-white hover:bg-accent-brown'}`}>
+          <button onClick={togglePlay} disabled={isLoading || Boolean(message)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${isLoading || message ? 'bg-bg-secondary text-text-muted cursor-not-allowed' : 'bg-accent-gold text-[#171109] hover:bg-accent-brown'}`}>
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
           <button onClick={stopPlayback} disabled={!hasUtterance} className="p-2 text-text-muted hover:text-text-primary disabled:opacity-40" title="Stop">

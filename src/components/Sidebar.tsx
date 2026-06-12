@@ -18,8 +18,8 @@ const baseNavItems = [
 const navLinkClass = ({ isActive }: { isActive: boolean }) => clsx(
   'group relative flex items-center gap-3 rounded-xl border px-3.5 py-3 text-sm transition-all duration-200',
   isActive
-    ? 'border-accent-gold/35 bg-bg-card text-text-primary shadow-[0_18px_45px_-35px_var(--color-shadow)]'
-    : 'border-transparent text-text-secondary hover:border-border hover:bg-bg-card/55 hover:text-text-primary'
+    ? 'border-accent-gold/40 bg-bg-card/90 text-text-primary shadow-[0_18px_45px_-35px_var(--color-shadow)]'
+    : 'border-transparent text-text-secondary hover:border-accent-gold/20 hover:bg-bg-card/58 hover:text-text-primary'
 );
 
 export const Sidebar: React.FC = () => {
@@ -51,7 +51,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col border-r border-border bg-bg-secondary/82 backdrop-blur-xl">
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col border-r border-border bg-bg-secondary/86 shadow-[18px_0_70px_-60px_var(--color-shadow)] backdrop-blur-xl">
         <div className="relative px-6 pb-7 pt-8">
           <button type="button" onClick={() => navigate('/')} className="group flex w-full items-center gap-3 text-left">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent-gold/30 bg-accent-gold/10 text-accent-gold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
@@ -81,7 +81,7 @@ export const Sidebar: React.FC = () => {
           ))}
         </nav>
 
-        <div className="m-4 mt-auto rounded-2xl border border-border bg-bg-card/55 p-4">
+        <div className="m-4 mt-auto omed-card p-4">
           {user ? (
             <div className="mb-4 flex items-center gap-3">
               {user.picture ? <img src={user.picture} alt={user.name} className="h-10 w-10 rounded-full ring-1 ring-border" /> : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-brown text-bg-card font-bold">{user.name.charAt(0)}</div>}

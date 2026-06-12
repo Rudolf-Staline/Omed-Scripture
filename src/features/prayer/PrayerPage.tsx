@@ -240,7 +240,7 @@ export const PrayerPage: React.FC = () => {
       </section>
 
       {visiblePrayers.length === 0 ? (
-        <div className="rounded-[1.5rem] border border-dashed border-border bg-bg-card/40 p-10 text-center">
+        <div className="empty-state p-10 text-center">
           <Sparkles size={32} className="mx-auto mb-4 text-accent-gold/70" />
           <h2 className="font-display text-xl text-text-primary">
             {prayers.length === 0 ? 'Votre carnet est encore silencieux.' : 'Aucune prière ne correspond à ces filtres.'}
@@ -254,7 +254,7 @@ export const PrayerPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {visiblePrayers.map((entry) => (
-            <article key={entry.id} className="rounded-[1.35rem] border border-border bg-bg-card/62 p-5 shadow-[var(--shadow-soft)]">
+            <article key={entry.id} className="omed-card p-5">
               {editingId === entry.id ? (
                 <PrayerForm
                   initial={{ title: entry.title, content: entry.content, category: entry.category, verseRef: entry.verseRef ?? '' }}

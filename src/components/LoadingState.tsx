@@ -12,8 +12,8 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div role="status" aria-live="polite" className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
-      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-bg-card/70" aria-hidden="true">
+    <div role="status" aria-live="polite" className={compact ? 'empty-state px-5 py-10 text-center' : 'empty-state px-6 py-16 text-center'}>
+      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-accent-gold/25 bg-accent-gold/8" aria-hidden="true">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-accent-gold" />
       </div>
       <h2 className="font-display text-xl font-semibold text-text-primary">{title}</h2>

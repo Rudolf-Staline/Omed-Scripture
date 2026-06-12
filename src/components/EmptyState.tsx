@@ -17,8 +17,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div className={compact ? 'py-10 text-center' : 'py-16 text-center'}>
-      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-bg-card/70 text-accent-gold">
+    <div className={compact ? 'empty-state px-5 py-10 text-center' : 'empty-state px-6 py-16 text-center'}>
+      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-accent-gold/30 bg-accent-gold/10 text-accent-gold">
         <Inbox size={24} aria-hidden="true" />
       </div>
       <h2 className="mb-2 font-display text-2xl font-semibold text-text-primary">{title}</h2>
