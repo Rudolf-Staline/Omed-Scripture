@@ -9,11 +9,11 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ rail, mobileTop, children, className }) => (
-  <div className={clsx('min-h-screen overflow-x-hidden bg-bg-primary text-text-primary font-sans lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]', className)}>
+  <div className={clsx('min-h-screen overflow-x-hidden bg-bg-primary text-text-primary font-sans lg:grid lg:h-screen lg:grid-cols-[17rem_minmax(0,1fr)] lg:overflow-hidden', className)}>
     {rail}
-    <div className="relative flex min-w-0 flex-col">
+    <div className="relative flex min-h-screen min-w-0 flex-col lg:h-screen lg:min-h-0 lg:overflow-hidden">
       {mobileTop}
-      <main className="relative min-h-screen flex-1 overflow-y-auto pb-28 lg:pb-0" aria-label="Contenu principal">
+      <main className="relative min-h-screen flex-1 overflow-y-auto pb-28 lg:min-h-0 lg:pb-0" aria-label="Contenu principal">
         <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 md:px-8 lg:px-10 lg:py-8">
           {children}
         </div>
