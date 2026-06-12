@@ -4,15 +4,15 @@ Omed Scripture est une application web React/Vite de lecture, comparaison, annot
 
 **Application :** https://omed-scripture.vercel.app
 
-## Identité visuelle — « Atlas Nocturne »
+## Identité visuelle — « Interface moderne »
 
-L'interface adopte une direction artistique d'*observatoire-scriptorium* : la sensation d'un vieil atlas céleste consulté à la lampe. Fonds bleu-sarcelle de nuit et encre d'ardoise, texte parchemin froid, accent laiton d'astrolabe, secondaire vert-de-gris (patine), accent émotionnel braise/cuivre, et un motif discret de constellation. Cinq ambiances sont disponibles dans les préférences :
+L'interface adopte une direction artistique d'*application biblique moderne* : la sensation d'un vieil atlas céleste consulté à la lampe. Fonds bleu-sarcelle de nuit et encre d'ardoise, texte parchemin froid, accent laiton d'astrolabe, secondaire vert-de-gris (patine), accent émotionnel braise/cuivre, et un motif discret de constellation. Cinq ambiances sont disponibles dans les préférences :
 
 | Thème | Ambiance |
 |---|---|
-| Nuit d'observatoire | Bleu-sarcelle profond et laiton (sombre par défaut) |
+| Mode sombre | Bleu-sarcelle profond et laiton (sombre par défaut) |
 | Encre profonde | Nuit minimale, lune d'argent (contraste élevé) |
-| Atlas de jour | Vélin froid de cartographe (clair) |
+| Mode clair | Vélin froid de cartographe (clair) |
 | Aube | Lumière douce, rose et ambre (clair) |
 | Parchemin | Chaleur nostalgique (clair) |
 
@@ -33,10 +33,10 @@ Le projet est en stabilisation progressive. Les fonctionnalités principales son
 - Verset du jour local et déterministe (sans API externe), avec ouverture du chapitre, copie, partage et mise en favori.
 - Accueil « dashboard spirituel » : reprise de lecture, parcours en cours, progression hebdomadaire et série de lecture, notes et favoris récents, état de synchronisation.
 - Recherche de versets : choix de traduction, historique récent, suggestions thématiques, filtres par testament et par livre, surlignage du terme recherché.
-- Marque-pages triables par date ou ordre biblique canonique.
+- Favoris triables par date ou ordre biblique canonique.
 - Notes avec tags optionnels, filtres par tag et par livre, tri par date ou ordre biblique, copie avec référence.
 - Carnet de prière : catégories (gratitude, demande, confession, intercession, méditation), statuts (en cours, exaucée, archivée), verset lié optionnel, recherche et filtres.
-- Parcours de lecture réels : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
+- Plans de lecture réels : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
 - Audio via `speechSynthesis`, déclenché uniquement par l’utilisateur.
 - Export JSON local (incluant les prières) et synchronisation Google Drive AppData.
 - Contenu biblique statique servi depuis `public/bibles/` (provider local prioritaire avec repli automatique vers les API).

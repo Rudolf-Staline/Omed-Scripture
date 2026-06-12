@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import clsx from 'clsx';
-import { ChevronDown, ChevronLeft, ChevronRight, Crosshair, GitCompare, Headphones, Maximize2, Minimize2, NotebookPen, PanelRightOpen, WifiOff } from 'lucide-react';
+import { BookOpenText, ChevronLeft, ChevronRight, GitCompare, Headphones, Maximize2, Minimize2, NotebookPen, WifiOff } from 'lucide-react';
 import { useBibleStore } from '../../store/useBibleStore';
 import { BIBLE_BOOKS, FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { ChapterView } from './ChapterView';
@@ -10,182 +10,97 @@ import { AudioPlayer } from '../../components/AudioPlayer';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { recordReadingDay } from '../../utils/readingActivity';
 
-const SelectChevron = () => <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />;
-
-const getSupportedTranslation = (value?: string): string => (
-  FEATURED_TRANSLATIONS.some((translation) => translation.id === value) ? value! : 'lsg'
-);
-
-const getSupportedBook = (value?: string) => (
-  BIBLE_BOOKS.find((book) => book.id === value) ?? BIBLE_BOOKS.find((book) => book.id === 'jean') ?? BIBLE_BOOKS[0]
-);
-
-const clampChapter = (rawChapter: string | number | undefined, maxChapters: number): number => {
-  const parsed = Number.parseInt(String(rawChapter ?? 1), 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return 1;
-  return Math.min(parsed, maxChapters);
-};
+const getSupportedTranslation = (value?: string): string => FEATURED_TRANSLATIONS.some((item) => item.id === value) ? value! : 'lsg';
+const getSupportedBook = (value?: string) => BIBLE_BOOKS.find((book) => book.id === value) ?? BIBLE_BOOKS.find((book) => book.id === 'jean') ?? BIBLE_BOOKS[0];
+const clampChapter = (raw: string | number | undefined, max: number) => Math.min(Math.max(Number.parseInt(String(raw ?? 1), 10) || 1, 1), max);
 
 export const ReaderPage: React.FC = () => {
-  const { translation, bookId, chapter } = useParams<{ translation: string; bookId: string; chapter: string }>();
+  const params = useParams<{ translation: string; bookId: string; chapter: string }>();
   const navigate = useNavigate();
   const [showAudio, setShowAudio] = React.useState(false);
   const [focusMode, setFocusMode] = React.useState(false);
-  const [studyMode, setStudyMode] = React.useState(true);
+  const [studyMode, setStudyMode] = React.useState(false);
   const isOnline = useOnlineStatus();
 
-  const storedTranslation = useBibleStore((state) => state.translation);
-  const storedBookId = useBibleStore((state) => state.bookId);
-  const storedChapter = useBibleStore((state) => state.chapter);
+  const stored = useBibleStore();
   const setPosition = useBibleStore((state) => state.setPosition);
   const compareTranslation = useBibleStore((state) => state.compareTranslation);
   const setCompareTranslation = useBibleStore((state) => state.setCompareTranslation);
 
-  const effectiveTranslation = getSupportedTranslation(translation || storedTranslation || 'lsg');
-  const currentBook = getSupportedBook(bookId || storedBookId || 'jean');
-  const effectiveBookId = currentBook.id;
-  const chapterNum = clampChapter(chapter || storedChapter || 1, currentBook.chapters);
-  const defaultCompareTranslation = effectiveTranslation === 'darby' ? 'lsg' : 'darby';
-  const currentTranslation = FEATURED_TRANSLATIONS.find((t) => t.id === effectiveTranslation);
+  const effectiveTranslation = getSupportedTranslation(params.translation || stored.translation);
+  const currentBook = getSupportedBook(params.bookId || stored.bookId);
+  const chapterNum = clampChapter(params.chapter || stored.chapter, currentBook.chapters);
+  const compareWith = compareTranslation || (effectiveTranslation === 'darby' ? 'lsg' : 'darby');
 
-  useEffect(() => {
-    setPosition(effectiveTranslation, effectiveBookId, chapterNum);
-  }, [effectiveTranslation, effectiveBookId, chapterNum, setPosition]);
-
-  useEffect(() => {
-    recordReadingDay();
-  }, [effectiveTranslation, effectiveBookId, chapterNum]);
-
+  useEffect(() => setPosition(effectiveTranslation, currentBook.id, chapterNum), [effectiveTranslation, currentBook.id, chapterNum, setPosition]);
+  useEffect(() => recordReadingDay(), [effectiveTranslation, currentBook.id, chapterNum]);
   useEffect(() => {
     if (!focusMode) return undefined;
-    document.body.classList.add('omed-focus-reading');
-    const exitOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setFocusMode(false);
-    };
-    window.addEventListener('keydown', exitOnEscape);
-    return () => {
-      document.body.classList.remove('omed-focus-reading');
-      window.removeEventListener('keydown', exitOnEscape);
-    };
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setFocusMode(false); };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
   }, [focusMode]);
 
-  const goToPreviousChapter = () => {
-    if (chapterNum > 1) {
-      navigate(`/read/${effectiveTranslation}/${effectiveBookId}/${chapterNum - 1}`);
-      return;
-    }
-    const index = BIBLE_BOOKS.findIndex((book) => book.id === effectiveBookId);
+  const navigateTo = (nextTranslation = effectiveTranslation, nextBook = currentBook.id, nextChapter = chapterNum) => navigate(`/read/${nextTranslation}/${nextBook}/${nextChapter}`);
+  const goPrevious = () => {
+    if (chapterNum > 1) return navigateTo(effectiveTranslation, currentBook.id, chapterNum - 1);
+    const index = BIBLE_BOOKS.findIndex((book) => book.id === currentBook.id);
     if (index > 0) {
       const previous = BIBLE_BOOKS[index - 1];
-      navigate(`/read/${effectiveTranslation}/${previous.id}/${previous.chapters}`);
+      navigateTo(effectiveTranslation, previous.id, previous.chapters);
     }
   };
-
-  const goToNextChapter = () => {
-    if (chapterNum < currentBook.chapters) {
-      navigate(`/read/${effectiveTranslation}/${effectiveBookId}/${chapterNum + 1}`);
-      return;
-    }
-    const index = BIBLE_BOOKS.findIndex((book) => book.id === effectiveBookId);
-    if (index < BIBLE_BOOKS.length - 1) {
-      const next = BIBLE_BOOKS[index + 1];
-      navigate(`/read/${effectiveTranslation}/${next.id}/1`);
-    }
+  const goNext = () => {
+    if (chapterNum < currentBook.chapters) return navigateTo(effectiveTranslation, currentBook.id, chapterNum + 1);
+    const index = BIBLE_BOOKS.findIndex((book) => book.id === currentBook.id);
+    if (index < BIBLE_BOOKS.length - 1) navigateTo(effectiveTranslation, BIBLE_BOOKS[index + 1].id, 1);
   };
 
-  const bookProgress = Math.round((chapterNum / currentBook.chapters) * 100);
-  const selectClass = 'min-h-11 w-full appearance-none rounded-2xl border border-border bg-bg-card/78 pl-3 pr-9 text-sm font-semibold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-accent-gold/35 focus:outline-none focus:ring-2 focus:ring-accent-gold/35';
+  const selectClass = 'min-h-11 w-full rounded-2xl border border-border bg-bg-card px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-gold/35';
 
   return (
-    <div className={clsx('reader-chapel relative', focusMode && 'reader-chapel--focus')}>
+    <div className={clsx('mx-auto space-y-4', focusMode ? 'max-w-5xl' : 'max-w-6xl')}>
       {!focusMode && (
-        <section className="mb-6 overflow-hidden rounded-[2.2rem] border border-border bg-bg-card/56 p-4 shadow-[var(--shadow-soft)] sm:p-5 lg:p-6">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
-            <div>
-              <p className="omed-kicker mb-4">Codex Reader · manuscrit actif</p>
-              <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-                <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.055em] text-text-primary sm:text-6xl lg:text-7xl">{currentBook.name}</h1>
-                <span className="rounded-[1.2rem] border border-accent-gold/30 bg-accent-gold/12 px-4 py-2 font-display text-3xl text-accent-gold">{chapterNum}</span>
-              </div>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary">La référence devient le centre : passage, traduction, étude et audio gravitent autour du manuscrit.</p>
+        <header className="sticky top-0 z-30 -mx-4 border-b border-border bg-bg-primary/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:rounded-[1.7rem] lg:border lg:bg-bg-card lg:p-4 lg:shadow-[var(--shadow-soft)]">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-text-muted"><BookOpenText size={14} /> Bible</p>
+              <h1 className="truncate text-2xl font-bold text-text-primary">{currentBook.name} {chapterNum}</h1>
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-              <div className="relative"><select value={effectiveTranslation} onChange={(e) => navigate(`/read/${e.target.value}/${effectiveBookId}/${chapterNum}`)} className={selectClass} aria-label="Choisir la traduction">{FEATURED_TRANSLATIONS.map((t) => <option key={t.id} value={t.id}>{t.short} · {t.name}</option>)}</select><SelectChevron /></div>
-              <div className="relative"><select value={effectiveBookId} onChange={(e) => navigate(`/read/${effectiveTranslation}/${e.target.value}/1`)} className={selectClass} aria-label="Choisir le livre">{BIBLE_BOOKS.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}</select><SelectChevron /></div>
-              <div className="relative"><select value={chapterNum} onChange={(e) => navigate(`/read/${effectiveTranslation}/${effectiveBookId}/${e.target.value}`)} className={selectClass} aria-label="Choisir le chapitre">{Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((chapterValue) => <option key={chapterValue} value={chapterValue}>Chapitre {chapterValue}</option>)}</select><SelectChevron /></div>
-            </div>
+            {!isOnline && <span className="flex items-center gap-1 rounded-full bg-bg-secondary px-3 py-1 text-xs font-semibold text-text-secondary"><WifiOff size={14} /> Hors ligne</span>}
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-            <div className="flex items-center gap-3">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg-primary/70" role="progressbar" aria-valuemin={1} aria-valuemax={currentBook.chapters} aria-valuenow={chapterNum} aria-label={`Progression dans ${currentBook.name}`}>
-                <div className="h-full rounded-full bg-accent-gold transition-all duration-300" style={{ width: `${bookProgress}%` }} />
-              </div>
-              <span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-text-muted">{bookProgress}%</span>
-            </div>
-            <div className="flex snap-x gap-2 overflow-x-auto pb-1 lg:overflow-visible lg:pb-0">
-              {!isOnline && <span className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-border px-3 text-sm font-semibold text-accent-brown"><WifiOff size={16} /> Cache</span>}
-              <button type="button" onClick={() => setShowAudio(true)} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-border bg-bg-primary/55 px-3 text-sm font-semibold text-text-secondary hover:border-accent-gold/35 hover:text-accent-gold"><Headphones size={16} /> Audio</button>
-              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : defaultCompareTranslation)} className={clsx('inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3 text-sm font-semibold', compareTranslation ? 'border-accent-gold/45 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-primary/55 text-text-secondary hover:border-accent-gold/35 hover:text-accent-gold')}><GitCompare size={16} /> Comparer</button>
-              <button type="button" onClick={() => setStudyMode((mode) => !mode)} className={clsx('inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3 text-sm font-semibold', studyMode ? 'border-accent-gold/45 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-primary/55 text-text-secondary hover:border-accent-gold/35 hover:text-accent-gold')}><NotebookPen size={16} /> Étude</button>
-              <button type="button" onClick={() => setFocusMode(true)} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-border bg-bg-primary/55 px-3 text-sm font-semibold text-text-secondary hover:border-accent-gold/35 hover:text-accent-gold"><Maximize2 size={16} /> Focus</button>
+          <div className="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)_7rem_auto]">
+            <label className="sr-only" htmlFor="translation-select">Traduction</label>
+            <select id="translation-select" value={effectiveTranslation} onChange={(event) => navigateTo(event.target.value)} className={selectClass}>{FEATURED_TRANSLATIONS.map((item) => <option key={item.id} value={item.id}>{item.short}</option>)}</select>
+            <label className="sr-only" htmlFor="book-select">Livre</label>
+            <select id="book-select" value={currentBook.id} onChange={(event) => navigateTo(effectiveTranslation, event.target.value, 1)} className={selectClass}>{BIBLE_BOOKS.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}</select>
+            <label className="sr-only" htmlFor="chapter-select">Chapitre</label>
+            <select id="chapter-select" value={chapterNum} onChange={(event) => navigateTo(effectiveTranslation, currentBook.id, Number(event.target.value))} className={selectClass}>{Array.from({ length: currentBook.chapters }, (_, index) => index + 1).map((num) => <option key={num} value={num}>{num}</option>)}</select>
+            <div className="grid grid-cols-4 gap-1 sm:flex">
+              <button type="button" onClick={() => setShowAudio(true)} className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-bg-card px-3 text-text-secondary hover:text-text-primary" aria-label="Écouter ce chapitre"><Headphones size={18} /></button>
+              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : compareWith)} className={clsx('flex min-h-11 items-center justify-center rounded-2xl border px-3', compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'border-border bg-bg-card text-text-secondary')} aria-label="Comparer une traduction"><GitCompare size={18} /></button>
+              <button type="button" onClick={() => setStudyMode((value) => !value)} className={clsx('flex min-h-11 items-center justify-center rounded-2xl border px-3', studyMode ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'border-border bg-bg-card text-text-secondary')} aria-label="Afficher notes et favoris"><NotebookPen size={18} /></button>
+              <button type="button" onClick={() => setFocusMode(true)} className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-bg-card px-3 text-text-secondary hover:text-text-primary" aria-label="Activer le mode focus"><Maximize2 size={18} /></button>
             </div>
           </div>
-        </section>
+        </header>
       )}
 
-      <section className={clsx('grid gap-6', focusMode ? 'mx-auto max-w-6xl' : studyMode ? 'xl:grid-cols-[minmax(0,1fr)_21rem]' : '')}>
-        <div className="min-w-0 space-y-6">
-          <div className={clsx(compareTranslation && !focusMode ? 'grid gap-6 2xl:grid-cols-2' : '')}>
-            <ChapterView translation={effectiveTranslation} bookId={effectiveBookId} chapter={chapterNum} focus={focusMode} />
-            {compareTranslation && !focusMode && (
-              <div className="min-w-0 rounded-[2rem] border border-accent-gold/22 bg-bg-primary/35 p-3">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
-                  <div>
-                    <p className="omed-kicker">Comparaison distincte</p>
-                    <p className="mt-1 text-sm text-text-muted">Deuxième témoin aligné visuellement.</p>
-                  </div>
-                  <div className="relative min-w-44"><select value={compareTranslation} onChange={(e) => setCompareTranslation(e.target.value)} className={selectClass} aria-label="Traduction de comparaison">{FEATURED_TRANSLATIONS.map((t) => <option key={t.id} value={t.id}>{t.short} · {t.name}</option>)}</select><SelectChevron /></div>
-                </div>
-                <ChapterView translation={compareTranslation} bookId={effectiveBookId} chapter={chapterNum} comparison />
-              </div>
-            )}
-          </div>
+      {focusMode && <button type="button" onClick={() => setFocusMode(false)} className="fixed right-4 top-4 z-40 flex min-h-11 items-center gap-2 rounded-2xl bg-bg-card px-4 text-sm font-semibold shadow-[var(--shadow-soft)]"><Minimize2 size={17} /> Quitter</button>}
 
-          {!focusMode && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={goToPreviousChapter} disabled={effectiveBookId === BIBLE_BOOKS[0].id && chapterNum === 1} className="group flex min-h-16 items-center justify-between rounded-[1.6rem] border border-border bg-bg-card/52 px-4 text-left text-sm font-semibold text-text-secondary transition-colors hover:border-accent-gold/35 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-45">
-                <ChevronLeft size={20} /><span>Chapitre précédent</span>
-              </button>
-              <button type="button" onClick={goToNextChapter} disabled={effectiveBookId === BIBLE_BOOKS[BIBLE_BOOKS.length - 1].id && chapterNum === currentBook.chapters} className="group flex min-h-16 items-center justify-between rounded-[1.6rem] border border-border bg-bg-card/52 px-4 text-left text-sm font-semibold text-text-secondary transition-colors hover:border-accent-gold/35 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-45">
-                <span>Chapitre suivant</span><ChevronRight size={20} />
-              </button>
-            </div>
-          )}
+      <div className={clsx('grid gap-4', studyMode && !focusMode ? 'xl:grid-cols-[minmax(0,1fr)_22rem]' : '')}>
+        <div className="min-w-0 space-y-4">
+          <ChapterView translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} focus={focusMode} />
+          {compareTranslation && !focusMode && <ChapterView translation={compareTranslation} bookId={currentBook.id} chapter={chapterNum} comparison />}
+          <nav className="grid grid-cols-2 gap-3" aria-label="Navigation entre chapitres">
+            <button type="button" onClick={goPrevious} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-bg-card font-semibold text-text-primary"><ChevronLeft size={18} /> Précédent</button>
+            <button type="button" onClick={goNext} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent-gold font-semibold text-white">Suivant <ChevronRight size={18} /></button>
+          </nav>
         </div>
-
-        {studyMode && !focusMode && (
-          <aside className="min-w-0 xl:sticky xl:top-6 xl:self-start">
-            <div className="mb-4 rounded-[1.8rem] border border-border bg-bg-card/52 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-text-primary"><PanelRightOpen size={17} className="text-accent-gold" /> Console d’étude</div>
-              <p className="mt-2 text-sm leading-6 text-text-secondary">Notes, références et prières restent dans la colonne d’atelier, hors du flux du manuscrit.</p>
-            </div>
-            <StudyPanel translation={effectiveTranslation} bookId={effectiveBookId} chapter={chapterNum} />
-          </aside>
-        )}
-      </section>
-
-      {focusMode && (
-        <div className="verse-action-surface fixed bottom-[calc(1.1rem+env(safe-area-inset-bottom))] left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-full px-2 py-1.5">
-          <button type="button" onClick={goToPreviousChapter} className="flex min-h-12 min-w-12 items-center justify-center rounded-full text-text-secondary hover:bg-bg-secondary hover:text-text-primary" aria-label="Chapitre précédent"><ChevronLeft size={19} /></button>
-          <div className="hidden items-center gap-2 px-3 text-sm font-semibold text-text-secondary sm:flex"><Crosshair size={16} className="text-accent-gold" /> {currentBook.name} {chapterNum} · {currentTranslation?.short}</div>
-          <button type="button" onClick={() => setFocusMode(false)} className="flex min-h-12 items-center gap-2 rounded-full px-4 text-sm font-semibold text-text-secondary hover:bg-bg-secondary hover:text-text-primary" aria-label="Quitter le mode focus"><Minimize2 size={16} /> Quitter</button>
-          <button type="button" onClick={goToNextChapter} className="flex min-h-12 min-w-12 items-center justify-center rounded-full text-text-secondary hover:bg-bg-secondary hover:text-text-primary" aria-label="Chapitre suivant"><ChevronRight size={19} /></button>
-        </div>
-      )}
-
-      {showAudio && <AudioPlayer translation={effectiveTranslation} bookId={effectiveBookId} chapter={chapterNum} onClose={() => setShowAudio(false)} />}
+        {studyMode && !focusMode && <StudyPanel translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} />}
+      </div>
+      {showAudio && <AudioPlayer translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} onClose={() => setShowAudio(false)} />}
     </div>
   );
 };

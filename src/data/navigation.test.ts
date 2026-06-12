@@ -4,15 +4,15 @@ import { buildNavGroups, buildMobilePrimary, MOBILE_MORE_ITEMS, SETTINGS_ITEM } 
 const READER = '/read/lsg/jean/3';
 
 describe('navigation', () => {
-  it('injects the dynamic reader path into the Lire entry', () => {
+  it('injects the dynamic reader path into the Bible entry', () => {
     const groups = buildNavGroups(READER);
-    const lire = groups.flatMap((g) => g.items).find((item) => item.label === 'Lire');
-    expect(lire?.to).toBe(READER);
+    const bible = groups.flatMap((g) => g.items).find((item) => item.label === 'Bible');
+    expect(bible?.to).toBe(READER);
   });
 
-  it('groups destinations by domain with unique group ids', () => {
+  it('groups destinations into clear modern Bible app sections', () => {
     const groups = buildNavGroups(READER);
-    expect(groups.map((g) => g.id)).toEqual(['lecture', 'carnet']);
+    expect(groups.map((g) => g.id)).toEqual(['principal', 'personnel']);
     expect(new Set(groups.map((g) => g.id)).size).toBe(groups.length);
   });
 
@@ -33,7 +33,7 @@ describe('navigation', () => {
       ...buildNavGroups(READER).flatMap((g) => g.items.map((i) => i.to)),
       SETTINGS_ITEM.to,
     ]);
-    ['/', READER, '/search', '/plans', '/favorites', '/notes', '/prayer', '/settings'].forEach((route) => {
+    ['/', READER, '/search', '/plans', '/favorites', '/notes', '/prayer', '/settings', '/more'].forEach((route) => {
       expect(railTargets.has(route)).toBe(true);
     });
   });

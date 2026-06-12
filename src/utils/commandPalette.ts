@@ -21,11 +21,11 @@ export const buildCommands = (readerPath: string): PaletteCommand[] => {
     { id: 'go-home', label: 'Accueil', group: 'Aller à', kind: 'navigate', to: '/', keywords: ['accueil', 'home', 'aujourd', 'tableau'] },
     { id: 'go-reader', label: 'Reprendre la lecture', group: 'Aller à', kind: 'navigate', to: readerPath, keywords: ['lire', 'lecture', 'lecteur', 'bible', 'continuer'] },
     { id: 'go-search', label: 'Recherche', group: 'Aller à', kind: 'navigate', to: '/search', keywords: ['recherche', 'chercher', 'trouver', 'search'] },
-    { id: 'go-favorites', label: 'Marque-pages', group: 'Aller à', kind: 'navigate', to: '/favorites', keywords: ['favoris', 'marque', 'pages', 'versets'] },
+    { id: 'go-favorites', label: 'Favoris', group: 'Aller à', kind: 'navigate', to: '/favorites', keywords: ['favoris', 'marque', 'pages', 'versets'] },
     { id: 'go-notes', label: 'Notes', group: 'Aller à', kind: 'navigate', to: '/notes', keywords: ['notes', 'carnet', 'annotations'] },
     { id: 'go-prayer', label: 'Carnet de prière', group: 'Aller à', kind: 'navigate', to: '/prayer', keywords: ['priere', 'prière', 'journal', 'gratitude'] },
-    { id: 'go-plans', label: 'Parcours de lecture', group: 'Aller à', kind: 'navigate', to: '/plans', keywords: ['parcours', 'plans', 'plan', 'lecture'] },
-    { id: 'go-settings', label: 'Préférences', group: 'Aller à', kind: 'navigate', to: '/settings', keywords: ['reglages', 'réglages', 'parametres', 'paramètres', 'settings', 'theme'] },
+    { id: 'go-plans', label: 'Plans de lecture', group: 'Aller à', kind: 'navigate', to: '/plans', keywords: ['parcours', 'plans', 'plan', 'lecture'] },
+    { id: 'go-settings', label: 'Paramètres', group: 'Aller à', kind: 'navigate', to: '/settings', keywords: ['reglages', 'réglages', 'parametres', 'paramètres', 'settings', 'theme'] },
   ];
 
   const actions: PaletteCommand[] = [

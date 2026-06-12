@@ -16,7 +16,7 @@ interface PageCanvasProps {
 }
 
 /**
- * Surface de page unifiée du Scriptorium Atlas. Remplace les enveloppes
+ * Surface de page unifiée du Interface moderne. Remplace les enveloppes
  * `mx-auto max-w-… py-…` répétées dans chaque page par une largeur de
  * canevas cohérente (lecture, liste, large).
  */

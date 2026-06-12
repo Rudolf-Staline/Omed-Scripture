@@ -1,4 +1,4 @@
-import { Home, BookOpenText, Search, Bookmark, NotebookPen, HandHeart, CalendarRange, SlidersHorizontal } from 'lucide-react';
+import { BookOpenText, Bookmark, CalendarRange, Compass, HandHeart, Home, NotebookPen, Search, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -15,43 +15,42 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Navigation regroupée par domaines de sens (Atlas → rails thématiques).
-// `readerPath` est dynamique car « Lire » reprend la dernière position.
 export const buildNavGroups = (readerPath: string): NavGroup[] => [
   {
-    id: 'lecture',
-    label: 'Lecture',
+    id: 'principal',
+    label: 'Principal',
     items: [
       { to: '/', label: 'Accueil', icon: Home, end: true },
-      { to: readerPath, label: 'Lire', icon: BookOpenText },
-      { to: '/search', label: 'Recherche', icon: Search },
-      { to: '/plans', label: 'Parcours', icon: CalendarRange },
+      { to: readerPath, label: 'Bible', icon: BookOpenText },
+      { to: '/plans', label: 'Plans', icon: CalendarRange },
+      { to: '/search', label: 'Découvrir', icon: Search },
+      { to: '/more', label: 'Plus', icon: UserCircle },
     ],
   },
   {
-    id: 'carnet',
-    label: 'Carnet',
+    id: 'personnel',
+    label: 'Personnel',
     items: [
-      { to: '/favorites', label: 'Marque-pages', icon: Bookmark },
       { to: '/notes', label: 'Notes', icon: NotebookPen },
+      { to: '/favorites', label: 'Favoris', icon: Bookmark },
       { to: '/prayer', label: 'Prière', icon: HandHeart },
     ],
   },
 ];
 
-export const SETTINGS_ITEM: NavItem = { to: '/settings', label: 'Préférences', icon: SlidersHorizontal };
+export const SETTINGS_ITEM: NavItem = { to: '/settings', label: 'Paramètres', icon: Settings };
 
-// Dock mobile : 4 destinations primaires + bouton « Plus ».
 export const buildMobilePrimary = (readerPath: string): NavItem[] => [
   { to: '/', label: 'Accueil', icon: Home, end: true },
-  { to: readerPath, label: 'Lire', icon: BookOpenText },
-  { to: '/search', label: 'Recherche', icon: Search },
-  { to: '/notes', label: 'Notes', icon: NotebookPen },
+  { to: readerPath, label: 'Bible', icon: BookOpenText },
+  { to: '/plans', label: 'Plans', icon: CalendarRange },
+  { to: '/search', label: 'Découvrir', icon: Compass },
 ];
 
 export const MOBILE_MORE_ITEMS: NavItem[] = [
-  { to: '/favorites', label: 'Marque-pages', icon: Bookmark },
+  { to: '/more', label: 'Plus', icon: UserCircle },
+  { to: '/notes', label: 'Notes', icon: NotebookPen },
+  { to: '/favorites', label: 'Favoris', icon: Bookmark },
   { to: '/prayer', label: 'Prière', icon: HandHeart },
-  { to: '/plans', label: 'Parcours', icon: CalendarRange },
-  { to: '/settings', label: 'Préférences', icon: SlidersHorizontal },
+  { to: '/settings', label: 'Paramètres', icon: Settings },
 ];

@@ -11,13 +11,13 @@ export interface ThemeMeta {
   swatch: [string, string, string, string];
 }
 
-// Atlas Nocturne — cinq ambiances. Les clés Light/Sepia/Dark restent valides
+// Interface moderne — cinq ambiances. Les clés Light/Sepia/Dark restent valides
 // pour la rétrocompatibilité des préférences déjà enregistrées.
 export const THEMES: ThemeMeta[] = [
   {
     id: 'Dark',
     cssClass: 'theme-dark',
-    label: 'Nuit d’observatoire',
+    label: 'Mode sombre',
     mood: 'Bleu-sarcelle profond et laiton',
     scheme: 'dark',
     swatch: ['#0a1517', '#182c2a', '#cba968', '#4fa093'],
@@ -33,7 +33,7 @@ export const THEMES: ThemeMeta[] = [
   {
     id: 'Light',
     cssClass: 'theme-light',
-    label: 'Atlas de jour',
+    label: 'Mode clair',
     mood: 'Vélin froid de cartographe',
     scheme: 'light',
     swatch: ['#e9ece5', '#fcfdf8', '#8c6c2b', '#387b70'],

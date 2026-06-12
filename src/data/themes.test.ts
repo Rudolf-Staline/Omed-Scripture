@@ -7,7 +7,7 @@ describe('themes catalog', () => {
     ['Light', 'Sepia', 'Dark'].forEach((legacy) => expect(ids).toContain(legacy));
   });
 
-  it('adds the two new Atlas Nocturne themes', () => {
+  it('adds the two new Interface moderne themes', () => {
     const ids = THEMES.map((t) => t.id);
     expect(ids).toContain('Nocturne');
     expect(ids).toContain('Aube');

@@ -13,6 +13,7 @@ import { SettingsPage } from './features/settings/SettingsPage';
 import { PlanDetail } from './features/plans/PlanDetail';
 import { HomePage } from './features/home/HomePage';
 import { PrayerPage } from './features/prayer/PrayerPage';
+import { MorePage } from './features/more/MorePage';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -121,6 +122,7 @@ function App() {
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
