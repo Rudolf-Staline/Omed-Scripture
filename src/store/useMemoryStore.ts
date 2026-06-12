@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
+import { DRIVE_FILES, syncFileToDrive } from '../utils/driveSync';
 import { scheduleMemoryReview } from '../utils/memory';
 import type { MemoryReviewGrade, MemoryVerse, MemoryVerseInput } from '../types/memory';
+import { useAuthStore } from './useAuthStore';
+import { useSettingsStore } from './useSettingsStore';
 
 const MAX_MEMORY_VERSES = 300;
 const STATUS_VALUES: MemoryVerse['status'][] = ['learning', 'reviewing', 'mastered'];
@@ -80,6 +83,12 @@ const persist = (items: MemoryVerse[], storage: Storage | undefined = getStorage
   }
 };
 
+const syncIfEnabled = (items: MemoryVerse[]) => {
+  const token = useAuthStore.getState().token;
+  const synced = useSettingsStore.getState().synced;
+  if (token && synced) syncFileToDrive(DRIVE_FILES.memory, items, token).catch(console.error);
+};
+
 const makeId = (verseId: string) => `memory_${verseId}_${Date.now()}`;
 
 interface MemoryState {
@@ -120,6 +129,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
     set((state) => {
       const next = sanitizeMemoryVerses([item, ...state.memoryVerses]);
       persist(next);
+      syncIfEnabled(next);
       return { memoryVerses: next };
     });
     return id;
@@ -127,11 +137,13 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
   removeMemoryVerse: (id) => set((state) => {
     const next = state.memoryVerses.filter((item) => item.id !== id);
     persist(next);
+    syncIfEnabled(next);
     return { memoryVerses: next };
   }),
   reviewMemoryVerse: (id, grade) => set((state) => {
     const next = state.memoryVerses.map((item) => item.id === id ? scheduleMemoryReview(item, grade) : item);
     persist(next);
+    syncIfEnabled(next);
     return { memoryVerses: next };
   }),
   loadMemoryVerses: (value) => {
