@@ -14,10 +14,12 @@ describe('navigation configuration', () => {
     expect(labels).not.toContain('Plus');
   });
 
-  it('keeps the mobile dock focused and moves More-only links into the overflow menu', () => {
+  it('keeps the mobile dock focused and moves secondary links into the overflow menu', () => {
     const mobileLabels = buildMobilePrimary('/read/lsg/jean/3').map((item) => item.label);
+    const moreLabels = MOBILE_MORE_ITEMS.map((item) => item.label);
     expect(mobileLabels).toEqual(['Accueil', 'Bible', 'Plans', 'Découvrir']);
-    expect(MOBILE_MORE_ITEMS.map((item) => item.label)).toContain('Plus');
-    expect(MOBILE_MORE_ITEMS.map((item) => item.label)).toContain('Moi');
+    expect(moreLabels).toContain('Plus');
+    expect(moreLabels).toContain('Moi');
+    expect(moreLabels).toContain('Collections');
   });
 });
