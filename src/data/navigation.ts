@@ -54,5 +54,6 @@ export const MOBILE_MORE_ITEMS: NavItem[] = [
   { to: '/notes', label: 'Notes', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', icon: Bookmark },
   { to: '/prayer', label: 'Prière', icon: HandHeart },
+  { to: '/collections', label: 'Collections', icon: Boxes },
   { to: '/settings', label: 'Paramètres', icon: Settings },
 ];
