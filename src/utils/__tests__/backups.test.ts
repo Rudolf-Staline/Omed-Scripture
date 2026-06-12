@@ -28,4 +28,21 @@ describe('backup validation', () => {
   it('rejects backups without valid position', () => {
     expect(validateBackup({ schemaVersion: 1, exportedAt: new Date().toISOString(), settings: {}, favorites: [], highlights: {}, notes: [], progress: {} })).toBe(false);
   });
+
+  it('accepts legacy backups without prayers and new backups with prayers', () => {
+    const base = {
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      settings: {},
+      favorites: [],
+      highlights: {},
+      notes: [],
+      progress: {},
+      position: { translation: 'lsg', bookId: 'jean', chapter: 3 },
+    };
+
+    expect(validateBackup(base)).toBe(true);
+    expect(validateBackup({ ...base, prayers: [] })).toBe(true);
+    expect(validateBackup({ ...base, prayers: 'invalide' })).toBe(false);
+  });
 });

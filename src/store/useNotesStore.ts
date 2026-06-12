@@ -11,12 +11,13 @@ export interface Note {
   verseText: string;
   dateAdded: number;
   dateModified: number;
+  tags?: string[]; // optionnel pour rester compatible avec les notes existantes
 }
 
 interface NotesState {
   notes: Note[];
   addNote: (note: Omit<Note, 'id' | 'dateAdded' | 'dateModified'>) => void;
-  updateNote: (id: string, text: string) => void;
+  updateNote: (id: string, text: string, tags?: string[]) => void;
   removeNote: (id: string) => void;
   loadNotes: (notes: Note[]) => void;
 }
@@ -55,10 +56,10 @@ export const useNotesStore = create<NotesState>((set) => ({
       
       return { notes: newNotes };
     }),
-  updateNote: (id, text) =>
+  updateNote: (id, text, tags) =>
     set((state) => {
       const newNotes = state.notes.map((n) =>
-        n.id === id ? { ...n, text, dateModified: Date.now() } : n
+        n.id === id ? { ...n, text, ...(tags !== undefined ? { tags } : {}), dateModified: Date.now() } : n
       );
       localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(newNotes));
       

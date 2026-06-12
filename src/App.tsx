@@ -12,6 +12,7 @@ import { PlansPage } from './features/plans/PlansPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import { PlanDetail } from './features/plans/PlanDetail';
 import { HomePage } from './features/home/HomePage';
+import { PrayerPage } from './features/prayer/PrayerPage';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -19,6 +20,7 @@ import { useFavoritesStore } from './store/useFavoritesStore';
 import { useHighlightsStore } from './store/useHighlightsStore';
 import { useNotesStore } from './store/useNotesStore';
 import { usePlansStore } from './store/usePlansStore';
+import { usePrayerStore } from './store/usePrayerStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 
@@ -34,6 +36,7 @@ function App() {
   const loadHighlights = useHighlightsStore((state) => state.loadHighlights);
   const loadNotes = useNotesStore((state) => state.loadNotes);
   const loadPlans = usePlansStore((state) => state.loadPlans);
+  const loadPrayers = usePrayerStore((state) => state.loadPrayers);
   const setPosition = useBibleStore((state) => state.setPosition);
 
   useEffect(() => {
@@ -64,17 +67,19 @@ function App() {
             remoteHighlights,
             remoteNotes,
             remotePlans,
-            remotePosition
+            remotePosition,
+            remotePrayers
           ] = await Promise.all([
             syncFileFromDrive(DRIVE_FILES.settings, token),
             syncFileFromDrive(DRIVE_FILES.favorites, token),
             syncFileFromDrive(DRIVE_FILES.highlights, token),
             syncFileFromDrive(DRIVE_FILES.notes, token),
             syncFileFromDrive(DRIVE_FILES.plans, token),
-            syncFileFromDrive(DRIVE_FILES.position, token)
+            syncFileFromDrive(DRIVE_FILES.position, token),
+            syncFileFromDrive(DRIVE_FILES.prayers, token)
           ]);
 
-          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers);
           if (hasRemoteData) backupLocalDataBeforeRestore();
 
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -83,6 +88,7 @@ function App() {
           if (isValidArray(remoteNotes)) loadNotes(remoteNotes as Parameters<typeof loadNotes>[0]);
           if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
           if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
+          if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
           if (isDriveSessionInvalidError(err)) {
@@ -94,7 +100,7 @@ function App() {
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, setPosition, expireSession]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, setPosition, expireSession]);
 
   return (
     <Router>
@@ -108,6 +114,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/notes" element={<NotesPage />} />
+          <Route path="/prayer" element={<PrayerPage />} />
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/settings" element={<SettingsPage />} />

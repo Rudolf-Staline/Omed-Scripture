@@ -15,6 +15,7 @@ import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
+import { usePrayerStore } from '../../store/usePrayerStore';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
@@ -33,6 +34,7 @@ export const SettingsPage: React.FC = () => {
   const { loadHighlights, highlights } = useHighlightsStore();
   const { loadNotes, notes } = useNotesStore();
   const { loadPlans, progress } = usePlansStore();
+  const { loadPrayers, prayers } = usePrayerStore();
   const { translation, bookId, chapter } = useBibleStore();
   const setPosition = useBibleStore((state) => state.setPosition);
 
@@ -51,16 +53,17 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition] = await Promise.all([
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers] = await Promise.all([
         syncFileFromDrive(DRIVE_FILES.settings, token),
         syncFileFromDrive(DRIVE_FILES.favorites, token),
         syncFileFromDrive(DRIVE_FILES.highlights, token),
         syncFileFromDrive(DRIVE_FILES.notes, token),
         syncFileFromDrive(DRIVE_FILES.plans, token),
         syncFileFromDrive(DRIVE_FILES.position, token),
+        syncFileFromDrive(DRIVE_FILES.prayers, token),
       ]);
 
-      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers);
       if (hasRemoteData) backupLocalDataBeforeRestore();
 
       if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -69,6 +72,7 @@ export const SettingsPage: React.FC = () => {
       if (isValidArray(remoteNotes)) loadNotes(remoteNotes as Parameters<typeof loadNotes>[0]);
       if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
       if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
+      if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
 
       setSynced(true);
       toast.success('Synchronisation réussie !');
@@ -96,6 +100,7 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.notes, notes, token),
         syncFileToDrive(DRIVE_FILES.plans, progress, token),
         syncFileToDrive(DRIVE_FILES.position, { translation, bookId, chapter }, token),
+        syncFileToDrive(DRIVE_FILES.prayers, prayers, token),
       ]);
       setSynced(true);
       toast.success('Sauvegarde en ligne réussie !');
@@ -120,6 +125,7 @@ export const SettingsPage: React.FC = () => {
       notes,
       progress,
       position: { translation, bookId, chapter },
+      prayers,
     });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

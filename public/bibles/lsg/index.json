@@ -1,0 +1,16 @@
+{
+  "translationId": "lsg",
+  "name": "Louis Segond 1910",
+  "language": "fr",
+  "source": "static",
+  "books": [
+    {
+      "id": "jean",
+      "name": "Jean",
+      "abbreviation": "Jn",
+      "testament": "new",
+      "chapterCount": 21,
+      "order": 43
+    }
+  ]
+}

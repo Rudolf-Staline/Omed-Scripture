@@ -10,21 +10,26 @@ Le projet est en stabilisation progressive. Les fonctionnalités principales son
 
 ## Fonctionnalités
 
-- Lecture par livre et chapitre.
+- Lecture par livre et chapitre, avec mode focus (plein texte) et mode étude (notes, surlignages et favoris du chapitre en panneau latéral).
+- Progression visible dans le livre (chapitre courant / total).
 - Comparaison de deux traductions, avec empilement lisible sur mobile.
-- Recherche de versets.
+- Verset du jour local et déterministe (sans API externe), avec ouverture du chapitre, copie, partage et mise en favori.
+- Accueil « dashboard spirituel » : reprise de lecture, parcours en cours, progression hebdomadaire et série de lecture, notes et favoris récents, état de synchronisation.
+- Recherche de versets : choix de traduction, historique récent, suggestions thématiques, filtres par testament et par livre, surlignage du terme recherché.
 - Marque-pages triables par date ou ordre biblique canonique.
-- Notes, surlignages et partage texte/image.
-- Parcours de lecture réels : 7 jours, Évangile de Jean, panorama de 30 jours, structure annuelle préparée mais non simulée.
+- Notes avec tags optionnels, filtres par tag et par livre, tri par date ou ordre biblique, copie avec référence.
+- Carnet de prière : catégories (gratitude, demande, confession, intercession, méditation), statuts (en cours, exaucée, archivée), verset lié optionnel, recherche et filtres.
+- Parcours de lecture réels : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
 - Audio via `speechSynthesis`, déclenché uniquement par l’utilisateur.
-- Export JSON local et synchronisation Google Drive AppData.
+- Export JSON local (incluant les prières) et synchronisation Google Drive AppData.
+- Contenu biblique statique servi depuis `public/bibles/` (provider local prioritaire avec repli automatique vers les API).
 - Route 404 et notifications globales.
 
 ## Traductions disponibles dans le code
 
 | Traduction | ID | Langue | Source |
 |---|---:|---|---|
-| Louis Segond 1910 | `lsg` | Français | bolls.life |
+| Louis Segond 1910 | `lsg` | Français | bolls.life (+ fichiers statiques locaux) |
 | Darby (Français) | `darby` | Français | bolls.life |
 | King James Version | `kjv` | Anglais | bible-api.com |
 | World English Bible | `web` | Anglais | bible-api.com |
@@ -74,9 +79,13 @@ VITE_GOOGLE_CLIENT_ID=votre_client_id_google
 - `BIBLE_API_KEY` : clé API.Bible côté serveur uniquement, utilisée par `api/bible/chapter.ts`. Ne pas utiliser de préfixe `VITE_`, car ces variables sont exposées dans le bundle client.
 - `VITE_GOOGLE_CLIENT_ID` : identifiant OAuth Google utilisé par Google Sign-In et Drive AppData.
 
+## Contenu biblique hors ligne
+
+Le chargement d’un chapitre tente d’abord un provider statique local (`src/utils/bibleProviders/staticProvider.ts`) qui lit des fichiers JSON pré-générés dans `public/bibles/{translation}/`. En cas d’absence ou d’invalidité, l’application bascule silencieusement vers les providers réseau (bolls.life, bible-api.com, API.Bible). Un jeu de démonstration (Jean 3:16-17 en LSG) valide la mécanique ; le format est documenté dans `docs/ARCHITECTURE.md`. Les chapitres consultés restent par ailleurs disponibles hors ligne via le cache local.
+
 ## Synchronisation Google Drive
 
-La synchronisation utilise le scope Google Drive AppData. Les fichiers applicatifs synchronisés concernent : préférences, marque-pages, notes, surlignages, parcours et position de lecture.
+La synchronisation utilise le scope Google Drive AppData. Les fichiers applicatifs synchronisés concernent : préférences, marque-pages, notes, surlignages, parcours, prières et position de lecture.
 
 Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde locale pré-restauration dans `localStorage` avec une clé `omed_scripture_pre_restore_*`, afin de réduire le risque d’écrasement brutal.
 
@@ -98,6 +107,7 @@ Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde local
 - Résolution de conflits Drive par `updatedAt` par entité.
 - Import JSON manuel complet avec validation et aperçu.
 - Plan annuel complet non simulé.
+- Bible LSG statique complète dans `public/bibles/` pour une lecture et une recherche entièrement hors ligne.
 - Amélioration du stockage OAuth pour réduire encore la persistance locale.
 - Couverture de tests plus large sur stores et synchronisation.
 

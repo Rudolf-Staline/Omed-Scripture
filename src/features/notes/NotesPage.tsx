@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useNotesStore } from '../../store/useNotesStore';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, Trash2, Check, X, Search, BookOpenText } from 'lucide-react';
+import { Edit3, Trash2, Check, X, Search, BookOpenText, Copy, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { formatBibleReference } from '../../utils/bibleBooks';
+import clsx from 'clsx';
+import { formatBibleReference, getBookName, getBookOrder } from '../../utils/bibleBooks';
+import { formatTagsInput, parseTagsInput } from '../../utils/noteTags';
 
 const formatDate = (value?: number) => {
   if (!value) return 'Date indisponible';
@@ -18,6 +20,13 @@ const formatDate = (value?: number) => {
   });
 };
 
+type SortMode = 'date' | 'biblical';
+
+const splitVerseId = (verseId: string) => {
+  const [translation = '', bookId = '', chapter = '', verse = ''] = verseId.split('-');
+  return { translation, bookId, chapter, verse };
+};
+
 export const NotesPage: React.FC = () => {
   const notes = useNotesStore((state) => state.notes);
   const updateNote = useNotesStore((state) => state.updateNote);
@@ -26,16 +35,35 @@ export const NotesPage: React.FC = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [editTags, setEditTags] = useState('');
   const [query, setQuery] = useState('');
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [bookFilter, setBookFilter] = useState<string>('tous');
+  const [sortMode, setSortMode] = useState<SortMode>('date');
 
-  const handleEditClick = (noteId: string, currentText: string) => {
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    notes.forEach((note) => (note.tags ?? []).forEach((tag) => tags.add(tag)));
+    return Array.from(tags).sort((a, b) => a.localeCompare(b, 'fr'));
+  }, [notes]);
+
+  const booksInNotes = useMemo(() => {
+    const ids = new Set(notes.map((note) => splitVerseId(note.verseId).bookId).filter(Boolean));
+    return Array.from(ids)
+      .map((id) => ({ id, name: getBookName(id) }))
+      .sort((a, b) => getBookOrder(a.id) - getBookOrder(b.id));
+  }, [notes]);
+
+  const handleEditClick = (noteId: string, currentText: string, currentTags?: string[]) => {
     setEditingId(noteId);
     setEditText(currentText);
+    setEditTags(formatTagsInput(currentTags));
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditText('');
+    setEditTags('');
   };
 
   const handleSaveEdit = (noteId: string) => {
@@ -43,33 +71,55 @@ export const NotesPage: React.FC = () => {
       toast.error('La note ne peut pas être vide.');
       return;
     }
-    updateNote(noteId, editText.trim());
-    setEditingId(null);
-    setEditText('');
+    updateNote(noteId, editText.trim(), parseTagsInput(editTags));
+    handleCancelEdit();
     toast.success('Note mise à jour.');
   };
 
-  const sortedNotes = useMemo(
-    () => [...notes].sort((a, b) => (b.dateModified ?? 0) - (a.dateModified ?? 0)),
-    [notes]
-  );
+  const handleCopyNote = async (noteText: string, verseText: string, reference: string) => {
+    const content = `« ${verseText} »\n— ${reference}\n\nNote : ${noteText}`;
+    try {
+      await navigator.clipboard.writeText(content);
+      toast.success('Note copiée avec sa référence !');
+    } catch {
+      toast.error('Impossible de copier la note.');
+    }
+  };
 
-  const filteredNotes = useMemo(() => {
+  const visibleNotes = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return sortedNotes;
 
-    return sortedNotes.filter((note) => {
-      const [translation = '', bookId = '', chapter = '', verse = ''] = note.verseId.split('-');
+    const filtered = notes.filter((note) => {
+      const { translation, bookId, chapter, verse } = splitVerseId(note.verseId);
+
+      if (tagFilter && !(note.tags ?? []).includes(tagFilter)) return false;
+      if (bookFilter !== 'tous' && bookId !== bookFilter) return false;
+      if (!term) return true;
+
       const reference = formatBibleReference(bookId, chapter, verse).toLowerCase();
-
       return (
         note.text.toLowerCase().includes(term) ||
         note.verseText.toLowerCase().includes(term) ||
         reference.includes(term) ||
-        translation.toLowerCase().includes(term)
+        translation.toLowerCase().includes(term) ||
+        (note.tags ?? []).some((tag) => tag.includes(term))
       );
     });
-  }, [query, sortedNotes]);
+
+    if (sortMode === 'date') {
+      return filtered.sort((a, b) => (b.dateModified ?? 0) - (a.dateModified ?? 0));
+    }
+
+    return filtered.sort((a, b) => {
+      const idA = splitVerseId(a.verseId);
+      const idB = splitVerseId(b.verseId);
+      const bookDiff = getBookOrder(idA.bookId) - getBookOrder(idB.bookId);
+      if (bookDiff !== 0) return bookDiff;
+      const chapterDiff = Number(idA.chapter) - Number(idB.chapter);
+      if (chapterDiff !== 0) return chapterDiff;
+      return Number(idA.verse) - Number(idB.verse);
+    });
+  }, [notes, query, tagFilter, bookFilter, sortMode]);
 
   if (notes.length === 0) {
     return (
@@ -77,7 +127,7 @@ export const NotesPage: React.FC = () => {
         <BookOpenText size={46} className="mx-auto mb-4 text-accent-gold opacity-70" />
         <h2 className="font-display text-2xl font-semibold text-text-primary mb-2">Carnet de notes</h2>
         <p className="text-text-secondary max-w-lg mx-auto">
-          Vos notes apparaîtront ici lorsque vous annoterez un passage.
+          Vos notes apparaîtront ici lorsque vous annoterez un passage. Touchez un verset dans le lecteur pour commencer.
         </p>
         <button
           onClick={() => navigate('/')}
@@ -96,30 +146,81 @@ export const NotesPage: React.FC = () => {
         Un espace personnel pour conserver ce qui vous parle pendant la lecture.
       </p>
 
-      <div className="mb-6">
-        <label className="relative block">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher par référence, traduction ou contenu…"
-            className="min-h-12 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold"
-          />
-        </label>
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <label className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher par référence, tag ou contenu…"
+              className="min-h-12 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold"
+            />
+          </label>
+          {booksInNotes.length > 1 && (
+            <select
+              value={bookFilter}
+              onChange={(e) => setBookFilter(e.target.value)}
+              aria-label="Filtrer par livre"
+              className="min-h-12 rounded-2xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
+            >
+              <option value="tous">Tous les livres</option>
+              {booksInNotes.map((book) => (
+                <option key={book.id} value={book.id}>{book.name}</option>
+              ))}
+            </select>
+          )}
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as SortMode)}
+            aria-label="Trier les notes"
+            className="min-h-12 rounded-2xl border border-border bg-bg-card/70 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
+          >
+            <option value="date">Plus récentes</option>
+            <option value="biblical">Ordre biblique</option>
+          </select>
+        </div>
+
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Tag size={14} className="text-text-muted" aria-hidden="true" />
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setTagFilter(tagFilter === tag ? null : tag)}
+                aria-pressed={tagFilter === tag}
+                className={clsx(
+                  'min-h-8 rounded-full border px-3 text-xs font-semibold transition-colors',
+                  tagFilter === tag
+                    ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold'
+                    : 'border-border bg-bg-card/55 text-text-secondary hover:border-accent-gold/30 hover:text-text-primary'
+                )}
+              >
+                #{tag}
+              </button>
+            ))}
+            {tagFilter && (
+              <button type="button" onClick={() => setTagFilter(null)} className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-text-primary">
+                <X size={12} /> Réinitialiser
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {filteredNotes.length === 0 ? (
+      {visibleNotes.length === 0 ? (
         <div className="rounded-[1.5rem] border border-border bg-bg-card/60 p-10 text-center">
           <h2 className="font-display text-xl text-text-primary mb-2">Aucun résultat</h2>
           <p className="text-text-secondary">
-            Aucune note ne correspond à votre recherche. Essayez un autre mot-clé.
+            Aucune note ne correspond à ces critères. Essayez un autre mot-clé ou réinitialisez les filtres.
           </p>
         </div>
       ) : (
         <div className="space-y-5">
-          {filteredNotes.map((note) => {
-            const [translation = 'n/a', bookId = '', chapter = '?', verse = '?'] = note.verseId.split('-');
-            const reference = formatBibleReference(bookId, chapter, verse);
+          {visibleNotes.map((note) => {
+            const { translation, bookId, chapter, verse } = splitVerseId(note.verseId);
+            const reference = formatBibleReference(bookId, chapter || '?', verse || '?');
             const hasVerseText = Boolean(note.verseText && note.verseText.trim());
             const createdAt = formatDate(note.dateAdded);
             const modifiedAt = formatDate(note.dateModified);
@@ -130,13 +231,20 @@ export const NotesPage: React.FC = () => {
                   <div>
                     <h2 className="font-display text-lg font-semibold text-text-primary">{reference}</h2>
                     <p className="mt-1 text-xs uppercase tracking-[0.16em] text-accent-gold">
-                      Traduction : {translation}
+                      Traduction : {translation || 'n/a'}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handleEditClick(note.id, note.text)}
+                      onClick={() => handleCopyNote(note.text, note.verseText, reference)}
+                      className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-accent-gold/50 hover:text-accent-gold"
+                      title="Copier la note avec sa référence"
+                    >
+                      <Copy size={14} /> Copier
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(note.id, note.text, note.tags)}
                       className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-accent-gold/50 hover:text-accent-gold"
                       title="Modifier"
                     >
@@ -174,6 +282,16 @@ export const NotesPage: React.FC = () => {
                           onChange={(e) => setEditText(e.target.value)}
                           className="min-h-[130px] w-full rounded-2xl border border-border bg-bg-primary p-3 font-body text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
                         />
+                        <label className="mt-3 block text-xs uppercase tracking-wide text-text-muted" htmlFor={`note-tags-${note.id}`}>
+                          Tags (séparés par des virgules)
+                        </label>
+                        <input
+                          id={`note-tags-${note.id}`}
+                          value={editTags}
+                          onChange={(e) => setEditTags(e.target.value)}
+                          placeholder="grâce, prière, étude…"
+                          className="mt-1 w-full rounded-2xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold"
+                        />
                         <div className="flex justify-end gap-2 mt-3">
                           <button
                             onClick={handleCancelEdit}
@@ -190,7 +308,23 @@ export const NotesPage: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className="whitespace-pre-wrap font-body leading-8 text-text-primary">{note.text}</p>
+                      <>
+                        <p className="whitespace-pre-wrap font-body leading-8 text-text-primary">{note.text}</p>
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-1.5">
+                            {note.tags.map((tag) => (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => setTagFilter(tag)}
+                                className="rounded-full border border-accent-gold/25 bg-accent-gold/8 px-2.5 py-0.5 text-xs font-semibold text-accent-gold transition-colors hover:border-accent-gold/50"
+                              >
+                                #{tag}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </section>

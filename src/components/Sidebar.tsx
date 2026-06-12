@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useBibleStore } from '../store/useBibleStore';
-import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home, MoreHorizontal } from 'lucide-react';
+import { BookOpenText, Search, Bookmark, NotebookPen, CalendarRange, SlidersHorizontal, Cloud, Home, MoreHorizontal, HandHeart } from 'lucide-react';
 import clsx from 'clsx';
 
 const baseNavItems = [
@@ -11,6 +11,7 @@ const baseNavItems = [
   { to: '/search', icon: Search, label: 'Recherche' },
   { to: '/favorites', icon: Bookmark, label: 'Marque-pages' },
   { to: '/notes', icon: NotebookPen, label: 'Notes' },
+  { to: '/prayer', icon: HandHeart, label: 'Prière' },
   { to: '/plans', icon: CalendarRange, label: 'Parcours' },
 ];
 
@@ -42,6 +43,7 @@ export const Sidebar: React.FC = () => {
   ];
   const mobileMoreItems = [
     { to: '/favorites', icon: Bookmark, label: 'Marque-pages' },
+    { to: '/prayer', icon: HandHeart, label: 'Prière' },
     { to: '/plans', icon: CalendarRange, label: 'Parcours' },
     { to: '/settings', icon: SlidersHorizontal, label: 'Réglages' },
   ];
