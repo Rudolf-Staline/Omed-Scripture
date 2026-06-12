@@ -137,7 +137,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           return (
             <div
               key={verseId}
-              className="group/verse relative -mx-2 cursor-pointer rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus:bg-bg-card/45 focus:outline-none focus:ring-1 focus:ring-accent-gold/40 focus-within:bg-bg-card/45 sm:-mx-3 sm:px-3"
+              className="group/verse relative -mx-2 flex cursor-pointer gap-3 rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus:bg-bg-card/45 focus:outline-none focus:ring-1 focus:ring-accent-gold/40 focus-within:bg-bg-card/45 sm:-mx-3 sm:gap-4 sm:px-3"
               role="button"
               tabIndex={0}
               aria-pressed={isSelected}
@@ -153,19 +153,21 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
               {isSelected && (
                 <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
               )}
+
+              {/* Gouttière de scriptorium : numéro de verset + marqueur d'annotation */}
+              {settings.showVerseNumbers && (
+                <span className="relative flex w-6 shrink-0 select-none justify-end pt-[0.45em] font-mono text-[0.66em] font-semibold leading-none text-accent-gold/70 sm:w-8" aria-hidden="true">
+                  {verse.verse}
+                  {highlight && <span className="absolute -right-1.5 top-[0.4em] h-1.5 w-1.5 rounded-full bg-accent-gold/70" />}
+                </span>
+              )}
+
               <span className={clsx(
-                'transition-all duration-200 rounded-lg px-1.5 py-0.5 -mx-1.5 decoration-accent-gold/35',
+                'flex-1 rounded-lg px-1.5 py-0.5 transition-all duration-200 decoration-accent-gold/35',
                 highlight ? getHighlightStyle(highlight.color) : '',
                 isSelected ? 'bg-bg-card ring-1 ring-accent-gold/30 shadow-sm' : ''
               )}>
-                {settings.showVerseNumbers && (
-                  <sup className="mr-2 inline-block select-none align-top font-mono text-[0.62em] font-semibold leading-none tracking-wide text-accent-gold/75">
-                    {verse.verse}
-                  </sup>
-                )}
-                <span className="text-text-primary/95">
-                  {verse.text}
-                </span>
+                <span className="text-text-primary/95">{verse.text}</span>
               </span>
             </div>
           );
