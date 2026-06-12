@@ -7,6 +7,7 @@ import type { HighlightColor } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { formatBibleReference } from '../../utils/bibleBooks';
 import { NoteModal } from '../../components/verse-actions/NoteModal';
+import { ActionDock } from '../../components/layout/ActionDock';
 import { createShareVerseImage } from '../../components/verse-actions/shareVerseImage';
 import toast from 'react-hot-toast';
 
@@ -106,7 +107,7 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
 
   return (
     <>
-      <div className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto flex max-w-md items-center justify-center verse-action-surface rounded-3xl px-3 py-2 sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:inline-flex sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()} role="toolbar" aria-label="Actions du verset sélectionné">
+      <ActionDock label="Actions du verset sélectionné" className="fixed inset-x-3 bottom-[5.5rem] z-50 mx-auto max-w-md justify-center verse-action-surface rounded-3xl px-3 py-2 sm:static sm:inset-auto sm:z-auto sm:mx-0 sm:my-2 sm:max-w-none sm:justify-start sm:rounded-2xl sm:px-2 sm:py-1.5" onClick={(e) => e.stopPropagation()}>
         {showColors ? (
           <div className="flex flex-wrap items-center justify-center gap-2 px-2">
             {colors.map((c) => (
@@ -147,7 +148,7 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
             </button>
           </>
         )}
-      </div>
+      </ActionDock>
       {showNoteModal && <NoteModal reference={reference} onCancel={() => setShowNoteModal(false)} onSave={handleSaveNote} />}
     </>
   );

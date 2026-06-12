@@ -12,6 +12,7 @@ import { LoadingState } from '../../components/LoadingState';
 import { ErrorState } from '../../components/ErrorState';
 import { EmptyState } from '../../components/EmptyState';
 import clsx from 'clsx';
+import { VerseCard } from '../../components/layout/VerseCard';
 
 interface ChapterViewProps {
   translation: string;
@@ -135,13 +136,12 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           const highlight = highlights[verseId];
 
           return (
-            <div
+            <VerseCard
               key={verseId}
-              className="group/verse relative -mx-2 flex cursor-pointer gap-3 rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus:bg-bg-card/45 focus:outline-none focus:ring-1 focus:ring-accent-gold/40 focus-within:bg-bg-card/45 sm:-mx-3 sm:gap-4 sm:px-3"
-              role="button"
-              tabIndex={0}
-              aria-pressed={isSelected}
-              aria-label={`${formatBibleReference(bookId, chapter, verse.verse)}. Touchez ou appuyez sur Entrée pour afficher les actions.`}
+              selected={isSelected}
+              number={settings.showVerseNumbers ? verse.verse : undefined}
+              annotated={Boolean(highlight)}
+              ariaLabel={`${formatBibleReference(bookId, chapter, verse.verse)}. Touchez ou appuyez sur Entrée pour afficher les actions.`}
               onClick={() => setSelectedVerseId(isSelected ? null : verseId)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -154,14 +154,6 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
                 <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
               )}
 
-              {/* Gouttière de scriptorium : numéro de verset + marqueur d'annotation */}
-              {settings.showVerseNumbers && (
-                <span className="relative flex w-6 shrink-0 select-none justify-end pt-[0.45em] font-mono text-[0.66em] font-semibold leading-none text-accent-gold/70 sm:w-8" aria-hidden="true">
-                  {verse.verse}
-                  {highlight && <span className="absolute -right-1.5 top-[0.4em] h-1.5 w-1.5 rounded-full bg-accent-gold/70" />}
-                </span>
-              )}
-
               <span className={clsx(
                 'flex-1 rounded-lg px-1.5 py-0.5 transition-all duration-200 decoration-accent-gold/35',
                 highlight ? getHighlightStyle(highlight.color) : '',
@@ -169,7 +161,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
               )}>
                 <span className="text-text-primary/95">{verse.text}</span>
               </span>
-            </div>
+            </VerseCard>
           );
         })}
       </div>

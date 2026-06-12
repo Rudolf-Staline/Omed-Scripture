@@ -5,6 +5,8 @@ import { usePlansStore } from '../../store/usePlansStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { READING_PLANS, type ReadingPlanPassage } from '../../data/readingPlans';
 import { formatBibleReference } from '../../utils/bibleBooks';
+import { PageCanvas } from '../../components/layout/PageCanvas';
+import { TimelinePath } from '../../components/layout/TimelinePath';
 
 const formatPassage = (passage: ReadingPlanPassage): string =>
   passage.chapterEnd
@@ -41,7 +43,7 @@ export const PlanDetail: React.FC = () => {
   const isFinished = completedCount >= plan.durationDays;
 
   return (
-    <div className="mx-auto max-w-4xl py-4 md:py-8">
+    <PageCanvas width="wide">
       <button onClick={() => navigate('/plans')} className="mb-6 flex items-center gap-2 text-sm font-semibold text-text-secondary transition-colors hover:text-text-primary">
         <ArrowLeft size={16} />
         Retour aux parcours
@@ -98,60 +100,40 @@ export const PlanDetail: React.FC = () => {
       <div className="space-y-4">
         <h2 className="font-display text-2xl font-semibold text-text-primary">Le chemin</h2>
 
-        {/* Chemin vertical : filet de liaison + nœuds d'étape */}
-        <ol className="relative ml-3 space-y-3 border-l border-border pl-6">
-          {plan.readings.map((reading) => {
+        <TimelinePath
+          items={plan.readings.map((reading) => {
             const isCompleted = planProgress.completedDays.includes(reading.day);
             const isCurrent = !isCompleted && reading.day === currentDay;
             const firstPassage = reading.passages[0];
-
-            return (
-              <li key={reading.day} className="relative">
-                {/* Nœud sur le filet */}
-                <span
-                  aria-hidden="true"
-                  className={`absolute -left-[1.95rem] top-4 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                    isCompleted
-                      ? 'border-accent-sage bg-accent-sage/30'
-                      : isCurrent
-                        ? 'border-accent-gold bg-accent-gold/25'
-                        : 'border-border bg-bg-card'
-                  }`}
-                >
-                  {isCompleted && <span className="h-1.5 w-1.5 rounded-full bg-accent-sage" />}
-                </span>
-
-                <div className={`rounded-[1.25rem] border p-4 transition-colors ${
-                  isCurrent ? 'border-accent-gold/45 bg-accent-gold/8' : isCompleted ? 'border-accent-sage/30 bg-accent-sage/8' : 'border-border bg-bg-card/60'
-                }`}>
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold text-text-primary">
-                      Jour {reading.day}{reading.title ? ` · ${reading.title}` : ''}
-                      {isCurrent && <span className="ml-2 rounded-full border border-accent-gold/40 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-gold">Aujourd'hui</span>}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => { if (isCompleted) unmarkDayComplete(plan.id, reading.day); else markDayComplete(plan.id, reading.day); }}
-                      className={`min-h-9 rounded-xl border px-3 text-xs font-semibold transition-colors ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
-                      aria-pressed={isCompleted}
-                    >
-                      {isCompleted ? 'Fait ✓' : 'Marquer comme fait'}
+            return {
+              id: reading.day,
+              title: <>Jour {reading.day}{reading.title ? ` · ${reading.title}` : ''}</>,
+              meta: isCurrent ? "Étape actuelle" : isCompleted ? "Complété" : "À lire",
+              complete: isCompleted,
+              active: isCurrent,
+              body: (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p>{reading.passages.map(formatPassage).join(', ')}</p>
+                  {firstPassage && (
+                    <button type="button" onClick={() => navigate(`/read/${defaultTranslation}/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold">
+                      <BookOpen size={15} /> Ouvrir
                     </button>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm text-text-secondary">{reading.passages.map(formatPassage).join(', ')}</p>
-                    {firstPassage && (
-                      <button type="button" onClick={() => navigate(`/read/${defaultTranslation}/${firstPassage.bookId}/${firstPassage.chapterStart}`)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-brown transition-colors hover:text-accent-gold">
-                        <BookOpen size={15} /> Ouvrir
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </li>
-            );
+              ),
+              action: (
+                <button
+                  type="button"
+                  onClick={() => { if (isCompleted) unmarkDayComplete(plan.id, reading.day); else markDayComplete(plan.id, reading.day); }}
+                  className={`min-h-9 rounded-xl border px-3 text-xs font-semibold transition-colors ${isCompleted ? 'border-accent-sage text-accent-sage' : 'border-border text-text-secondary hover:border-accent-gold/50'}`}
+                  aria-pressed={isCompleted}
+                >
+                  {isCompleted ? 'Fait ✓' : 'Marquer comme fait'}
+                </button>
+              ),
+            };
           })}
-        </ol>
-      </div>
-    </div>
+        />      </div>
+    </PageCanvas>
   );
 };

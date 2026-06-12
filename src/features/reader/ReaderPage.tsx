@@ -6,6 +6,7 @@ import { BIBLE_BOOKS, FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { ChapterView } from './ChapterView';
 import { StudyPanel } from './StudyPanel';
 import { AudioPlayer } from '../../components/AudioPlayer';
+import { ActionDock } from '../../components/layout/ActionDock';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { recordReadingDay } from '../../utils/readingActivity';
 import { ChevronDown, ChevronLeft, ChevronRight, Headphones, GitCompare, WifiOff, Maximize2, Minimize2, NotebookPen } from 'lucide-react';
@@ -141,7 +142,7 @@ export const ReaderPage: React.FC = () => {
           </div>
 
           {/* Barre de modes unifiée mobile + desktop */}
-          <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ActionDock label="Modes du lecteur" className="-mx-1 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {!isOnline && (
               <span className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-accent-brown/35 bg-accent-brown/12 px-3 text-xs font-semibold text-accent-brown">
                 <WifiOff size={14} /> Hors ligne
@@ -159,7 +160,7 @@ export const ReaderPage: React.FC = () => {
             <button type="button" onClick={() => setFocusMode(true)} className="omed-button-ghost min-h-10 shrink-0 px-3 text-sm" aria-label="Activer le mode focus">
               <Maximize2 size={16} strokeWidth={1.5} /> <span className="hidden sm:inline">Focus</span>
             </button>
-          </div>
+          </ActionDock>
         </div>
 
         <div className="mt-2.5 flex items-center gap-3">
@@ -173,7 +174,7 @@ export const ReaderPage: React.FC = () => {
       </header>
       )}
 
-      <div className={clsx('flex-1', studyMode && !focusMode && 'lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6')}>
+      <div className={clsx('reader-atlas flex-1', studyMode && !focusMode && 'lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6')}>
         <div className={`gap-5 ${compareTranslation ? 'grid lg:grid-cols-2' : 'block'}`}>
           <section className={compareTranslation ? 'min-w-0 border-b border-border pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-5' : ''}>
             <ChapterView translation={effectiveTranslation} bookId={effectiveBookId} chapter={chapterNum} />

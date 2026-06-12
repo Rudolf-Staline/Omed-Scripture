@@ -8,7 +8,9 @@ import { formatTagsInput, parseTagsInput } from '../../utils/noteTags';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
 import { FilterBar, FilterChip } from '../../components/layout/FilterBar';
-import { EmptyIllustration } from '../../components/layout/EmptyIllustration';
+import { EmptyScene } from '../../components/layout/EmptyScene';
+import { NotebookLayout } from '../../components/layout/NotebookLayout';
+import { FilterRail } from '../../components/layout/FilterRail';
 
 const formatDate = (value?: number) => {
   if (!value) return 'Date indisponible';
@@ -112,24 +114,23 @@ export const NotesPage: React.FC = () => {
   if (notes.length === 0) {
     return (
       <PageCanvas width="reading">
-        <EmptyIllustration icon={NotebookPen} title="Carnet d'étude" message="Vos notes apparaîtront ici. Touchez un verset dans le lecteur pour annoter un passage." actionLabel="Ouvrir le lecteur" to="/reader" />
+        <EmptyScene icon={NotebookPen} title="Carnet d'étude" message="Vos notes apparaîtront ici. Touchez un verset dans le lecteur pour annoter un passage." actionLabel="Ouvrir le lecteur" to="/reader" />
       </PageCanvas>
     );
   }
 
   return (
-    <PageCanvas width="wide" className="space-y-6">
-      <PageHero kicker="Carnet · étude" title="Mes notes d'étude" icon={NotebookPen} intro="Un espace personnel pour conserver ce qui vous parle pendant la lecture." />
-
-      <div className="grid gap-6 lg:grid-cols-[16rem_1fr] lg:items-start">
-        {/* Rail de filtres */}
-        <aside className="space-y-4 lg:sticky lg:top-6">
+    <PageCanvas width="wide">
+      <NotebookLayout
+        hero={<PageHero kicker="Carnet · étude" title="Mes notes d'étude" icon={NotebookPen} intro="Un espace personnel pour conserver ce qui vous parle pendant la lecture." />}
+        tools={(
+          <FilterRail title="Index du carnet">
           <label className="relative block">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher…" aria-label="Rechercher dans les notes" className="min-h-11 w-full rounded-2xl border border-border bg-bg-card/70 pl-10 pr-4 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-gold" />
           </label>
 
-          <div className="omed-panel-soft p-4">
+          <div className="rounded-2xl border border-border bg-bg-card/50 p-4">
             <p className="omed-kicker mb-3">Trier</p>
             <FilterBar label="">
               <FilterChip active={sortMode === 'date'} onClick={() => setSortMode('date')}>Récentes</FilterChip>
@@ -148,7 +149,7 @@ export const NotesPage: React.FC = () => {
           </div>
 
           {allTags.length > 0 && (
-            <div className="omed-panel-soft p-4">
+            <div className="rounded-2xl border border-border bg-bg-card/50 p-4">
               <div className="mb-3 flex items-center justify-between">
                 <p className="omed-kicker">Tags</p>
                 {tagFilter && <button type="button" onClick={() => setTagFilter(null)} className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-text-primary"><X size={12} /> Tout</button>}
@@ -160,9 +161,9 @@ export const NotesPage: React.FC = () => {
               </FilterBar>
             </div>
           )}
-        </aside>
-
-        {/* Liste des notes */}
+          </FilterRail>
+        )}
+      >
         <div className="min-w-0">
           {visibleNotes.length === 0 ? (
             <div className="empty-state px-6 py-12 text-center">
@@ -223,7 +224,7 @@ export const NotesPage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </NotebookLayout>
     </PageCanvas>
   );
 };

@@ -27,6 +27,7 @@ import { DAILY_VERSE_TRANSLATION } from '../../data/dailyVerses';
 import { getReadingStreak, getWeekActivity } from '../../utils/readingActivity';
 import { StatTile } from '../../components/layout/StatTile';
 import { SectionRail } from '../../components/layout/SectionRail';
+import { StudyPanel } from '../../components/layout/StudyPanel';
 
 const getGreeting = (hour: number): string => {
   if (hour < 5) return 'Veille paisible';
@@ -150,10 +151,8 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-[1.65rem] border border-border bg-bg-card/70 p-5 shadow-[var(--shadow-panel)]">
-            <p className="text-sm text-text-muted">Position conservée</p>
-            <p className="mt-2 font-display text-3xl text-text-primary">{getBookName(bookId)} {chapter}</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-accent-gold">{translation.toUpperCase()}</p>
+          <StudyPanel title={`${getBookName(bookId)} ${chapter}`} eyebrow="Position conservée" icon={BookOpenText}>
+            <p className="text-xs uppercase tracking-[0.18em] text-accent-gold">{translation.toUpperCase()}</p>
             <div className="my-5 h-px bg-gradient-to-r from-accent-gold/50 via-border to-transparent" />
             <div className="flex items-center gap-2" role="img" aria-label={`${readThisWeek} jours de lecture cette semaine`}>
               {weekActivity.map((day) => (
@@ -163,7 +162,7 @@ export const HomePage: React.FC = () => {
                 </span>
               ))}
             </div>
-          </div>
+          </StudyPanel>
         </div>
       </section>
 
