@@ -20,7 +20,7 @@ interface BiblePickerProps {
   onSelect: (translation: string, bookId: string, chapter: number) => void;
 }
 
-const TestamentTabs: React.FC<{ value: Testament; onChange: (value: Testament) => void }> = ({ value, onChange }) => (
+export const TestamentTabs: React.FC<{ value: Testament; onChange: (value: Testament) => void }> = ({ value, onChange }) => (
   <div className="grid grid-cols-2 gap-1 rounded-2xl bg-bg-secondary p-1" role="tablist" aria-label="Testament">
     {(['AT', 'NT'] as Testament[]).map((testament) => (
       <button
@@ -40,7 +40,7 @@ const TestamentTabs: React.FC<{ value: Testament; onChange: (value: Testament) =
   </div>
 );
 
-const TranslationPicker: React.FC<{ value: string; onChange: (id: string) => void }> = ({ value, onChange }) => (
+export const TranslationSelector: React.FC<{ value: string; onChange: (id: string) => void }> = ({ value, onChange }) => (
   <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Traduction">
     {FEATURED_TRANSLATIONS.map((item) => (
       <button
@@ -60,7 +60,7 @@ const TranslationPicker: React.FC<{ value: string; onChange: (id: string) => voi
   </div>
 );
 
-const BookGrid: React.FC<{ books: BibleBook[]; selectedId: string; onSelect: (book: BibleBook) => void }> = ({ books, selectedId, onSelect }) => {
+export const BookGrid: React.FC<{ books: BibleBook[]; selectedId: string; onSelect: (book: BibleBook) => void }> = ({ books, selectedId, onSelect }) => {
   if (books.length === 0) {
     return <p className="px-1 py-6 text-center text-sm text-text-muted">Aucun livre ne correspond.</p>;
   }
@@ -84,7 +84,7 @@ const BookGrid: React.FC<{ books: BibleBook[]; selectedId: string; onSelect: (bo
   );
 };
 
-const ChapterGrid: React.FC<{ count: number; current: number; onSelect: (chapter: number) => void }> = ({ count, current, onSelect }) => (
+export const ChapterGrid: React.FC<{ count: number; current: number; onSelect: (chapter: number) => void }> = ({ count, current, onSelect }) => (
   <div className="grid grid-cols-5 gap-2 sm:grid-cols-7 md:grid-cols-8">
     {Array.from({ length: count }, (_, index) => index + 1).map((num) => (
       <button
@@ -157,7 +157,7 @@ const BiblePickerPanel: React.FC<BiblePickerProps> = ({ translation, bookId, cha
         </header>
 
         <div className="space-y-3 border-b border-border px-4 py-3">
-          <TranslationPicker value={draftTranslation} onChange={setDraftTranslation} />
+          <TranslationSelector value={draftTranslation} onChange={setDraftTranslation} />
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">

@@ -13,26 +13,31 @@ export interface UnifiedActivitySources {
   routineCompletedDays?: string[];
   /** Clés de jour additionnelles (ex. prière « j'ai prié »). */
   extraDays?: string[];
+  /** Horodatages de notes créées ou modifiées, convertis en jours actifs. */
+  noteTimestamps?: Array<number | undefined>;
 }
 
 const isDayKey = (value: unknown): value is string =>
   typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 
 // Union dédupliquée et triée (du plus récent au plus ancien) des jours actifs.
-export const collectActivityDays = (sources: UnifiedActivitySources): string[] => {
-  const all = [
-    ...(sources.readingDays ?? []),
-    ...(sources.routineCompletedDays ?? []),
-    ...(sources.extraDays ?? []),
-  ].filter(isDayKey);
-  return Array.from(new Set(all)).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
-};
-
 // Convertit une liste d'horodatages (ms) en clés de jour locales valides.
 export const timestampsToDayKeys = (timestamps: Array<number | undefined>): string[] =>
   timestamps
     .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
     .map((value) => formatDayKey(new Date(value)));
+
+export const getUnifiedDailyActivity = (sources: UnifiedActivitySources): string[] => {
+  const all = [
+    ...(sources.readingDays ?? []),
+    ...(sources.routineCompletedDays ?? []),
+    ...(sources.extraDays ?? []),
+    ...timestampsToDayKeys(sources.noteTimestamps ?? []),
+  ].filter(isDayKey);
+  return Array.from(new Set(all)).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
+};
+
+export const collectActivityDays = getUnifiedDailyActivity;
 
 // Série de jours consécutifs actifs se terminant aujourd'hui (ou hier si rien
 // n'a encore été fait aujourd'hui).
@@ -76,3 +81,5 @@ export const getUnifiedWeek = (days: Iterable<string>, reference: Date = new Dat
     return { dayKey, label, isToday: dayKey === todayKey, active: set.has(dayKey) };
   });
 };
+
+export const getWeeklyActivity = getUnifiedWeek;
