@@ -8,7 +8,7 @@ import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
 import { getReadingDays } from '../../utils/readingActivity';
-import { collectActivityDays, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
+import { getUnifiedDailyActivity, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
 
 const menu = [
   { to: '/notes', label: 'Notes', description: 'Annotations et tags personnels', icon: NotebookPen },
@@ -26,11 +26,12 @@ export const MorePage: React.FC = () => {
   const routineDays = useDailyRoutineStore((state) => state.days);
 
   const activePrayers = useMemo(() => prayers.filter((prayer) => prayer.status === 'active').length, [prayers]);
-  const unifiedStreak = useMemo(() => getUnifiedStreak(collectActivityDays({
+  const unifiedStreak = useMemo(() => getUnifiedStreak(getUnifiedDailyActivity({
     readingDays: getReadingDays(),
     routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
     extraDays: timestampsToDayKeys(prayers.map((prayer) => prayer.lastPrayedAt)),
-  })), [routineDays, prayers]);
+    noteTimestamps: notes.map((note) => note.dateAdded),
+  })), [routineDays, prayers, notes]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -49,7 +50,7 @@ export const MorePage: React.FC = () => {
         <div className="flex items-center gap-2">
           <Flame size={18} className="text-accent-gold" />
           <p className="font-semibold text-text-primary">Série quotidienne : {unifiedStreak} jour{unifiedStreak > 1 ? 's' : ''}</p>
-          <span className="ml-auto text-sm text-text-muted">lecture · routine · prière</span>
+          <span className="ml-auto text-sm text-text-muted">lecture · routine · prière · note</span>
         </div>
       </section>
 

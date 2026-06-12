@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   collectActivityDays,
+  getUnifiedDailyActivity,
   getUnifiedStreak,
   getUnifiedWeek,
+  getWeeklyActivity,
   timestampsToDayKeys,
 } from '../dailyActivity';
 import { formatDayKey } from '../readingActivity';
@@ -24,12 +26,23 @@ describe('collectActivityDays', () => {
   });
 
   it('treats several actions on the same day as a single active day', () => {
+    const ts = new Date(2026, 5, 12, 9, 30).getTime();
     const days = collectActivityDays({
       readingDays: ['2026-06-12'],
       routineCompletedDays: ['2026-06-12'],
       extraDays: ['2026-06-12'],
+      noteTimestamps: [ts],
     });
     expect(days).toEqual(['2026-06-12']);
+  });
+
+  it('exposes getUnifiedDailyActivity as the explicit selector and includes notes', () => {
+    const noteTs = new Date(2026, 5, 8, 18).getTime();
+    const days = getUnifiedDailyActivity({
+      readingDays: ['2026-06-09'],
+      noteTimestamps: [noteTs, undefined, Number.NaN],
+    });
+    expect(days).toEqual(['2026-06-09', '2026-06-08']);
   });
 
   it('returns an empty array for empty/invalid input', () => {
@@ -73,5 +86,9 @@ describe('getUnifiedWeek', () => {
     expect(week).toHaveLength(7);
     expect(week.filter((day) => day.active)).toHaveLength(1);
     expect(week.find((day) => day.isToday)?.active).toBe(true);
+  });
+
+  it('keeps getWeeklyActivity as an alias for the unified weekly selector', () => {
+    expect(getWeeklyActivity([key(0)], ref)).toEqual(getUnifiedWeek([key(0)], ref));
   });
 });

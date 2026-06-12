@@ -15,7 +15,7 @@ import { FEATURED_TRANSLATIONS } from '../../data/translations';
 import { getBookName } from '../../utils/bibleBooks';
 import { getDailyRoutineContent } from '../../utils/dailyRoutine';
 import { getReadingDays } from '../../utils/readingActivity';
-import { collectActivityDays, getUnifiedStreak, getUnifiedWeek, timestampsToDayKeys } from '../../utils/dailyActivity';
+import { getUnifiedDailyActivity, getUnifiedStreak, getUnifiedWeek, timestampsToDayKeys } from '../../utils/dailyActivity';
 
 const formatDate = (value?: number) => value ? new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '—';
 
@@ -57,11 +57,12 @@ export const HomePage: React.FC = () => {
   const translationLabel = FEATURED_TRANSLATIONS.find((item) => item.id === translation)?.short ?? translation.toUpperCase();
   const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  const unifiedDays = useMemo(() => collectActivityDays({
+  const unifiedDays = useMemo(() => getUnifiedDailyActivity({
     readingDays: getReadingDays(),
     routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
     extraDays: timestampsToDayKeys(prayers.map((prayer) => prayer.lastPrayedAt)),
-  }), [routineDays, prayers]);
+    noteTimestamps: notes.map((note) => note.dateAdded),
+  }), [routineDays, prayers, notes]);
   const unifiedStreak = useMemo(() => getUnifiedStreak(unifiedDays), [unifiedDays]);
   const week = useMemo(() => getUnifiedWeek(unifiedDays), [unifiedDays]);
 
@@ -232,7 +233,7 @@ export const HomePage: React.FC = () => {
           <h2 className="text-lg font-bold text-text-primary">Ma progression</h2>
           <span className="flex items-center gap-1.5 rounded-full bg-accent-gold/12 px-3 py-1 text-sm font-bold text-accent-gold"><Flame size={15} /> {unifiedStreak} jour{unifiedStreak > 1 ? 's' : ''}</span>
         </div>
-        <p className="mb-3 text-sm text-text-secondary">Série quotidienne — un jour compte dès qu’une lecture, une routine ou une prière est faite.</p>
+        <p className="mb-3 text-sm text-text-secondary">Série quotidienne — un jour compte dès qu’une lecture, une routine, une prière ou une note est faite.</p>
         <div className="grid grid-cols-7 gap-1.5">
           {week.map((day) => (
             <div key={day.dayKey} className="flex flex-col items-center gap-1.5">
