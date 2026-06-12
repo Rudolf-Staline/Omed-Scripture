@@ -123,8 +123,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ translation, bookId, c
   const translationName = FEATURED_TRANSLATIONS.find((t) => t.id === translation)?.short || translation;
 
   return (
-    <div className="verse-action-surface fixed bottom-0 left-0 right-0 z-50 flex min-h-16 flex-col border-x-0 border-b-0">
-      <div className="flex-1 flex items-center justify-between gap-3 px-4 sm:px-6 max-w-4xl mx-auto w-full py-3">
+    <div className="verse-action-surface fixed bottom-0 left-0 right-0 z-50 flex min-h-16 flex-col border-x-0 border-b-0" role="region" aria-label="Lecteur audio du chapitre">
+      <div className="grid w-full max-w-4xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:mx-auto sm:flex sm:px-6">
         <div className="flex-1 flex items-center min-w-0">
           <div className="truncate">
             <h4 className="font-display font-semibold text-text-primary truncate">{getBookName(bookId)} {chapter}</h4>
@@ -133,21 +133,21 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ translation, bookId, c
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center gap-2">
-          <button onClick={togglePlay} disabled={isLoading || Boolean(message)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${isLoading || message ? 'bg-bg-secondary text-text-muted cursor-not-allowed' : 'bg-accent-gold text-[#171109] hover:bg-accent-brown'}`}>
+        <div className="flex items-center justify-end gap-2 sm:flex-1 sm:justify-center">
+          <button type="button" onClick={togglePlay} disabled={isLoading || Boolean(message)} aria-label={isPlaying ? 'Mettre la lecture en pause' : 'Démarrer la lecture audio'} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${isLoading || message ? 'bg-bg-secondary text-text-muted cursor-not-allowed' : 'bg-accent-gold text-[#171109] hover:bg-accent-brown'}`}>
             {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
           </button>
-          <button onClick={stopPlayback} disabled={!hasUtterance} className="p-2 text-text-muted hover:text-text-primary disabled:opacity-40" title="Stop">
+          <button type="button" onClick={stopPlayback} disabled={!hasUtterance} className="min-h-10 min-w-10 rounded-xl p-2 text-text-muted hover:bg-bg-secondary hover:text-text-primary disabled:opacity-40" title="Stop" aria-label="Arrêter la lecture audio">
             <Square size={16} />
           </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-end gap-3">
-          <button onClick={cycleSpeed} title="Vitesse de lecture" className="text-xs font-mono font-medium text-text-secondary hover:text-text-primary w-10 text-right">
+        <div className="col-span-2 flex items-center justify-end gap-2 border-t border-border/60 pt-2 sm:col-span-1 sm:flex-1 sm:border-t-0 sm:pt-0">
+          <button type="button" onClick={cycleSpeed} title="Vitesse de lecture" aria-label="Changer la vitesse de lecture" className="min-h-10 w-12 rounded-xl text-center text-xs font-mono font-medium text-text-secondary hover:bg-bg-secondary hover:text-text-primary">
             {speed.toFixed(1)}x
           </button>
           <div className="w-px h-6 bg-border mx-1"></div>
-          <button onClick={onClose} className="text-text-muted hover:text-text-primary p-1">
+          <button type="button" onClick={onClose} className="min-h-10 min-w-10 rounded-xl p-2 text-text-muted hover:bg-bg-secondary hover:text-text-primary" aria-label="Fermer le lecteur audio">
             <X size={20} />
           </button>
         </div>

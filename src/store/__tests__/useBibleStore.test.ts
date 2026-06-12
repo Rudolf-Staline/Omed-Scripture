@@ -97,6 +97,31 @@ describe('useBibleStore', () => {
     expect(stored.chapter).toBe(8);
   });
 
+  it('normalizes unsupported stored position values', async () => {
+    localStorage.setItem(OMED_STORAGE_KEYS.biblePosition, JSON.stringify({ translation: 'bad', bookId: 'jean', chapter: 999 }));
+
+    const store = await setupStore();
+    const state = store.getState();
+    expect(state.translation).toBe('lsg');
+    expect(state.bookId).toBe('jean');
+    expect(state.chapter).toBe(21);
+  });
+
+  it('normalizes invalid setPosition values before persisting', async () => {
+    const store = await setupStore();
+    store.getState().setPosition('bad', 'unknown', -4);
+
+    const state = store.getState();
+    expect(state.translation).toBe('lsg');
+    expect(state.bookId).toBe('jean');
+    expect(state.chapter).toBe(1);
+
+    const stored = JSON.parse(localStorage.getItem(OMED_STORAGE_KEYS.biblePosition)!);
+    expect(stored.translation).toBe('lsg');
+    expect(stored.bookId).toBe('jean');
+    expect(stored.chapter).toBe(1);
+  });
+
   it('sets compare translation', async () => {
     const store = await setupStore();
     store.getState().setCompareTranslation('darby');

@@ -97,9 +97,11 @@ export const SearchPage: React.FC = () => {
   }, [results, bookFilter, testamentFilter]);
 
   const navigateToVerse = (bookId: string, chapterId: string) => {
-    const chapterNum = chapterId.includes('.') ? chapterId.split('.')[1] : chapterId;
-    const apiBookToLocal = BIBLE_BOOKS.find((b) => b.id.toLowerCase().startsWith(bookId.toLowerCase()))?.id || bookId.toLowerCase();
-    navigate(`/read/${translation}/${apiBookToLocal}/${chapterNum}`);
+    const parsedChapter = Number.parseInt(chapterId.includes('.') ? chapterId.split('.')[1] : chapterId, 10);
+    const targetBook = BIBLE_BOOKS.find((book) => book.id === bookId.toLowerCase())
+      ?? BIBLE_BOOKS.find((book) => book.id.toLowerCase().startsWith(bookId.toLowerCase()));
+    const chapterNum = Number.isFinite(parsedChapter) ? parsedChapter : 1;
+    navigate(`/read/${translation}/${targetBook?.id ?? 'jean'}/${chapterNum}`);
   };
 
   const handleClearHistory = () => {
@@ -132,7 +134,7 @@ export const SearchPage: React.FC = () => {
               value={translation}
               onChange={(e) => setTranslation(e.target.value)}
               aria-label="Traduction de recherche"
-              className="min-h-14 rounded-2xl border border-border bg-bg-card/72 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/50"
+              className="min-h-14 rounded-2xl border border-border bg-bg-card/72 px-3 text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/50 sm:max-w-36"
             >
               {FEATURED_TRANSLATIONS.map((t) => (
                 <option key={t.id} value={t.id}>{t.short}</option>
@@ -207,13 +209,13 @@ export const SearchPage: React.FC = () => {
         )}
 
         {!loading && results.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <h2 className="omed-kicker">
               {filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''}
               {filteredResults.length !== results.length ? ` (sur ${results.length})` : ''}
             </h2>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex gap-1 rounded-full border border-border bg-bg-card/55 p-1" role="group" aria-label="Filtrer par testament">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="grid grid-cols-3 gap-1 rounded-full border border-border bg-bg-card/55 p-1 sm:flex" role="group" aria-label="Filtrer par testament">
                 {(['tous', 'AT', 'NT'] as TestamentFilter[]).map((value) => (
                   <button
                     key={value}
@@ -234,7 +236,7 @@ export const SearchPage: React.FC = () => {
                   value={bookFilter}
                   onChange={(e) => setBookFilter(e.target.value)}
                   aria-label="Filtrer par livre"
-                  className="min-h-9 rounded-full border border-border bg-bg-card/55 px-3 text-xs font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/50"
+                  className="min-h-10 w-full rounded-full border border-border bg-bg-card/55 px-3 text-xs font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-gold/50 sm:w-auto"
                 >
                   <option value="tous">Tous les livres</option>
                   {booksInResults.map((book) => (
@@ -265,7 +267,7 @@ export const SearchPage: React.FC = () => {
             <p className="font-body text-base leading-8 text-text-secondary">
               <HighlightedText text={result.text} term={searchedTerm} />
             </p>
-            <button onClick={() => navigateToVerse(result.book_id, result.chapter_id)} className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-accent-brown hover:text-accent-gold">
+            <button type="button" onClick={() => navigateToVerse(result.book_id, result.chapter_id)} className="mt-5 inline-flex min-h-10 items-center gap-1 rounded-xl px-1 text-sm font-semibold text-accent-brown hover:text-accent-gold">
               Ouvrir le chapitre <ChevronRight size={16} />
             </button>
           </article>

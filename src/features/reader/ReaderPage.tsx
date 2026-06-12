@@ -14,6 +14,20 @@ const SelectChevron = () => (
   <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
 );
 
+const getSupportedTranslation = (value?: string): string => (
+  FEATURED_TRANSLATIONS.some((translation) => translation.id === value) ? value! : 'lsg'
+);
+
+const getSupportedBook = (value?: string) => (
+  BIBLE_BOOKS.find((book) => book.id === value) ?? BIBLE_BOOKS.find((book) => book.id === 'jean') ?? BIBLE_BOOKS[0]
+);
+
+const clampChapter = (rawChapter: string | number | undefined, maxChapters: number): number => {
+  const parsed = Number.parseInt(String(rawChapter ?? 1), 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return 1;
+  return Math.min(parsed, maxChapters);
+};
+
 export const ReaderPage: React.FC = () => {
   const { translation, bookId, chapter } = useParams<{ translation: string; bookId: string; chapter: string }>();
   const navigate = useNavigate();
@@ -29,9 +43,11 @@ export const ReaderPage: React.FC = () => {
   const compareTranslation = useBibleStore((state) => state.compareTranslation);
   const setCompareTranslation = useBibleStore((state) => state.setCompareTranslation);
 
-  const effectiveTranslation = translation || storedTranslation || 'lsg';
-  const effectiveBookId = bookId || storedBookId || 'jean';
-  const chapterNum = parseInt(chapter || String(storedChapter || 1), 10);
+  const effectiveTranslation = getSupportedTranslation(translation || storedTranslation || 'lsg');
+  const currentBook = getSupportedBook(bookId || storedBookId || 'jean');
+  const effectiveBookId = currentBook.id;
+  const chapterNum = clampChapter(chapter || storedChapter || 1, currentBook.chapters);
+  const defaultCompareTranslation = effectiveTranslation === 'darby' ? 'lsg' : 'darby';
 
   useEffect(() => {
     setPosition(effectiveTranslation, effectiveBookId, chapterNum);
@@ -57,7 +73,6 @@ export const ReaderPage: React.FC = () => {
     };
   }, [focusMode]);
 
-  const currentBook = BIBLE_BOOKS.find((b) => b.id === effectiveBookId) || BIBLE_BOOKS[0];
   const currentTranslation = FEATURED_TRANSLATIONS.find((t) => t.id === effectiveTranslation);
 
   const goToPreviousChapter = () => {
@@ -139,12 +154,12 @@ export const ReaderPage: React.FC = () => {
               <span>Audio</span>
             </button>
 
-            <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'darby')} className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
+            <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : defaultCompareTranslation)} aria-label="Comparer avec une autre traduction" className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
               <GitCompare size={17} strokeWidth={1.5} />
               <span>Comparer</span>
             </button>
 
-            <button type="button" onClick={() => setStudyMode((mode) => !mode)} className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${studyMode ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={studyMode}>
+            <button type="button" onClick={() => setStudyMode((mode) => !mode)} aria-label="Afficher le mode étude" className={`min-h-11 rounded-xl border px-3 text-sm font-semibold ${studyMode ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={studyMode}>
               <NotebookPen size={17} strokeWidth={1.5} />
               <span>Étude</span>
             </button>
@@ -165,11 +180,11 @@ export const ReaderPage: React.FC = () => {
                 <Headphones size={16} strokeWidth={1.5} />
                 Audio
               </button>
-              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : 'darby')} className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
+              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : defaultCompareTranslation)} aria-label="Comparer avec une autre traduction" className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${compareTranslation ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={Boolean(compareTranslation)}>
                 <GitCompare size={16} strokeWidth={1.5} />
                 Comparer
               </button>
-              <button type="button" onClick={() => setStudyMode((mode) => !mode)} className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${studyMode ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={studyMode}>
+              <button type="button" onClick={() => setStudyMode((mode) => !mode)} aria-label="Afficher le mode étude" className={`min-h-10 justify-center rounded-xl border px-3 text-sm font-semibold ${studyMode ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'omed-button-ghost'}`} aria-pressed={studyMode}>
                 <NotebookPen size={16} strokeWidth={1.5} />
                 Étude
               </button>
@@ -223,12 +238,12 @@ export const ReaderPage: React.FC = () => {
 
       {!focusMode && (
         <footer className="mt-8 mb-4 flex items-center justify-between gap-3 border-t border-border pt-5">
-          <button type="button" onClick={goToPreviousChapter} className="omed-button-ghost min-h-11 px-3 text-sm">
+          <button type="button" onClick={goToPreviousChapter} disabled={effectiveBookId === BIBLE_BOOKS[0].id && chapterNum === 1} className="omed-button-ghost min-h-11 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-45" aria-label="Chapitre précédent">
             <ChevronLeft size={18} />
             <span className="hidden sm:inline">Chapitre précédent</span>
             <span className="sm:hidden">Précédent</span>
           </button>
-          <button type="button" onClick={goToNextChapter} className="omed-button-ghost min-h-11 px-3 text-sm">
+          <button type="button" onClick={goToNextChapter} disabled={effectiveBookId === BIBLE_BOOKS[BIBLE_BOOKS.length - 1].id && chapterNum === currentBook.chapters} className="omed-button-ghost min-h-11 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-45" aria-label="Chapitre suivant">
             <span className="hidden sm:inline">Chapitre suivant</span>
             <span className="sm:hidden">Suivant</span>
             <ChevronRight size={18} />

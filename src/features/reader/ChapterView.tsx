@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getChapter } from '../../utils/bibleApi';
+import { formatBibleReference } from '../../utils/bibleBooks';
 import type { Verse } from '../../utils/bibleApi';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
@@ -9,6 +10,7 @@ import { cacheChapter, getCachedChapter } from '../../utils/chapterCache';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { LoadingState } from '../../components/LoadingState';
 import { ErrorState } from '../../components/ErrorState';
+import { EmptyState } from '../../components/EmptyState';
 import clsx from 'clsx';
 
 interface ChapterViewProps {
@@ -78,6 +80,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
 
   if (loading) return <LoadingState title="Chargement du chapitre" message="Nous ouvrons ce passage." />;
   if (error) return <ErrorState title="Chapitre indisponible" message={error} />;
+  if (verses.length === 0) return <EmptyState title="Chapitre vide" message="Aucun verset n’a été reçu pour ce passage. Essayez un autre chapitre ou une autre traduction." />;
 
   const fontClass = settings.fontFamily === 'Lora' ? 'font-body' : 'font-sans';
 
@@ -132,7 +135,21 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           const highlight = highlights[verseId];
 
           return (
-            <div key={verseId} className="group/verse relative -mx-2 cursor-pointer rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus-within:bg-bg-card/45 sm:-mx-3 sm:px-3" onClick={() => setSelectedVerseId(isSelected ? null : verseId)}>
+            <div
+              key={verseId}
+              className="group/verse relative -mx-2 cursor-pointer rounded-xl px-2 py-1.5 hover:bg-bg-card/35 focus:bg-bg-card/45 focus:outline-none focus:ring-1 focus:ring-accent-gold/40 focus-within:bg-bg-card/45 sm:-mx-3 sm:px-3"
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
+              aria-label={`${formatBibleReference(bookId, chapter, verse.verse)}. Touchez ou appuyez sur Entrée pour afficher les actions.`}
+              onClick={() => setSelectedVerseId(isSelected ? null : verseId)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setSelectedVerseId(isSelected ? null : verseId);
+                }
+              }}
+            >
               {isSelected && (
                 <VerseActions verse={verse} verseId={verseId} translation={translation} bookId={bookId} onClose={() => setSelectedVerseId(null)} />
               )}
