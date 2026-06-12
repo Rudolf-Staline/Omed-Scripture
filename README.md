@@ -44,7 +44,9 @@ Les anciennes routes restent valides : `/search`, `/notes`, `/favorites`,
 - **Routine quotidienne** (locale, sans API) : verset du jour, prière guidée du jour, lecture courte recommandée, note rapide, bouton « Commencer aujourd'hui », série (streak) et historique des jours complétés.
 - **Découvrir** : douze thèmes bibliques (Foi, Paix, Prière, Amour, Courage, Sagesse, Espérance, Pardon, Famille, Travail, Peur, Gratitude) avec description, passages suggérés et plans liés ; un clic lance une recherche réelle.
 - **Carte de verset (Verse Image)** : génération locale d'une image carrée du verset (canvas, sans dépendance lourde), copie image/texte et partage WhatsApp / X depuis les actions de verset.
+- **Sélecteur biblique (Bible Picker)** : un bouton de passage unique (« Jean 3 · LSG ») ouvre un panneau plein écran / bottom sheet — onglets Ancien/Nouveau Testament, recherche de livre insensible aux accents, grille des livres puis grille des chapitres, choix de traduction intégré, fermeture clavier (Échap). Les anciens menus déroulants traduction/livre/chapitre sont remplacés.
 - Lecture par livre et chapitre, avec mode focus (plein texte) et mode étude (notes, surlignages et favoris du chapitre en panneau latéral).
+- **Série quotidienne unifiée** : une seule série (« streak ») remplace les anciennes séries concurrentes lecture/routine ; un jour est actif dès qu'une lecture, une routine ou une prière (« j'ai prié ») a lieu. Dérivée de données déjà persistées, sans nouvelle clé de stockage.
 - **Palette de commandes** (⌘K / Ctrl+K) : aller à une page, changer de thème ou entrer en méditation au clavier.
 - **Mode méditation** : un verset en plein écran avec un halo de respiration lent (respecte `prefers-reduced-motion`), lancé depuis l'accueil ou la palette de commandes.
 - **Cinq thèmes visuels** avec aperçu par échantillons dans les préférences (voir « Identité visuelle »).
@@ -56,7 +58,8 @@ Les anciennes routes restent valides : `/search`, `/notes`, `/favorites`,
 - Favoris triables par date ou ordre biblique canonique.
 - Notes avec tags optionnels, filtres par tag et par livre, tri par date ou ordre biblique, copie avec référence.
 - Carnet de prière : catégories (gratitude, demande, confession, intercession, méditation), statuts (en cours, exaucée, archivée), bouton « J'ai prié » (compteur et dernier horodatage), date d'exaucement, verset lié optionnel, recherche et filtres.
-- Plans de lecture réels : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
+- Plans de lecture réels présentés en **catalogue** (sections En cours / Recommandés / Courts / Thématiques / Terminés) avec **filtres par durée et par thème**, métadonnées (catégorie, thème, difficulté, recommandé) et progression visible : Fondations 7 jours, Évangile de Jean 21 jours, Évangile essentiel 14 jours, Psaumes de confiance 7 jours, panorama de 30 jours ; structure annuelle préparée mais non simulée.
+- **Détail de plan jour-par-jour** : carte « à lire maintenant » mise en avant, lecture du jour, marquage terminé/non terminé, parcours complet avec passages cliquables ; compléter un jour compte aussi pour la série quotidienne.
 - Audio via `speechSynthesis`, déclenché uniquement par l’utilisateur.
 - Export JSON local (incluant les prières) et synchronisation Google Drive AppData.
 - Contenu biblique statique servi depuis `public/bibles/` (provider local prioritaire avec repli automatique vers les API).
