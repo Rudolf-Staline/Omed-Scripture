@@ -25,8 +25,6 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
       { to: '/plans', label: 'Plans', icon: CalendarRange },
       { to: '/discover', label: 'Découvrir', icon: Compass },
       { to: '/me', label: 'Moi', icon: UserCircle },
-      { to: '/me', label: 'Moi', icon: UserCircle },
-  { to: '/more', label: 'Plus', icon: UserCircle },
     ],
   },
   {
