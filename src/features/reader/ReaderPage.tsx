@@ -44,11 +44,17 @@ export const ReaderPage: React.FC = () => {
 
   useEffect(() => {
     if (!focusMode) return undefined;
+    // Mode focus : masque la navigation mobile globale (voir index.css) et
+    // permet de sortir au clavier.
+    document.body.classList.add('omed-focus-reading');
     const exitOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setFocusMode(false);
     };
     window.addEventListener('keydown', exitOnEscape);
-    return () => window.removeEventListener('keydown', exitOnEscape);
+    return () => {
+      document.body.classList.remove('omed-focus-reading');
+      window.removeEventListener('keydown', exitOnEscape);
+    };
   }, [focusMode]);
 
   const currentBook = BIBLE_BOOKS.find((b) => b.id === effectiveBookId) || BIBLE_BOOKS[0];

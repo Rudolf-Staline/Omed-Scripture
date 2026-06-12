@@ -48,13 +48,11 @@ const sanitizePrayers = (value: unknown): PrayerEntry[] =>
   Array.isArray(value) ? value.filter(isPrayerEntry) : [];
 
 const getInitialPrayers = (): PrayerEntry[] => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.prayers);
-  if (stored) {
-    try {
-      return sanitizePrayers(JSON.parse(stored));
-    } catch (e) {
-      console.error('Failed to parse prayers from localStorage', e);
-    }
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.prayers);
+    if (stored) return sanitizePrayers(JSON.parse(stored));
+  } catch (e) {
+    console.error('Failed to read prayers from localStorage', e);
   }
   return [];
 };

@@ -31,11 +31,11 @@ export const NoteModal: React.FC<NoteModalProps> = ({ reference, onCancel, onSav
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4" onClick={onCancel}>
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-bg-card p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="note-modal-title" className="w-full max-w-lg rounded-2xl border border-border bg-bg-card p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-text-muted">Nouvelle note</p>
-            <h2 className="font-display text-xl font-semibold text-text-primary">{reference}</h2>
+            <h2 id="note-modal-title" className="font-display text-xl font-semibold text-text-primary">{reference}</h2>
           </div>
           <button type="button" onClick={onCancel} className="rounded-lg p-1 text-text-muted hover:bg-bg-secondary hover:text-text-primary" aria-label="Fermer">
             <X size={20} />

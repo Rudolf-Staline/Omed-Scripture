@@ -99,6 +99,8 @@ Avant toute restauration depuis Drive, Omed Scripture crée une sauvegarde local
 
 - La synchronisation Drive applique une validation minimale et une sauvegarde locale avant restauration, mais pas encore une résolution fine des conflits champ par champ.
 - Le plan annuel est volontairement marqué “à venir” tant qu’un jeu de lectures complet n’est pas fourni.
+- Le verset du jour est servi en Louis Segond 1910 (liste locale du domaine public) ; il est toujours rattaché à `lsg`, indépendamment de la traduction de lecture par défaut.
+- L’initialisation des stores tolère un `localStorage` indisponible (mode privé, stockage désactivé) en retombant sur des valeurs par défaut, sans bloquer l’application. Les écritures peuvent toutefois échouer silencieusement si le quota est atteint.
 - `speechSynthesis` dépend du navigateur, des voix installées et de la plateforme.
 - Les traductions API.Bible préparées côté serveur nécessitent `BIBLE_API_KEY` et un mapping de livres robuste avant exposition produit.
 

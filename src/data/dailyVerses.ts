@@ -5,6 +5,11 @@ export interface DailyVerse {
   text: string;
 }
 
+// Les textes ci-dessous sont la Louis Segond 1910 (domaine public). Le verset
+// du jour est donc toujours rattaché à cette traduction, indépendamment de la
+// traduction de lecture par défaut de l'utilisateur.
+export const DAILY_VERSE_TRANSLATION = 'lsg';
+
 // Sélection locale de versets (Louis Segond 1910, domaine public).
 // Le verset du jour est choisi de façon déterministe par date, sans API externe.
 export const DAILY_VERSES: DailyVerse[] = [

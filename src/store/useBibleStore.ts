@@ -14,16 +14,16 @@ export interface BibleState {
 }
 
 const getInitialPosition = () => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.biblePosition);
-  if (stored) {
-    try {
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.biblePosition);
+    if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed.translation && parsed.bookId && parsed.chapter) {
         return parsed;
       }
-    } catch (e) {
-      console.error('Failed to parse position from localStorage', e);
     }
+  } catch (e) {
+    console.error('Failed to read position from localStorage', e);
   }
   return { translation: 'lsg', bookId: 'jean', chapter: 3 };
 };

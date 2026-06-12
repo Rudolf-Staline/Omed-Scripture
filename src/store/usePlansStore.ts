@@ -19,13 +19,14 @@ interface PlansState {
 }
 
 const getInitialPlans = (): Record<string, PlanProgress> => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.plans);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error('Failed to parse plans from localStorage', e);
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.plans);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
     }
+  } catch (e) {
+    console.error('Failed to read plans from localStorage', e);
   }
   return {};
 };

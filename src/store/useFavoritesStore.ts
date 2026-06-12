@@ -22,13 +22,14 @@ interface FavoritesState {
 }
 
 const getInitialFavorites = (): FavoriteVerse[] => {
-  const stored = localStorage.getItem(OMED_STORAGE_KEYS.favorites);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error('Failed to parse favorites from localStorage', e);
+  try {
+    const stored = localStorage.getItem(OMED_STORAGE_KEYS.favorites);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
     }
+  } catch (e) {
+    console.error('Failed to read favorites from localStorage', e);
   }
   return [];
 };

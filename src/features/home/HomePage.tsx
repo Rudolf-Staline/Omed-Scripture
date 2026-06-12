@@ -27,6 +27,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { READING_PLANS } from '../../data/readingPlans';
 import { formatBibleReference, getBookName } from '../../utils/bibleBooks';
 import { getDailyVerse } from '../../utils/dailyVerse';
+import { DAILY_VERSE_TRANSLATION } from '../../data/dailyVerses';
 import { getReadingStreak, getWeekActivity } from '../../utils/readingActivity';
 
 const QUICK_LINKS = [
@@ -52,7 +53,6 @@ export const HomePage: React.FC = () => {
   const notes = useNotesStore((state) => state.notes);
   const progress = usePlansStore((state) => state.progress);
   const synced = useSettingsStore((state) => state.synced);
-  const defaultTranslation = useSettingsStore((state) => state.settings.defaultTranslation) || 'lsg';
   const user = useAuthStore((state) => state.user);
 
   const continuePath = `/read/${translation}/${bookId}/${chapter}`;
@@ -63,9 +63,12 @@ export const HomePage: React.FC = () => {
   const readThisWeek = weekActivity.filter((day) => day.read).length;
 
   const dailyReference = formatBibleReference(dailyVerse.bookId, dailyVerse.chapter, dailyVerse.verse);
-  const dailyVerseId = `${defaultTranslation}-${dailyVerse.bookId}-${dailyVerse.chapter}-${dailyVerse.verse}`;
+  // Le verset du jour est en LSG : on le rattache à cette traduction pour le
+  // lien, le favori et le partage, quelle que soit la traduction par défaut.
+  const dailyVersePath = `/read/${DAILY_VERSE_TRANSLATION}/${dailyVerse.bookId}/${dailyVerse.chapter}`;
+  const dailyVerseId = `${DAILY_VERSE_TRANSLATION}-${dailyVerse.bookId}-${dailyVerse.chapter}-${dailyVerse.verse}`;
   const dailyIsFavorite = favorites.some((f) => f.id === dailyVerseId);
-  const dailyShareText = `« ${dailyVerse.text} »\n— ${dailyReference} (${defaultTranslation.toUpperCase()})`;
+  const dailyShareText = `« ${dailyVerse.text} »\n— ${dailyReference} (${DAILY_VERSE_TRANSLATION.toUpperCase()})`;
 
   const recentNotes = useMemo(
     () => [...notes].sort((a, b) => (b.dateModified ?? 0) - (a.dateModified ?? 0)).slice(0, 2),
@@ -121,7 +124,7 @@ export const HomePage: React.FC = () => {
     } else {
       addFavorite({
         id: dailyVerseId,
-        translation: defaultTranslation,
+        translation: DAILY_VERSE_TRANSLATION,
         bookId: dailyVerse.bookId,
         chapter: dailyVerse.chapter,
         verse: dailyVerse.verse,
@@ -211,7 +214,7 @@ export const HomePage: React.FC = () => {
           <p className="mt-4 font-display text-base font-semibold text-accent-gold">— {dailyReference}</p>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">
-            <Link to={`/read/${defaultTranslation}/${dailyVerse.bookId}/${dailyVerse.chapter}`} className="omed-button-primary min-h-11 px-4 text-sm">
+            <Link to={dailyVersePath} className="omed-button-primary min-h-11 px-4 text-sm">
               <BookOpenText size={16} strokeWidth={1.6} />
               Ouvrir le chapitre
             </Link>
@@ -241,7 +244,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           <p className="mt-5 border-t border-border/60 pt-4 text-sm leading-6 text-text-muted">
-            Passage suggéré aujourd’hui : <Link to={`/read/${defaultTranslation}/${dailyVerse.bookId}/${dailyVerse.chapter}`} className="font-semibold text-accent-brown hover:text-accent-gold">{getBookName(dailyVerse.bookId)} {dailyVerse.chapter}</Link>, à lire en entier pour habiter le contexte.
+            Passage suggéré aujourd’hui : <Link to={dailyVersePath} className="font-semibold text-accent-brown hover:text-accent-gold">{getBookName(dailyVerse.bookId)} {dailyVerse.chapter}</Link>, à lire en entier pour habiter le contexte.
           </p>
         </div>
       </section>
