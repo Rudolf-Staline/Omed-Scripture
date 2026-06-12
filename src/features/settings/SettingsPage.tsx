@@ -177,7 +177,7 @@ export const SettingsPage: React.FC = () => {
       <p className="mt-3 mb-8 max-w-2xl text-text-secondary">Personnalisez votre expérience de lecture biblique en toute simplicité.</p>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+        <section className="omed-card p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Palette size={20} className="text-accent-brown" /> Apparence
           </h2>
@@ -212,7 +212,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+        <section className="omed-card p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <BookOpen size={20} className="text-accent-brown" /> Lecture
           </h2>
@@ -260,7 +260,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+        <section className="omed-card p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Cloud size={20} className="text-accent-brown" /> Synchronisation
           </h2>
@@ -314,7 +314,7 @@ export const SettingsPage: React.FC = () => {
           )}
         </section>
 
-        <section className="rounded-[1.5rem] border border-border bg-bg-card/60 p-6 shadow-[var(--shadow-soft)]">
+        <section className="omed-card p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Database size={20} className="text-accent-brown" /> Données personnelles
           </h2>

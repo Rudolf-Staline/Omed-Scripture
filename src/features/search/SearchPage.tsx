@@ -255,7 +255,7 @@ export const SearchPage: React.FC = () => {
         )}
 
         {filteredResults.map((result, idx) => (
-          <article key={`${result.book_id}-${result.chapter_id}-${idx}`} className="group rounded-2xl border border-border bg-bg-card/62 p-5 shadow-[var(--shadow-soft)] hover:border-accent-gold/35 md:p-6">
+          <article key={`${result.book_id}-${result.chapter_id}-${idx}`} className="group omed-card p-5 hover:border-accent-gold/35 md:p-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h3 className="font-display text-2xl font-semibold text-text-primary">{result.reference}</h3>
               <span className="rounded-full border border-accent-gold/25 bg-accent-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-accent-gold">

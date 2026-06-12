@@ -226,7 +226,7 @@ export const NotesPage: React.FC = () => {
             const modifiedAt = formatDate(note.dateModified);
 
             return (
-              <article key={note.id} className="rounded-[1.35rem] border border-border bg-bg-card/62 p-5 shadow-[var(--shadow-soft)]">
+              <article key={note.id} className="omed-card p-5">
                 <header className="flex flex-wrap justify-between items-start gap-3 mb-4">
                   <div>
                     <h2 className="font-display text-lg font-semibold text-text-primary">{reference}</h2>

@@ -91,7 +91,7 @@ export const ReaderPage: React.FC = () => {
   return (
     <div className="flex h-full flex-col">
       {!focusMode && (
-      <header className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border bg-bg-primary/90 px-4 py-2.5 backdrop-blur-xl sm:-mx-6 sm:mb-5 sm:px-6 sm:py-3 md:-mx-10 md:px-10 lg:-mx-14 lg:px-14">
+      <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg-primary/92 px-4 py-3 shadow-[0_18px_60px_-54px_var(--color-shadow)] backdrop-blur-xl sm:-mx-6 sm:mb-5 sm:px-6 sm:py-3 md:-mx-10 md:px-10 lg:-mx-14 lg:px-14">
         <div className="mb-2 flex items-center justify-between gap-3 sm:mb-3">
           <div className="min-w-0">
             <p className="omed-kicker hidden sm:block">Lecteur</p>
@@ -182,7 +182,7 @@ export const ReaderPage: React.FC = () => {
         </div>
 
         <div className="mt-2.5 flex items-center gap-3">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-bg-secondary" role="progressbar" aria-valuemin={1} aria-valuemax={currentBook.chapters} aria-valuenow={chapterNum} aria-label={`Progression dans ${currentBook.name}`}>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-secondary" role="progressbar" aria-valuemin={1} aria-valuemax={currentBook.chapters} aria-valuenow={chapterNum} aria-label={`Progression dans ${currentBook.name}`}>
             <div className="h-full rounded-full bg-accent-gold/70 transition-all duration-300" style={{ width: `${bookProgress}%` }} />
           </div>
           <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
@@ -200,7 +200,7 @@ export const ReaderPage: React.FC = () => {
 
           {compareTranslation && (
             <section className="min-w-0 lg:pl-1">
-              <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-card/45 p-3">
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-card/58 p-3 shadow-[var(--shadow-soft)]">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">Comparaison</p>
                 <div className="relative inline-flex">
                   <select value={compareTranslation} onChange={(e) => setCompareTranslation(e.target.value)} className={selectClass} aria-label="Traduction de comparaison">
@@ -237,7 +237,7 @@ export const ReaderPage: React.FC = () => {
       )}
 
       {focusMode && (
-        <div className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-full border border-border bg-bg-card/96 px-2 py-1.5 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+        <div className="verse-action-surface fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-full px-2 py-1.5">
           <button type="button" onClick={goToPreviousChapter} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary" aria-label="Chapitre précédent">
             <ChevronLeft size={19} />
           </button>
