@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { useCollectionsStore } from '../../store/useCollectionsStore';
 import type { FavoriteVerse } from '../../store/useFavoritesStore';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Share2, Bookmark } from 'lucide-react';
@@ -20,6 +21,8 @@ export const FavoritesPage: React.FC = () => {
   const [sortMode, setSortMode] = useState<SortMode>('date');
   const [grouped, setGrouped] = useState(false);
   const favorites = useFavoritesStore((state) => state.favorites);
+  const collections = useCollectionsStore((state) => state.collections);
+  const addCollectionItem = useCollectionsStore((state) => state.addItem);
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
   const navigate = useNavigate();
 
@@ -33,6 +36,12 @@ export const FavoritesPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to copy', err);
     }
+  };
+
+  const handleAddToCollection = (collectionId: string, verse: FavoriteVerse) => {
+    if (!collectionId) return;
+    addCollectionItem(collectionId, { type: 'favorite', refId: verse.id, label: formatBibleReference(verse.bookId, verse.chapter, verse.verse) });
+    toast.success('Favori ajouté à la collection.');
   };
 
   const sortedFavorites = useMemo(() => {
@@ -71,6 +80,7 @@ export const FavoritesPage: React.FC = () => {
         openLabel="Lire le contexte"
         actions={(
           <>
+            {collections.length > 0 && <select onClick={(e) => e.stopPropagation()} onChange={(e) => { handleAddToCollection(e.target.value, verse); e.currentTarget.value = ''; }} defaultValue="" className="min-h-10 rounded-lg border border-border bg-bg-primary px-2 text-xs text-text-secondary" aria-label={`Ajouter ${reference} à une collection`}><option value="">Collection</option>{collections.map((collection) => <option key={collection.id} value={collection.id}>{collection.title}</option>)}</select>}
             <button type="button" onClick={(e) => handleShare(verse.text, reference, e)} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-accent-gold" aria-label={`Copier ${reference}`}><Share2 size={16} /></button>
             <button type="button" onClick={() => { if (window.confirm('Retirer ce passage des marque-pages ?')) { removeFavorite(verse.id); toast.success('Marque-page retiré.'); } }} className="min-h-10 min-w-10 rounded-lg p-2 text-text-muted transition-colors hover:bg-bg-secondary hover:text-[color:var(--color-danger)]" aria-label={`Supprimer ${reference}`}><Trash2 size={16} /></button>
           </>

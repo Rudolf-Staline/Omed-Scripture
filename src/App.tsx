@@ -14,6 +14,9 @@ import { PlanDetail } from './features/plans/PlanDetail';
 import { HomePage } from './features/home/HomePage';
 import { PrayerPage } from './features/prayer/PrayerPage';
 import { MorePage } from './features/more/MorePage';
+import { MePage } from './features/me/MePage';
+import { OnboardingPage } from './features/onboarding/OnboardingPage';
+import { CollectionsPage } from './features/collections/CollectionsPage';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -22,6 +25,8 @@ import { useHighlightsStore } from './store/useHighlightsStore';
 import { useNotesStore } from './store/useNotesStore';
 import { usePlansStore } from './store/usePlansStore';
 import { usePrayerStore } from './store/usePrayerStore';
+import { useOnboardingStore } from './store/useOnboardingStore';
+import { useCollectionsStore } from './store/useCollectionsStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 import { CommandPalette } from './components/CommandPalette';
@@ -41,6 +46,9 @@ function App() {
   const loadNotes = useNotesStore((state) => state.loadNotes);
   const loadPlans = usePlansStore((state) => state.loadPlans);
   const loadPrayers = usePrayerStore((state) => state.loadPrayers);
+  const loadOnboarding = useOnboardingStore((state) => state.loadOnboarding);
+  const onboardingCompleted = useOnboardingStore((state) => state.preferences.completed);
+  const loadCollections = useCollectionsStore((state) => state.loadCollections);
   const setPosition = useBibleStore((state) => state.setPosition);
 
   useEffect(() => {
@@ -72,7 +80,9 @@ function App() {
             remoteNotes,
             remotePlans,
             remotePosition,
-            remotePrayers
+            remotePrayers,
+            remoteOnboarding,
+            remoteCollections
           ] = await Promise.all([
             syncFileFromDrive(DRIVE_FILES.settings, token),
             syncFileFromDrive(DRIVE_FILES.favorites, token),
@@ -80,10 +90,12 @@ function App() {
             syncFileFromDrive(DRIVE_FILES.notes, token),
             syncFileFromDrive(DRIVE_FILES.plans, token),
             syncFileFromDrive(DRIVE_FILES.position, token),
-            syncFileFromDrive(DRIVE_FILES.prayers, token)
+            syncFileFromDrive(DRIVE_FILES.prayers, token),
+            syncFileFromDrive(DRIVE_FILES.onboarding, token),
+            syncFileFromDrive(DRIVE_FILES.collections, token)
           ]);
 
-          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections);
           if (hasRemoteData) backupLocalDataBeforeRestore();
 
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -93,6 +105,8 @@ function App() {
           if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
           if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
           if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
+          if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
+          if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
           if (isDriveSessionInvalidError(err)) {
@@ -104,15 +118,16 @@ function App() {
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, setPosition, expireSession]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, setPosition, expireSession]);
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
 
         <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={onboardingCompleted ? <HomePage /> : <OnboardingPage />} />
           <Route path="/reader" element={<ReaderPage />} />
           <Route path="/read/:translation/:bookId/:chapter" element={<ReaderPage />} />
           <Route path="/search" element={<SearchPage />} />
@@ -123,6 +138,8 @@ function App() {
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/me" element={<MePage />} />
+          <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

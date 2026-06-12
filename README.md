@@ -179,3 +179,51 @@ Le projet cible Vercel. La configuration conserve le proxy `bible-api.com`, expo
 ## Licence
 
 Projet personnel à vocation éducative et spirituelle.
+
+## Expérience quotidienne personnalisée
+
+Cette version ajoute une couche personnelle locale autour de Today, Discover, Moi et Collections, sans compte obligatoire et sans clé API côté client.
+
+### Today
+
+La route `/` est l’écran quotidien principal. Elle affiche une salutation, la date, l’état de synchronisation, l’objectif du jour, l’heure préférée de routine, le verset du jour, la routine courte (lecture, prière guidée, note rapide), la reprise de lecture, le plan en cours, l’activité récente, la série unifiée et les raccourcis principaux.
+
+### Onboarding
+
+La route `/onboarding` propose une configuration skippable : traduction préférée, objectif principal, thèmes d’intérêt, objectif quotidien (5/10/15 minutes ou libre) et heure préférée. Les préférences sont locales, typées et validées au chargement. Si l’onboarding n’est pas terminé, l’accueil l’affiche au premier lancement ; les autres routes restent accessibles.
+
+### Objectifs et routine
+
+Les objectifs personnels utilisent les préférences d’onboarding pour personnaliser le thème recommandé, le prompt quotidien, l’objectif de durée et la progression hebdomadaire. Les rappels restent une préférence d’heure locale : l’application ne promet pas de notification en arrière-plan sans service worker dédié.
+
+### Discover
+
+`/discover` reste compatible avec `/search`, mais agit maintenant comme un hub : recherche, thèmes recommandés depuis les préférences, thèmes populaires, passages suggérés, plans liés, historique récent et résultats groupés par livre.
+
+### Moi
+
+La route `/me` regroupe le profil local ou Google, l’état de sync, la série quotidienne, l’objectif, l’activité semaine, les compteurs notes/favoris/prières/surlignages/plans/collections, la reprise de lecture, l’accès aux collections, aux préférences et au sync/export.
+
+### Collections spirituelles
+
+La route `/collections` permet de créer, éditer et supprimer des collections locales. Une collection référence des éléments stables (`favorite`, `note`, `prayer`, `verse`) sans dupliquer tout leur contenu. L’intégration actuelle permet notamment d’ajouter un favori à une collection depuis la page Favoris.
+
+### Partage de versets
+
+La génération locale de carte de verset accepte plusieurs styles simples (`minimal`, `parchment`, `dark`, `sunrise`, `plain`) via Canvas, sans dépendance lourde. Le partage texte / Web Share / image reste soumis aux capacités du navigateur.
+
+## Données locales ajoutées
+
+| Clé | Contenu | Validation |
+|---|---|---|
+| `omed_bible_onboarding` | préférences d’onboarding, objectif, thèmes, heure préférée | `sanitizeOnboarding` |
+| `omed_bible_collections` | collections spirituelles et références d’items | `sanitizeCollections` |
+
+Ces clés sont incluses dans la liste des données Omed effaçables de façon ciblée. L’export JSON inclut aussi onboarding et collections. La synchronisation Drive ajoute deux fichiers AppData dédiés (`omed_bible_onboarding.json`, `omed_bible_collections.json`) et restaure ces données uniquement via validation/sanitation, avec sauvegarde locale pré-restauration.
+
+## Limites restantes de l’expérience quotidienne
+
+- Les rappels sont une préférence d’heure affichée dans l’interface, pas une notification fiable en arrière-plan.
+- Les collections peuvent recevoir des favoris depuis l’UI ; l’ajout direct depuis notes et prières reste une suite logique.
+- Discover utilise la recherche existante et des suggestions locales ; il ne promet pas une recherche biblique offline complète.
+- La routine historique reste locale à l’appareil ; onboarding et collections sont synchronisés, mais la routine quotidienne n’est pas encore incluse dans Drive.

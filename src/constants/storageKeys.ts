@@ -14,6 +14,8 @@ export const OMED_STORAGE_KEYS = {
   searchHistory: 'omed_bible_search_history',
   readingActivity: 'omed_bible_reading_activity',
   dailyRoutine: 'omed_bible_daily_routine',
+  onboarding: 'omed_bible_onboarding',
+  collections: 'omed_bible_collections',
 } as const;
 
 export const OMED_LOCAL_STORAGE_KEYS = Object.values(OMED_STORAGE_KEYS);

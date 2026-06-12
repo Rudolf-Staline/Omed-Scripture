@@ -5,9 +5,11 @@ import type { Note } from '../store/useNotesStore';
 import type { PlanProgress } from '../store/usePlansStore';
 import type { PrayerEntry } from '../store/usePrayerStore';
 import type { Settings } from '../store/useSettingsStore';
+import type { OnboardingPreferences } from '../types/onboarding';
+import type { SpiritualCollection } from '../types/collections';
 import type { BibleState } from '../store/useBibleStore';
 
-export const BACKUP_SCHEMA_VERSION = 1;
+export const BACKUP_SCHEMA_VERSION = 2;
 
 export type ReadingPositionBackup = Pick<BibleState, 'translation' | 'bookId' | 'chapter'>;
 
@@ -21,6 +23,8 @@ export interface OmedBackup {
   progress: Record<string, PlanProgress>;
   position: ReadingPositionBackup;
   prayers?: PrayerEntry[]; // optionnel : absent des sauvegardes antérieures
+  onboarding?: OnboardingPreferences;
+  collections?: SpiritualCollection[];
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -51,7 +55,9 @@ export const validateBackup = (value: unknown): value is OmedBackup => {
     Array.isArray(value.notes) &&
     isRecord(value.progress) &&
     isValidReadingPosition(value.position) &&
-    (value.prayers === undefined || Array.isArray(value.prayers))
+    (value.prayers === undefined || Array.isArray(value.prayers)) &&
+    (value.onboarding === undefined || isRecord(value.onboarding)) &&
+    (value.collections === undefined || Array.isArray(value.collections))
   );
 };
 

@@ -15,12 +15,15 @@ import { useHighlightsStore } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { usePlansStore } from '../../store/usePlansStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
+import { useCollectionsStore } from '../../store/useCollectionsStore';
+import type { PreferredTopicId } from '../../types/onboarding';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { THEMES } from '../../data/themes';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
-import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database } from 'lucide-react';
+import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { PageCanvas } from '../../components/layout/PageCanvas';
@@ -40,6 +43,8 @@ export const SettingsPage: React.FC = () => {
   const { loadPlans, progress } = usePlansStore();
   const { loadPrayers, prayers } = usePrayerStore();
   const { translation, bookId, chapter } = useBibleStore();
+  const { preferences, updatePreferences, resetOnboarding, loadOnboarding } = useOnboardingStore();
+  const { collections, loadCollections } = useCollectionsStore();
   const setPosition = useBibleStore((state) => state.setPosition);
 
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
@@ -48,6 +53,7 @@ export const SettingsPage: React.FC = () => {
   const languages: Language[] = ['Français', 'English'];
   const readingWidths: ReadingWidth[] = ['Narrow', 'Comfortable', 'Wide'];
   const readingDensities: ReadingDensity[] = ['Compact', 'Aired'];
+  const preferenceTopics: PreferredTopicId[] = ['foi', 'paix', 'sagesse', 'courage', 'priere', 'famille', 'pardon', 'esperance'];
 
   const handleSyncData = async () => {
     if (!token) {
@@ -56,7 +62,7 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers] = await Promise.all([
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections] = await Promise.all([
         syncFileFromDrive(DRIVE_FILES.settings, token),
         syncFileFromDrive(DRIVE_FILES.favorites, token),
         syncFileFromDrive(DRIVE_FILES.highlights, token),
@@ -64,9 +70,11 @@ export const SettingsPage: React.FC = () => {
         syncFileFromDrive(DRIVE_FILES.plans, token),
         syncFileFromDrive(DRIVE_FILES.position, token),
         syncFileFromDrive(DRIVE_FILES.prayers, token),
+        syncFileFromDrive(DRIVE_FILES.onboarding, token),
+        syncFileFromDrive(DRIVE_FILES.collections, token),
       ]);
 
-      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections);
       if (hasRemoteData) backupLocalDataBeforeRestore();
 
       if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -76,6 +84,8 @@ export const SettingsPage: React.FC = () => {
       if (isValidRecord(remotePlans)) loadPlans(remotePlans as Parameters<typeof loadPlans>[0]);
       if (isValidReadingPosition(remotePosition)) setPosition(remotePosition.translation, remotePosition.bookId, remotePosition.chapter);
       if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
+      if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
+      if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
 
       setSynced(true);
       toast.success('Synchronisation réussie !');
@@ -104,6 +114,8 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.plans, progress, token),
         syncFileToDrive(DRIVE_FILES.position, { translation, bookId, chapter }, token),
         syncFileToDrive(DRIVE_FILES.prayers, prayers, token),
+        syncFileToDrive(DRIVE_FILES.onboarding, preferences, token),
+        syncFileToDrive(DRIVE_FILES.collections, collections, token),
       ]);
       setSynced(true);
       toast.success('Sauvegarde en ligne réussie !');
@@ -129,6 +141,8 @@ export const SettingsPage: React.FC = () => {
       progress,
       position: { translation, bookId, chapter },
       prayers,
+      onboarding: preferences,
+      collections,
     });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -183,6 +197,7 @@ export const SettingsPage: React.FC = () => {
               <p><strong className="text-text-primary">{favorites.length}</strong> favoris</p>
               <p><strong className="text-text-primary">{notes.length}</strong> notes</p>
               <p><strong className="text-text-primary">{prayers.length}</strong> prières</p>
+              <p><strong className="text-text-primary">{collections.length}</strong> collections</p>
               <p className="rounded-2xl border border-border bg-bg-primary/50 p-3">Sync : {synced ? 'active' : 'locale'}</p>
             </div>
           </StudyPanel>
@@ -250,6 +265,26 @@ export const SettingsPage: React.FC = () => {
               <label className="block text-sm font-medium text-text-secondary mb-2">Langue de l'interface</label>
               <SegmentedControl values={languages} selected={settings.language} onSelect={(language) => updateSettings({ language })} />
             </div>
+          </div>
+        </section>
+
+        <section className="omed-card p-4 sm:p-6">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary"><Sparkles size={20} className="text-accent-brown" /> Objectifs personnels</h2>
+          <div className="space-y-5">
+            <label className="block text-sm font-medium text-text-secondary">Objectif quotidien
+              <select value={String(preferences.dailyGoalMinutes)} onChange={(e) => updatePreferences({ dailyGoalMinutes: e.target.value === 'free' ? 'free' : Number(e.target.value) as 5 | 10 | 15 })} className="mt-2 min-h-12 w-full rounded-2xl border border-border bg-bg-primary px-4 py-3 text-text-primary">
+                <option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="free">Libre</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-text-secondary">Heure préférée de routine
+              <input type="time" value={preferences.preferredReminderTime ?? '08:00'} onChange={(e) => updatePreferences({ preferredReminderTime: e.target.value })} className="mt-2 min-h-12 w-full rounded-2xl border border-border bg-bg-primary px-4 py-3 text-text-primary" />
+              <span className="mt-2 block text-xs text-text-muted">Préférence locale uniquement : le navigateur peut limiter les notifications de fond.</span>
+            </label>
+            <div>
+              <p className="mb-2 text-sm font-medium text-text-secondary">Centres d’intérêt</p>
+              <div className="flex flex-wrap gap-2">{preferenceTopics.map((topic) => <button key={topic} type="button" onClick={() => updatePreferences({ topics: preferences.topics.includes(topic) ? preferences.topics.filter((item) => item !== topic) : [...preferences.topics, topic] })} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${preferences.topics.includes(topic) ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-text-secondary'}`}>{topic}</button>)}</div>
+            </div>
+            <button type="button" onClick={resetOnboarding} className="rounded-2xl border border-border px-4 py-2 font-semibold text-text-secondary hover:text-text-primary">Réinitialiser l’onboarding</button>
           </div>
         </section>
 
@@ -364,7 +399,7 @@ export const SettingsPage: React.FC = () => {
               <div className="rounded-xl bg-bg-secondary p-2 text-accent-brown"><Download size={20} /></div>
               <div>
                 <h4 className="font-medium text-text-primary">Exporter mes données</h4>
-                <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes et préférences.</p>
+                <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes, préférences, onboarding et collections.</p>
               </div>
             </button>
 

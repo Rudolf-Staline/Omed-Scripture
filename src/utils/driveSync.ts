@@ -6,6 +6,8 @@ export const DRIVE_FILES = {
   settings: 'omed_bible_settings.json',
   position: 'omed_bible_position.json',
   prayers: 'omed_bible_prayers.json',
+  onboarding: 'omed_bible_onboarding.json',
+  collections: 'omed_bible_collections.json',
 } as const;
 
 type DriveFileListResponse = { files?: { id: string }[] };
