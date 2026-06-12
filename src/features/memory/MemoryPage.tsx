@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, CheckCircle2, Clock, Flame, Trash2 } from 'lucide-react';
+import { Brain, Clock, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
@@ -15,6 +15,14 @@ const REVIEW_ACTIONS: { grade: MemoryReviewGrade; label: string; helper: string 
   { grade: 'easy', label: 'Facile', helper: '+ long' },
 ];
 
+const FILTERS = [
+  { id: 'due', label: 'À revoir' },
+  { id: 'all', label: 'Tous' },
+  { id: 'mastered', label: 'Maîtrisés' },
+] as const;
+
+type MemoryFilter = typeof FILTERS[number]['id'];
+
 const MemoryCard: React.FC<{ item: MemoryVerse; onReview: (grade: MemoryReviewGrade) => void; onRemove: () => void }> = ({ item, onReview, onRemove }) => (
   <article className="rounded-[1.65rem] border border-border bg-bg-card p-4 shadow-[var(--shadow-soft)]">
     <div className="flex items-start justify-between gap-3">
@@ -22,7 +30,7 @@ const MemoryCard: React.FC<{ item: MemoryVerse; onReview: (grade: MemoryReviewGr
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent-gold">{item.reference} · {item.translation.toUpperCase()}</p>
         <p className="mt-3 text-lg leading-8 text-text-primary">« {item.text} »</p>
       </div>
-      <button type="button" onClick={onRemove} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-text-muted hover:bg-bg-secondary hover:text-[color:var(--color-danger)]" aria-label={`Retirer ${item.reference} de la mémorisation`}>
+      <button type="button" onClick={onRemove} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-text-muted hover:bg-bg-secondary hover:text-[color:var(--color-danger)]" aria-label={`Retirer ${item.reference}`}>
         <Trash2 size={17} />
       </button>
     </div>
@@ -49,7 +57,7 @@ export const MemoryPage: React.FC = () => {
   const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const reviewMemoryVerse = useMemoryStore((state) => state.reviewMemoryVerse);
   const removeMemoryVerse = useMemoryStore((state) => state.removeMemoryVerse);
-  const [filter, setFilter] = useState<'due' | 'all' | 'mastered'>('due');
+  const [filter, setFilter] = useState<MemoryFilter>('due');
 
   const stats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
   const due = useMemo(() => getDueMemoryVerses(memoryVerses), [memoryVerses]);
@@ -65,19 +73,13 @@ export const MemoryPage: React.FC = () => {
   };
 
   const handleRemove = (item: MemoryVerse) => {
-    if (!window.confirm(`Retirer ${item.reference} de la mémorisation ?`)) return;
     removeMemoryVerse(item.id);
     toast('Verset retiré de la mémorisation.');
   };
 
   return (
     <PageCanvas width="wide" className="space-y-6">
-      <PageHero
-        kicker="Mémorisation"
-        title="Versets à retenir"
-        icon={Brain}
-        intro="Ajoutez des versets depuis le lecteur, révisez-les avec un rythme simple, puis laissez Omed vous montrer ce qui revient aujourd’hui."
-      >
+      <PageHero kicker="Mémorisation" title="Versets à retenir" icon={Brain} intro="Ajoutez des versets depuis le lecteur, révisez-les avec un rythme simple, puis laissez Omed vous montrer ce qui revient aujourd’hui.">
         <div className="grid gap-3 sm:grid-cols-4">
           <div className="rounded-3xl border border-border bg-bg-primary/65 p-4"><p className="text-2xl font-bold text-text-primary">{stats.total}</p><p className="text-sm text-text-muted">versets</p></div>
           <div className="rounded-3xl border border-border bg-bg-primary/65 p-4"><p className="text-2xl font-bold text-text-primary">{stats.due}</p><p className="text-sm text-text-muted">à revoir</p></div>
@@ -87,13 +89,9 @@ export const MemoryPage: React.FC = () => {
       </PageHero>
 
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrer les versets à mémoriser">
-        {[
-          ['due', 'À revoir', Flame],
-          ['all', 'Tous', Brain],
-          ['mastered', 'Maîtrisés', CheckCircle2],
-        ].map(([id, label, Icon]) => (
-          <button key={id as string} type="button" onClick={() => setFilter(id as 'due' | 'all' | 'mastered')} className={`inline-flex min-h-11 items-center gap-2 rounded-2xl border px-4 font-semibold ${filter === id ? 'border-accent-gold bg-accent-gold text-white' : 'border-border bg-bg-card text-text-secondary hover:text-text-primary'}`} aria-pressed={filter === id}>
-            <Icon size={17} /> {label as string}
+        {FILTERS.map((tab) => (
+          <button key={tab.id} type="button" onClick={() => setFilter(tab.id)} className={`inline-flex min-h-11 items-center rounded-2xl border px-4 font-semibold ${filter === tab.id ? 'border-accent-gold bg-accent-gold text-white' : 'border-border bg-bg-card text-text-secondary hover:text-text-primary'}`} aria-pressed={filter === tab.id}>
+            {tab.label}
           </button>
         ))}
       </div>
@@ -102,7 +100,7 @@ export const MemoryPage: React.FC = () => {
         <section className="rounded-[1.8rem] border border-dashed border-border bg-bg-card p-8 text-center">
           <Brain className="mx-auto text-accent-gold" size={38} />
           <h2 className="mt-4 text-2xl font-bold text-text-primary">{memoryVerses.length === 0 ? 'Aucun verset à mémoriser' : 'Rien à revoir ici'}</h2>
-          <p className="mx-auto mt-2 max-w-xl text-text-secondary">Sélectionnez un verset dans le lecteur, puis choisissez “Mémoriser” dans les actions. Les révisions apparaîtront ici au bon moment.</p>
+          <p className="mx-auto mt-2 max-w-xl text-text-secondary">Touchez un verset dans le lecteur, puis choisissez l’action de mémorisation pour l’ajouter ici.</p>
           <Link to="/reader" className="mt-5 inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-5 font-bold text-white">Ouvrir la Bible</Link>
         </section>
       ) : (
