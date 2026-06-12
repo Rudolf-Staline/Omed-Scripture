@@ -1,18 +1,21 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { Bookmark, Brain, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { useMemoryStore } from '../../store/useMemoryStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
 import { getReadingDays } from '../../utils/readingActivity';
 import { getUnifiedDailyActivity, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
+import { getMemoryStats } from '../../utils/memory';
 
 const menu = [
   { to: '/notes', label: 'Notes', description: 'Annotations et tags personnels', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', description: 'Versets sauvegardés', icon: Bookmark },
+  { to: '/memory', label: 'Mémoriser', description: 'Versets à revoir et retenir', icon: Brain },
   { to: '/prayer', label: 'Prières', description: 'Journal et demandes', icon: HandHeart },
   { to: '/settings', label: 'Paramètres', description: 'Lecture, apparence, sync et données', icon: Settings },
 ];
@@ -22,10 +25,12 @@ export const MorePage: React.FC = () => {
   const synced = useSettingsStore((state) => state.synced);
   const notes = useNotesStore((state) => state.notes);
   const favorites = useFavoritesStore((state) => state.favorites);
+  const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const prayers = usePrayerStore((state) => state.prayers);
   const routineDays = useDailyRoutineStore((state) => state.days);
 
   const activePrayers = useMemo(() => prayers.filter((prayer) => prayer.status === 'active').length, [prayers]);
+  const memoryStats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
   const unifiedStreak = useMemo(() => getUnifiedStreak(getUnifiedDailyActivity({
     readingDays: getReadingDays(),
     routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
@@ -54,9 +59,10 @@ export const MorePage: React.FC = () => {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3" aria-label="Résumé personnel">
+      <section className="grid grid-cols-4 gap-3" aria-label="Résumé personnel">
         <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{notes.length}</p><p className="text-xs text-text-muted">Notes</p></div>
         <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{favorites.length}</p><p className="text-xs text-text-muted">Favoris</p></div>
+        <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{memoryStats.due}</p><p className="text-xs text-text-muted">À revoir</p></div>
         <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{activePrayers}</p><p className="text-xs text-text-muted">Prières</p></div>
       </section>
 
