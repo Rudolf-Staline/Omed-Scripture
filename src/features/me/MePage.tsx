@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenText, Bookmark, Boxes, Cloud, Flame, HandHeart, NotebookPen, Settings, Sparkles, UserCircle } from 'lucide-react';
+import { BookOpenText, Bookmark, Boxes, Brain, Cloud, Flame, HandHeart, NotebookPen, Settings, Sparkles, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useCollectionsStore } from '../../store/useCollectionsStore';
 import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
+import { useMemoryStore } from '../../store/useMemoryStore';
 import { useNotesStore } from '../../store/useNotesStore';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { usePlansStore } from '../../store/usePlansStore';
@@ -14,6 +15,7 @@ import { usePrayerStore } from '../../store/usePrayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { getTodayGoalStatus, getWeeklyGoalProgress } from '../../utils/dailyGoals';
 import { getBookName } from '../../utils/bibleBooks';
+import { getMemoryStats, formatDueLabel } from '../../utils/memory';
 import { getOfflineLibrarySummary, formatApproxSize } from '../../utils/offlineLibrary';
 import { useReminderStore } from '../../store/useReminderStore';
 
@@ -27,12 +29,14 @@ export const MePage: React.FC = () => {
   const notes = useNotesStore((state) => state.notes);
   const prayers = usePrayerStore((state) => state.prayers);
   const highlights = useHighlightsStore((state) => state.highlights);
+  const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const progress = usePlansStore((state) => state.progress);
   const collections = useCollectionsStore((state) => state.collections);
   const goal = getTodayGoalStatus(preferences, days);
   const weekly = getWeeklyGoalProgress(days);
   const reminder = useReminderStore((state) => state.preferences);
   const offlineSummary = getOfflineLibrarySummary();
+  const memoryStats = getMemoryStats(memoryVerses);
   const activePlans = Object.values(progress).filter((plan) => plan.completedDays.length > 0).length;
 
   const stats = [
@@ -40,6 +44,7 @@ export const MePage: React.FC = () => {
     { label: 'Semaine', value: `${weekly.completedThisWeek}/7`, icon: Sparkles },
     { label: 'Notes', value: notes.length, icon: NotebookPen },
     { label: 'Favoris', value: favorites.length, icon: Bookmark },
+    { label: 'Mémoire', value: memoryStats.due, icon: Brain },
     { label: 'Prières', value: prayers.length, icon: HandHeart },
     { label: 'Surlignages', value: Object.keys(highlights).length, icon: BookOpenText },
     { label: 'Collections', value: collections.length, icon: Boxes },
@@ -73,7 +78,8 @@ export const MePage: React.FC = () => {
         </article>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
+        <article className="rounded-[1.7rem] border border-border bg-bg-card p-5"><Brain className="text-accent-gold" /><h2 className="mt-3 text-xl font-bold text-text-primary">Mémorisation</h2><p className="mt-2 text-sm text-text-secondary">{memoryStats.due} verset(s) à revoir, {memoryStats.mastered} maîtrisé(s). Prochaine révision : {memoryStats.nextDueAt ? formatDueLabel(memoryStats.nextDueAt) : 'aucune'}.</p><Link to="/memory" className="mt-4 inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Réviser</Link></article>
         <article className="rounded-[1.7rem] border border-border bg-bg-card p-5"><Cloud className="text-accent-gold" /><h2 className="mt-3 text-xl font-bold text-text-primary">Hors ligne</h2><p className="mt-2 text-sm text-text-secondary">{offlineSummary.manualCount} chapitre(s) sauvegardé(s), {offlineSummary.recentCount} récent(s), {formatApproxSize(offlineSummary.totalSizeApprox)} estimés. Le cache reste local à cet appareil.</p><Link to="/settings" className="mt-4 inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Gérer les téléchargements</Link></article>
         <article className="rounded-[1.7rem] border border-border bg-bg-card p-5"><Sparkles className="text-accent-gold" /><h2 className="mt-3 text-xl font-bold text-text-primary">Rappel quotidien</h2><p className="mt-2 text-sm text-text-secondary">{reminder.enabled ? `Actif à ${reminder.time} pendant une session ouverte.` : 'Désactivé. Aucun push en arrière-plan n’est promis.'}</p><Link to="/settings" className="mt-4 inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Configurer</Link></article>
       </section>
