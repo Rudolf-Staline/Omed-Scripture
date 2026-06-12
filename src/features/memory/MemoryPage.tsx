@@ -1,17 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Clock, Trash2 } from 'lucide-react';
+import { Brain, Clock, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
+import { useFavoritesStore } from '../../store/useFavoritesStore';
+import type { FavoriteVerse } from '../../store/useFavoritesStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
+import { formatBibleReference } from '../../utils/bibleBooks';
 import { formatDueLabel, getDueMemoryVerses, getMemoryStats } from '../../utils/memory';
 import type { MemoryReviewGrade, MemoryVerse } from '../../types/memory';
 
 const REVIEW_ACTIONS: { grade: MemoryReviewGrade; label: string; helper: string }[] = [
   { grade: 'again', label: 'Encore', helper: '10 min' },
   { grade: 'hard', label: 'Difficile', helper: '1 j' },
-  { grade: 'good', label: 'Bien', helper: 'selon rythme' },
+  { grade: 'good', label: 'Bien', helper: 'rythme' },
   { grade: 'easy', label: 'Facile', helper: '+ long' },
 ];
 
@@ -53,10 +56,25 @@ const MemoryCard: React.FC<{ item: MemoryVerse; onReview: (grade: MemoryReviewGr
   </article>
 );
 
+const FavoriteMemoryCard: React.FC<{ favorite: FavoriteVerse; onAdd: () => void }> = ({ favorite, onAdd }) => {
+  const reference = formatBibleReference(favorite.bookId, favorite.chapter, favorite.verse);
+  return (
+    <article className="rounded-3xl border border-border bg-bg-card p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-gold">{reference} · {favorite.translation.toUpperCase()}</p>
+      <p className="mt-2 text-sm leading-6 text-text-secondary">« {favorite.text} »</p>
+      <button type="button" onClick={onAdd} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-2xl bg-accent-gold px-4 text-sm font-bold text-white">
+        <Plus size={15} /> Ajouter
+      </button>
+    </article>
+  );
+};
+
 export const MemoryPage: React.FC = () => {
   const memoryVerses = useMemoryStore((state) => state.memoryVerses);
+  const addMemoryVerse = useMemoryStore((state) => state.addMemoryVerse);
   const reviewMemoryVerse = useMemoryStore((state) => state.reviewMemoryVerse);
   const removeMemoryVerse = useMemoryStore((state) => state.removeMemoryVerse);
+  const favorites = useFavoritesStore((state) => state.favorites);
   const [filter, setFilter] = useState<MemoryFilter>('due');
 
   const stats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
@@ -66,6 +84,8 @@ export const MemoryPage: React.FC = () => {
     if (filter === 'mastered') return memoryVerses.filter((item) => item.status === 'mastered');
     return [...memoryVerses].sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt));
   }, [due, filter, memoryVerses]);
+
+  const importableFavorites = useMemo(() => favorites.filter((favorite) => !memoryVerses.some((item) => item.verseId === favorite.id && item.translation === favorite.translation)).slice(0, 6), [favorites, memoryVerses]);
 
   const handleReview = (item: MemoryVerse, grade: MemoryReviewGrade) => {
     reviewMemoryVerse(item.id, grade);
@@ -77,9 +97,15 @@ export const MemoryPage: React.FC = () => {
     toast('Verset retiré de la mémorisation.');
   };
 
+  const handleAddFavorite = (favorite: FavoriteVerse) => {
+    const reference = formatBibleReference(favorite.bookId, favorite.chapter, favorite.verse);
+    addMemoryVerse({ verseId: favorite.id, translation: favorite.translation, bookId: favorite.bookId, chapter: favorite.chapter, verse: favorite.verse, text: favorite.text, reference });
+    toast.success('Verset ajouté à la mémorisation.');
+  };
+
   return (
     <PageCanvas width="wide" className="space-y-6">
-      <PageHero kicker="Mémorisation" title="Versets à retenir" icon={Brain} intro="Ajoutez des versets depuis le lecteur, révisez-les avec un rythme simple, puis laissez Omed vous montrer ce qui revient aujourd’hui.">
+      <PageHero kicker="Mémorisation" title="Versets à retenir" icon={Brain} intro="Importez vos favoris, révisez-les avec un rythme simple, puis laissez Omed vous montrer ce qui revient aujourd’hui.">
         <div className="grid gap-3 sm:grid-cols-4">
           <div className="rounded-3xl border border-border bg-bg-primary/65 p-4"><p className="text-2xl font-bold text-text-primary">{stats.total}</p><p className="text-sm text-text-muted">versets</p></div>
           <div className="rounded-3xl border border-border bg-bg-primary/65 p-4"><p className="text-2xl font-bold text-text-primary">{stats.due}</p><p className="text-sm text-text-muted">à revoir</p></div>
@@ -100,12 +126,24 @@ export const MemoryPage: React.FC = () => {
         <section className="rounded-[1.8rem] border border-dashed border-border bg-bg-card p-8 text-center">
           <Brain className="mx-auto text-accent-gold" size={38} />
           <h2 className="mt-4 text-2xl font-bold text-text-primary">{memoryVerses.length === 0 ? 'Aucun verset à mémoriser' : 'Rien à revoir ici'}</h2>
-          <p className="mx-auto mt-2 max-w-xl text-text-secondary">Touchez un verset dans le lecteur, puis choisissez l’action de mémorisation pour l’ajouter ici.</p>
-          <Link to="/reader" className="mt-5 inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-5 font-bold text-white">Ouvrir la Bible</Link>
+          <p className="mx-auto mt-2 max-w-xl text-text-secondary">Ajoutez d’abord des versets aux favoris, puis importez-les ici pour commencer vos révisions.</p>
+          <Link to="/favorites" className="mt-5 inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-5 font-bold text-white">Voir les favoris</Link>
         </section>
       ) : (
         <section className="grid gap-4 lg:grid-cols-2" aria-label="Versets de mémorisation">
           {visible.map((item) => <MemoryCard key={item.id} item={item} onReview={(grade) => handleReview(item, grade)} onRemove={() => handleRemove(item)} />)}
+        </section>
+      )}
+
+      {importableFavorites.length > 0 && (
+        <section className="space-y-3">
+          <div>
+            <p className="omed-kicker">Depuis vos favoris</p>
+            <h2 className="font-display text-2xl font-semibold text-text-primary">Ajouter à la mémorisation</h2>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {importableFavorites.map((favorite) => <FavoriteMemoryCard key={favorite.id} favorite={favorite} onAdd={() => handleAddFavorite(favorite)} />)}
+          </div>
         </section>
       )}
     </PageCanvas>
