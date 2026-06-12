@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Feather, WifiOff } from 'lucide-react';
+import { Download, Feather, Trash2, WifiOff } from 'lucide-react';
 import { getChapter } from '../../utils/bibleApi';
 import type { Verse } from '../../utils/bibleApi';
 import { formatBibleReference } from '../../utils/bibleBooks';
@@ -8,11 +8,13 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
 import type { HighlightColor } from '../../store/useHighlightsStore';
 import { VerseActions } from './VerseActions';
-import { cacheChapter, getCachedChapter } from '../../utils/chapterCache';
+import { cacheChapter, getCachedChapter, getCachedChapterEntry } from '../../utils/chapterCache';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { LoadingState } from '../../components/LoadingState';
 import { ErrorState } from '../../components/ErrorState';
 import { EmptyState } from '../../components/EmptyState';
+import { removeOfflineChapter, saveChapterForOffline } from '../../utils/offlineLibrary';
+import toast from 'react-hot-toast';
 
 interface ChapterViewProps {
   translation: string;
@@ -27,6 +29,9 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
+  const [offlineSaved, setOfflineSaved] = useState(false);
+  const [fromCache, setFromCache] = useState(false);
+  const [offlineBusy, setOfflineBusy] = useState(false);
   const isOnline = useOnlineStatus();
 
   const settings = useSettingsStore((state) => state.settings);
@@ -49,6 +54,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
 
       const cached = getCachedChapter(translation, bookId, chapter);
       if (!isOnline && cached) {
+        setFromCache(true);
         setVerses(cached);
         setLoading(false);
         return;
@@ -64,10 +70,17 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
       try {
         const data = await getChapter(translation, bookId, chapter);
         cacheChapter(translation, bookId, chapter, data);
-        if (mounted) setVerses(data);
+        if (mounted) {
+          setFromCache(false);
+          setVerses(data);
+          setOfflineSaved(Boolean(getCachedChapterEntry(translation, bookId, chapter)?.pinned));
+        }
       } catch (err: unknown) {
         if (cached) {
-          if (mounted) setVerses(cached);
+          if (mounted) {
+            setFromCache(true);
+            setVerses(cached);
+          }
         } else if (mounted) {
           setError(err instanceof Error ? err.message : 'Erreur lors du chargement du chapitre');
         }
@@ -78,6 +91,30 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
     fetchChapter();
     return () => { mounted = false; };
   }, [translation, bookId, chapter, isOnline]);
+
+  useEffect(() => {
+    setOfflineSaved(Boolean(getCachedChapterEntry(translation, bookId, chapter)?.pinned));
+    setFromCache(!isOnline && Boolean(getCachedChapter(translation, bookId, chapter)));
+  }, [translation, bookId, chapter, isOnline]);
+
+  const toggleOfflineSave = async () => {
+    setOfflineBusy(true);
+    try {
+      if (offlineSaved) {
+        removeOfflineChapter(translation, bookId, chapter);
+        setOfflineSaved(false);
+        toast.success('Chapitre retiré du hors ligne.');
+      } else {
+        await saveChapterForOffline(translation, bookId, chapter, { verses });
+        setOfflineSaved(true);
+        toast.success('Chapitre disponible hors ligne.');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Action hors ligne impossible.');
+    } finally {
+      setOfflineBusy(false);
+    }
+  };
 
   const annotatedCount = useMemo(
     () => verses.filter((verse) => highlights[`${translation}-${bookId}-${chapter}-${verse.verse}`]).length,
@@ -125,13 +162,16 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ translation, bookId, c
           <div className="rounded-[1.4rem] border border-border bg-bg-primary/45 p-4 text-sm text-text-secondary">
             <div className="flex items-center gap-2 font-semibold text-text-primary"><Feather size={16} className="text-accent-gold" /> Notes et surlignages</div>
             <p className="mt-1">{annotatedCount} annotation{annotatedCount > 1 ? 's' : ''} visible{annotatedCount > 1 ? 's' : ''} · {verses.length} versets</p>
+            <button type="button" onClick={toggleOfflineSave} disabled={offlineBusy} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-2xl border border-border bg-bg-card px-3 text-xs font-bold text-text-primary disabled:opacity-60" aria-label={offlineSaved ? 'Supprimer ce chapitre hors ligne' : 'Sauvegarder ce chapitre hors ligne'}>
+              {offlineSaved ? <Trash2 size={14} /> : <Download size={14} />} {offlineSaved ? 'Supprimer hors ligne' : 'Sauvegarder hors ligne'}
+            </button>
           </div>
         )}
       </header>
 
-      {!isOnline && (
+      {(fromCache || offlineSaved || !isOnline) && (
         <div className="mb-5 flex items-center gap-2 rounded-2xl border border-border bg-bg-primary/55 px-4 py-3 text-sm text-text-secondary">
-          <WifiOff size={16} className="text-accent-brown" /> Passage affiché depuis le cache local.
+          <WifiOff size={16} className="text-accent-brown" /> {fromCache ? 'Passage affiché depuis le cache local.' : offlineSaved ? 'Chapitre sauvegardé pour lecture hors ligne.' : 'Connexion absente : sauvegardez vos prochains chapitres avant de quitter le réseau.'}
         </div>
       )}
 

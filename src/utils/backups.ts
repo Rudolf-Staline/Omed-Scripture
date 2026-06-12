@@ -8,6 +8,7 @@ import type { Settings } from '../store/useSettingsStore';
 import type { OnboardingPreferences } from '../types/onboarding';
 import type { SpiritualCollection } from '../types/collections';
 import type { BibleState } from '../store/useBibleStore';
+import type { ReminderPreferences } from './reminders';
 
 export const BACKUP_SCHEMA_VERSION = 2;
 
@@ -25,6 +26,7 @@ export interface OmedBackup {
   prayers?: PrayerEntry[]; // optionnel : absent des sauvegardes antérieures
   onboarding?: OnboardingPreferences;
   collections?: SpiritualCollection[];
+  reminders?: ReminderPreferences;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -57,7 +59,8 @@ export const validateBackup = (value: unknown): value is OmedBackup => {
     isValidReadingPosition(value.position) &&
     (value.prayers === undefined || Array.isArray(value.prayers)) &&
     (value.onboarding === undefined || isRecord(value.onboarding)) &&
-    (value.collections === undefined || Array.isArray(value.collections))
+    (value.collections === undefined || Array.isArray(value.collections)) &&
+    (value.reminders === undefined || isRecord(value.reminders))
   );
 };
 

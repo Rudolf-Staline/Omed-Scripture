@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import type {
   FontSize,
@@ -17,25 +17,31 @@ import { usePlansStore } from '../../store/usePlansStore';
 import { usePrayerStore } from '../../store/usePrayerStore';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { useCollectionsStore } from '../../store/useCollectionsStore';
+import { useReminderStore } from '../../store/useReminderStore';
 import type { PreferredTopicId } from '../../types/onboarding';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { THEMES } from '../../data/themes';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
-import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles } from 'lucide-react';
+import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles, WifiOff, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
 import { ContentDeck } from '../../components/layout/ContentDeck';
 import { StudyPanel } from '../../components/layout/StudyPanel';
+import { cleanRecentChapterCache, clearOfflineLibrary, formatApproxSize, getOfflineLibrarySummary } from '../../utils/offlineLibrary';
+import type { OfflineLibrarySummary } from '../../utils/offlineLibrary';
+import { useOnlineStatus } from '../../utils/useOnlineStatus';
 
 export const SettingsPage: React.FC = () => {
   const { settings, updateSettings, synced, setSynced, loadSettings } = useSettingsStore();
   const { user, token, logout, expireSession } = useAuthStore();
   const navigate = useNavigate();
   const [syncing, setSyncing] = useState(false);
+  const [offlineSummary, setOfflineSummary] = useState<OfflineLibrarySummary>(() => getOfflineLibrarySummary());
+  const isOnline = useOnlineStatus();
 
   const { loadFavorites, favorites } = useFavoritesStore();
   const { loadHighlights, highlights } = useHighlightsStore();
@@ -45,6 +51,11 @@ export const SettingsPage: React.FC = () => {
   const { translation, bookId, chapter } = useBibleStore();
   const { preferences, updatePreferences, resetOnboarding, loadOnboarding } = useOnboardingStore();
   const { collections, loadCollections } = useCollectionsStore();
+  const reminderPreferences = useReminderStore((state) => state.preferences);
+  const reminderPermission = useReminderStore((state) => state.permission);
+  const updateReminders = useReminderStore((state) => state.updateReminders);
+  const requestReminderPermission = useReminderStore((state) => state.requestPermission);
+  const loadReminders = useReminderStore((state) => state.loadReminders);
   const setPosition = useBibleStore((state) => state.setPosition);
 
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
@@ -53,6 +64,14 @@ export const SettingsPage: React.FC = () => {
   const languages: Language[] = ['Français', 'English'];
   const readingWidths: ReadingWidth[] = ['Narrow', 'Comfortable', 'Wide'];
   const readingDensities: ReadingDensity[] = ['Compact', 'Aired'];
+  useEffect(() => {
+    const refresh = () => setOfflineSummary(getOfflineLibrarySummary());
+    window.addEventListener('storage', refresh);
+    return () => window.removeEventListener('storage', refresh);
+  }, []);
+
+  const refreshOfflineSummary = () => setOfflineSummary(getOfflineLibrarySummary());
+
   const preferenceTopics: PreferredTopicId[] = ['foi', 'paix', 'sagesse', 'courage', 'priere', 'famille', 'pardon', 'esperance'];
 
   const handleSyncData = async () => {
@@ -62,7 +81,7 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections] = await Promise.all([
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteReminders] = await Promise.all([
         syncFileFromDrive(DRIVE_FILES.settings, token),
         syncFileFromDrive(DRIVE_FILES.favorites, token),
         syncFileFromDrive(DRIVE_FILES.highlights, token),
@@ -72,9 +91,10 @@ export const SettingsPage: React.FC = () => {
         syncFileFromDrive(DRIVE_FILES.prayers, token),
         syncFileFromDrive(DRIVE_FILES.onboarding, token),
         syncFileFromDrive(DRIVE_FILES.collections, token),
+        syncFileFromDrive(DRIVE_FILES.reminders, token),
       ]);
 
-      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteReminders);
       if (hasRemoteData) backupLocalDataBeforeRestore();
 
       if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -86,6 +106,7 @@ export const SettingsPage: React.FC = () => {
       if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
       if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
       if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
+      if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
 
       setSynced(true);
       toast.success('Synchronisation réussie !');
@@ -116,6 +137,7 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.prayers, prayers, token),
         syncFileToDrive(DRIVE_FILES.onboarding, preferences, token),
         syncFileToDrive(DRIVE_FILES.collections, collections, token),
+        syncFileToDrive(DRIVE_FILES.reminders, reminderPreferences, token),
       ]);
       setSynced(true);
       toast.success('Sauvegarde en ligne réussie !');
@@ -143,6 +165,7 @@ export const SettingsPage: React.FC = () => {
       prayers,
       onboarding: preferences,
       collections,
+      reminders: reminderPreferences,
     });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -333,6 +356,52 @@ export const SettingsPage: React.FC = () => {
                 className="h-5 w-5 shrink-0 accent-accent-gold"
               />
             </label>
+          </div>
+        </section>
+
+        <section className="omed-card p-4 sm:p-6">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
+            <WifiOff size={20} className="text-accent-brown" /> Hors ligne et installation
+          </h2>
+          <div className="space-y-4 text-sm text-text-secondary">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-border bg-bg-primary p-4"><p className="text-2xl font-bold text-text-primary">{offlineSummary.chapters.length}</p><p>chapitres en cache</p></div>
+              <div className="rounded-2xl border border-border bg-bg-primary p-4"><p className="text-2xl font-bold text-text-primary">{offlineSummary.manualCount}</p><p>sauvegardés manuellement</p></div>
+              <div className="rounded-2xl border border-border bg-bg-primary p-4"><p className="text-2xl font-bold text-text-primary">{formatApproxSize(offlineSummary.totalSizeApprox)}</p><p>taille estimée</p></div>
+            </div>
+            <p className="rounded-2xl border border-border bg-bg-primary/60 p-3">État réseau : {isOnline ? 'en ligne' : 'hors ligne'}. La recherche complète et les nouveaux chapitres peuvent nécessiter internet.</p>
+            <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
+              {offlineSummary.chapters.length === 0 ? <p>Aucun chapitre n’est encore en cache. Ouvrez un chapitre ou utilisez “Sauvegarder hors ligne” dans le lecteur.</p> : offlineSummary.chapters.map((item) => (
+                <div key={`${item.translation}-${item.bookId}-${item.chapter}`} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-primary p-3">
+                  <span><strong className="text-text-primary">{item.bookId} {item.chapter}</strong> · {item.translation.toUpperCase()} · {item.pinned ? 'sauvegardé' : 'récent'}</span>
+                  <button type="button" onClick={() => { navigate(`/read/${item.translation}/${item.bookId}/${item.chapter}`); }} className="rounded-xl border border-border px-3 py-1.5 font-semibold text-text-primary">Ouvrir</button>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => { cleanRecentChapterCache(); refreshOfflineSummary(); toast.success('Cache récent nettoyé.'); }} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border px-4 font-semibold text-text-primary"><RefreshCw size={16} /> Nettoyer les récents</button>
+              <button type="button" onClick={() => { if (window.confirm('Supprimer tous les chapitres hors ligne ?')) { clearOfflineLibrary(); refreshOfflineSummary(); toast.success('Bibliothèque hors ligne supprimée.'); } }} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border px-4 font-semibold text-[color:var(--color-danger)]"><Trash2 size={16} /> Tout supprimer</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="omed-card p-4 sm:p-6">
+          <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
+            <Bell size={20} className="text-accent-brown" /> Rappel quotidien local
+          </h2>
+          <div className="space-y-4 text-sm text-text-secondary">
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border bg-bg-primary p-4">
+              <span><span className="block font-medium text-text-primary">Activer un rappel dans la session</span><span>Fonctionne quand l’application est ouverte ; ce n’est pas une notification push garantie en arrière-plan.</span></span>
+              <input type="checkbox" checked={reminderPreferences.enabled} onChange={(event) => updateReminders({ enabled: event.target.checked })} className="h-5 w-5 shrink-0 accent-accent-gold" />
+            </label>
+            <label className="block font-medium text-text-secondary">Heure du rappel
+              <input type="time" value={reminderPreferences.time} onChange={(event) => updateReminders({ time: event.target.value })} className="mt-2 min-h-12 w-full rounded-2xl border border-border bg-bg-primary px-4 py-3 text-text-primary" />
+            </label>
+            <div className="rounded-2xl border border-border bg-bg-primary p-4">
+              <p className="font-semibold text-text-primary">Notifications navigateur : {reminderPermission === 'unsupported' ? 'non supportées' : reminderPermission}</p>
+              <p className="mt-1">Si vous autorisez les notifications, Omed peut afficher un rappel local pendant une session ouverte.</p>
+              <button type="button" onClick={() => void requestReminderPermission()} className="mt-3 rounded-2xl border border-border px-4 py-2 font-semibold text-text-primary" disabled={reminderPermission === 'unsupported'}>Demander la permission</button>
+            </div>
           </div>
         </section>
 

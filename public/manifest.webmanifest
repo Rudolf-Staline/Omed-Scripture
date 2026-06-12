@@ -1,8 +1,8 @@
 {
   "name": "Omed Scripture",
   "short_name": "Omed",
-  "description": "Application de lecture, d’annotation et d’étude biblique.",
-  "start_url": "/",
+  "description": "Application mobile installable pour lire, annoter, écouter par synthèse vocale et préparer des chapitres bibliques hors ligne.",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
@@ -20,6 +20,30 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "books",
+    "education",
+    "lifestyle"
+  ],
+  "id": "/",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "shortcuts": [
+    {
+      "name": "Lire",
+      "short_name": "Lire",
+      "url": "/reader",
+      "description": "Reprendre la lecture biblique"
+    },
+    {
+      "name": "Hors ligne",
+      "short_name": "Offline",
+      "url": "/settings",
+      "description": "Gérer les chapitres disponibles hors ligne"
     }
   ]
 }

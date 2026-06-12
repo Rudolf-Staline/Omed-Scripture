@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { History, Loader2, Search as SearchIcon, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { History, Loader2, Search as SearchIcon, SlidersHorizontal, Sparkles, X, WifiOff } from 'lucide-react';
 import { BIBLE_BOOKS, FEATURED_TRANSLATIONS, searchVerses } from '../../utils/bibleApi';
 import type { SearchResult } from '../../utils/bibleApi';
 import { useSettingsStore } from '../../store/useSettingsStore';
@@ -13,6 +13,7 @@ import { TOPICS } from '../../data/topics';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { getPlansForTopic, getPopularTopics, getRecommendedTopics, getSuggestedPassages, groupSearchResultsByBook } from '../../utils/discover';
 import { READING_PLANS } from '../../data/readingPlans';
+import { useOnlineStatus } from '../../utils/useOnlineStatus';
 
 type TestamentFilter = 'tous' | 'AT' | 'NT';
 
@@ -33,6 +34,7 @@ export const SearchPage: React.FC = () => {
   const [bookFilter, setBookFilter] = useState('tous');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const isOnline = useOnlineStatus();
 
   const translationName = FEATURED_TRANSLATIONS.find((item) => item.id === translation)?.short ?? translation.toUpperCase();
   const selectedTopic = useMemo(() => TOPICS.find((topic) => topic.id === selectedTopicId) ?? null, [selectedTopicId]);
@@ -40,6 +42,12 @@ export const SearchPage: React.FC = () => {
   const runSearch = async (raw: string) => {
     const clean = raw.trim();
     if (!clean) return;
+    if (!isOnline) {
+      setHasSearched(true);
+      setResults([]);
+      setError('La recherche complète nécessite internet. Hors ligne, ouvrez les chapitres déjà consultés ou sauvegardés.');
+      return;
+    }
     setQuery(clean);
     setLoading(true);
     setError(null);
@@ -99,6 +107,7 @@ export const SearchPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      {!isOnline && <div className="flex items-center gap-2 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary"><WifiOff size={18} className="text-accent-brown" /> Hors ligne : Discover et la recherche complète sont limités aux chapitres déjà consultés ou sauvegardés depuis le lecteur.</div>}
       <header className="rounded-[2rem] border border-border bg-bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6">
         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-accent-gold"><Sparkles size={15} /> Découvrir</p>
         <h1 className="mt-2 text-3xl font-bold text-text-primary">Rechercher un passage ou un thème</h1>
