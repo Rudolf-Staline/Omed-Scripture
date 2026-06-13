@@ -16,15 +16,34 @@ interface HighlightsState {
   highlights: Record<string, Highlight>;
   addHighlight: (id: string, color: HighlightColor) => void;
   removeHighlight: (id: string) => void;
-  loadHighlights: (highlights: Record<string, Highlight>) => void;
+  loadHighlights: (highlights: unknown) => void;
 }
+
+const HIGHLIGHT_COLORS: HighlightColor[] = ['yellow', 'blue', 'green', 'pink', 'purple'];
+
+const isHighlight = (value: unknown): value is Highlight => {
+  if (!value || typeof value !== 'object') return false;
+  const highlight = value as Highlight;
+  return (
+    typeof highlight.id === 'string' &&
+    HIGHLIGHT_COLORS.includes(highlight.color) &&
+    typeof highlight.dateAdded === 'number'
+  );
+};
+
+export const sanitizeHighlights = (value: unknown): Record<string, Highlight> => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.entries(value as Record<string, unknown>).reduce<Record<string, Highlight>>((acc, [key, highlight]) => {
+    if (isHighlight(highlight)) acc[key] = highlight;
+    return acc;
+  }, {});
+};
 
 const getInitialHighlights = (): Record<string, Highlight> => {
   try {
     const stored = localStorage.getItem(OMED_STORAGE_KEYS.highlights);
     if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      return sanitizeHighlights(JSON.parse(stored));
     }
   } catch (e) {
     console.error('Failed to read highlights from localStorage', e);
@@ -62,7 +81,8 @@ export const useHighlightsStore = create<HighlightsState>((set) => ({
       return { highlights: newHighlights };
     }),
   loadHighlights: (highlights) => {
-    localStorage.setItem(OMED_STORAGE_KEYS.highlights, JSON.stringify(highlights));
-    set({ highlights });
+    const sanitized = sanitizeHighlights(highlights);
+    localStorage.setItem(OMED_STORAGE_KEYS.highlights, JSON.stringify(sanitized));
+    set({ highlights: sanitized });
   },
 }));

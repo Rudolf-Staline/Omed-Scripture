@@ -33,10 +33,20 @@ via une barre d'onglets en bas sur mobile et un rail latéral compact sur deskto
 | Bible | `/reader`, `/read/:translation/:bookId/:chapter` | Lecture, audio, comparaison, focus, étude |
 | Plans | `/plans`, `/plans/:planId` | Parcours en cours et recommandés |
 | Découvrir | `/discover` (alias de `/search`) | Recherche, thèmes bibliques, suggestions, historique |
-| Moi | `/more` | Notes, favoris, prières, progression, sync, export, paramètres |
+| Moi | `/me` | Profil local, progression, activité et raccourcis personnels |
+| Plus (mobile) | `/more` | Notes, favoris, prières, collections, études, mémorisation, sync/export via paramètres |
 
 Les anciennes routes restent valides : `/search`, `/notes`, `/favorites`,
-`/prayer`, `/settings` fonctionnent comme avant.
+`/prayer`, `/settings` fonctionnent comme avant. La surface V1 ajoute aussi `/memory`, `/study`, `/study/:sessionId`, `/review`, `/collections`, `/me` et `/more`.
+
+
+## Architecture et données V1
+
+- **Routes et navigation** : la surface de routes est déclarée dans `src/data/routes.ts` et testée avec la configuration navigation/palette de commandes.
+- **Stores Zustand** : les clés localStorage, fichiers Drive et risques sont documentés dans `docs/DATA_STORES.md`.
+- **Sync/export/restore** : le fonctionnement Google Drive AppData, les données incluses et les limites sont documentés dans `docs/SYNC_AND_BACKUP.md`.
+- **Sécurité client** : voir `docs/SECURITY_NOTES.md` pour les règles concernant secrets, OAuth, logs et rendu de contenu utilisateur.
+- **QA release** : voir `docs/QA_CHECKLIST.md` pour le parcours manuel desktop/mobile/offline/sync.
 
 ## Fonctionnalités
 

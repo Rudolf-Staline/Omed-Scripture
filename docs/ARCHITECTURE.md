@@ -111,3 +111,21 @@ Aucun `localStorage.clear()` global n'est utilisé.
 
 Bible text packs live in `public/bibles` and are loaded with `fetch`, not bundled into the JavaScript application. The runtime validates `catalog.json`, translation indexes, book files, and search indexes before using them. Chapter loading prefers static data, then the local cache, then the existing remote providers. Search prefers a local per-translation `search-index.json`, then falls back to API search when available. See `docs/BIBLE_DATA.md` for licence rules, file format, and import workflow.
 
+
+## V1 hardening audit notes
+
+### Route surface
+
+The V1 route surface is declared in `src/data/routes.ts` and covered by a route-coverage unit test. User-facing routes are `/`, `/reader`, `/read/:translation/:bookId/:chapter`, `/search`, `/discover`, `/favorites`, `/notes`, `/prayer`, `/plans`, `/plans/:planId`, `/settings`, `/me`, `/collections`, `/memory`, `/review`, `/study`, `/study/:sessionId`, `/more`, plus login/onboarding and a catch-all not-found page.
+
+### Navigation contract
+
+Desktop navigation is split between a primary group (Accueil, Bible, Plans, Découvrir, Moi) and a personal group (Reprise, Études, Notes, Favoris, Mémoriser, Prière, Collections). Mobile bottom navigation remains limited to Accueil, Bible, Plans, Découvrir; secondary destinations live in `/more`. The command palette is tested against the same route surface so stale links are caught early.
+
+### Persistence contract
+
+Primary user data lives in Zustand stores and localStorage. Optional Google Drive sync uses small JSON files in Drive AppData. Restore paths are intentionally defensive: a pre-restore local snapshot is written before applying remote or imported data, and store loaders sanitize payloads again. See `docs/DATA_STORES.md` and `docs/SYNC_AND_BACKUP.md` for the release matrix.
+
+### Performance contract
+
+Bible packs are fetched from `public/bibles` at runtime and are not imported into the JavaScript bundle. Local search indexes are loaded on demand by translation. Vite currently reports the main JS chunk slightly above the default warning threshold; the preferred next step is page-level lazy loading rather than adding a heavy routing abstraction.
