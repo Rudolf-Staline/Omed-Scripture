@@ -40,6 +40,11 @@ Les anciennes routes restent valides : `/search`, `/notes`, `/favorites`,
 
 ## Fonctionnalités
 
+- **Memory (`/memory`)** : mémorisation de versets avec révisions espacées et historique local limité.
+- **Study Sessions (`/study`, `/study/:sessionId`)** : études structurées avec observation, interprétation, application, prière et liens personnels.
+- **Static Bible Packs + Local Search** : packs bibliques statiques dans `public/bibles/` et recherche locale/offline lorsque les index sont présents.
+- **Centre de reprise (`/review`)** : score de progression quotidien 0–100, niveau du jour, suggestions douces et raccourcis Memory/Study/Prayer/Plans.
+- **Progress Score** : barème documenté dans `docs/PROGRESS_SYSTEM.md`, intégré à Home et Me.
 - **Accueil « Today »** : salutation et date du jour, verset du jour, routine quotidienne, progression (séries, semaine), reprise de lecture, plan en cours, raccourcis et activité récente.
 - **Routine quotidienne** (locale, sans API) : verset du jour, prière guidée du jour, lecture courte recommandée, note rapide, bouton « Commencer aujourd'hui », série (streak) et historique des jours complétés.
 - **Découvrir** : douze thèmes bibliques (Foi, Paix, Prière, Amour, Courage, Sagesse, Espérance, Pardon, Famille, Travail, Peur, Gratitude) avec description, passages suggérés et plans liés ; un clic lance une recherche réelle.
@@ -265,3 +270,12 @@ Local uniquement : service worker, app shell cache, chapitres récemment consult
 - Bibliothèque biblique statique complète pour recherche et lecture 100 % offline.
 - Gestion plus fine des quotas IndexedDB si la taille du contenu augmente.
 - Notifications de rappel plus proches du natif si une stratégie web push sûre est ajoutée.
+
+
+## Progression et reprise
+
+- Memory (`/memory`) avec révisions espacées et historique local limité.
+- Study Sessions (`/study`, `/study/:sessionId`) pour structurer observation, interprétation, application et prière.
+- Static Bible Packs et recherche locale/offline lorsque les packs sont disponibles.
+- Centre de reprise quotidien (`/review`) avec score de progression 0–100, suggestions douces et raccourcis Memory/Study/Prayer/Plans.
+- Progress Score documenté dans `docs/PROGRESS_SYSTEM.md`.

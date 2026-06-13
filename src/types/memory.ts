@@ -2,6 +2,11 @@ export type MemoryReviewGrade = 'again' | 'hard' | 'good' | 'easy';
 
 export type MemoryVerseStatus = 'learning' | 'reviewing' | 'mastered';
 
+export interface MemoryReviewEvent {
+  reviewedAt: string;
+  grade: MemoryReviewGrade;
+}
+
 export interface MemoryVerse {
   id: string;
   verseId: string;
@@ -20,6 +25,7 @@ export interface MemoryVerse {
   lapses: number;
   status: MemoryVerseStatus;
   lastReviewedAt?: string;
+  reviewHistory?: MemoryReviewEvent[];
 }
 
 export interface MemoryVerseInput {

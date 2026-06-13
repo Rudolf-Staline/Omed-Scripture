@@ -48,11 +48,11 @@ describe('usePlansStore', () => {
   });
 
   it('loads initial state from valid localStorage', async () => {
-    const mockPlans = { 'plan-1': { planId: 'plan-1', completedDays: [1, 2], startDate: 123 } };
+    const mockPlans = { 'plan-1': { planId: 'plan-1', completedDays: [1, 2], startDate: 123, completedAtByDay: { 1: 1000, 2: 2000 } } };
     localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(mockPlans));
 
     const store = await setupStore();
-    expect(store.getState().progress).toEqual(mockPlans);
+    expect(store.getState().progress['plan-1']).toMatchObject(mockPlans['plan-1']);
   });
 
   it('loads initial state from invalid localStorage', async () => {
@@ -83,17 +83,19 @@ describe('usePlansStore', () => {
     store.getState().markDayComplete('plan-1', 1);
 
     expect(store.getState().progress['plan-1'].completedDays).toEqual([1]);
+    expect(store.getState().progress['plan-1'].completedAtByDay?.[1]).toEqual(expect.any(Number));
     expect(JSON.parse(localStorage.getItem(OMED_STORAGE_KEYS.plans)!)).toEqual(store.getState().progress);
   });
 
   it('unmarks a day complete', async () => {
-    const mockPlans = { 'plan-1': { planId: 'plan-1', completedDays: [1, 2], startDate: 123 } };
+    const mockPlans = { 'plan-1': { planId: 'plan-1', completedDays: [1, 2], startDate: 123, completedAtByDay: { 1: 1000, 2: 2000 } } };
     localStorage.setItem(OMED_STORAGE_KEYS.plans, JSON.stringify(mockPlans));
 
     const store = await setupStore();
     store.getState().unmarkDayComplete('plan-1', 2);
 
     expect(store.getState().progress['plan-1'].completedDays).toEqual([1]);
+    expect(store.getState().progress['plan-1'].completedAtByDay?.[1]).toBe(1000);
     expect(JSON.parse(localStorage.getItem(OMED_STORAGE_KEYS.plans)!)).toEqual(store.getState().progress);
   });
 

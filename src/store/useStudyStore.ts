@@ -91,7 +91,8 @@ export const useStudyStore = create<StudyState>((set) => ({
     return { sessions: next };
   }),
   completeStudySession: (id) => set((state) => {
-    const next = state.sessions.map((session) => session.id === id ? { ...session, status: 'completed' as const, updatedAt: new Date().toISOString() } : session);
+    const now = new Date().toISOString();
+    const next = state.sessions.map((session) => session.id === id ? { ...session, status: 'completed' as const, completedAt: now, updatedAt: now } : session);
     persist(next);
     return { sessions: next };
   }),

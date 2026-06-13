@@ -12,17 +12,20 @@ describe('navigation configuration', () => {
     expect(hasUniqueLabels(labels)).toBe(true);
     expect(labels).toEqual(['Accueil', 'Bible', 'Plans', 'Découvrir', 'Moi']);
     expect(labels).not.toContain('Plus');
+    expect(groups.flatMap((group) => group.items).some((item) => item.to === '/review')).toBe(true);
   });
 
   it('keeps the mobile dock focused and moves secondary links into the overflow menu', () => {
     const mobileLabels = buildMobilePrimary('/read/lsg/jean/3').map((item) => item.label);
     const moreLabels = MOBILE_MORE_ITEMS.map((item) => item.label);
     expect(mobileLabels).toEqual(['Accueil', 'Bible', 'Plans', 'Découvrir']);
-    expect(moreLabels).toContain('Plus');
+    expect(moreLabels).not.toContain('Plus');
+    expect(moreLabels).toContain('Reprise');
     expect(moreLabels).toContain('Moi');
     expect(moreLabels).toContain('Collections');
     expect(moreLabels).toContain('Mémoriser');
     expect(moreLabels).toContain('Études');
+    expect(MOBILE_MORE_ITEMS.some((item) => item.to === '/review')).toBe(true);
     expect(new Set(moreLabels).size).toBe(moreLabels.length);
   });
 });

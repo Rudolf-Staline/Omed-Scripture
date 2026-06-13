@@ -23,6 +23,7 @@ import { useReminderStore } from '../../store/useReminderStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
 import { useStudyStore } from '../../store/useStudyStore';
 import { getOfflineLibrarySummary } from '../../utils/offlineLibrary';
+import { getDailyProgressScore, getProgressLevelLabel, getProgressSuggestion } from '../../utils/progressScore';
 import { formatDueLabel, getDueMemoryVerses, getMemoryStats } from '../../utils/memory';
 import { InstallPrompt } from '../../components/InstallPrompt';
 
@@ -90,6 +91,16 @@ export const HomePage: React.FC = () => {
   const memoryStats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
   const nextMemoryVerse = useMemo(() => getDueMemoryVerses(memoryVerses)[0] ?? [...memoryVerses].sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0], [memoryVerses]);
   const latestStudySession = useMemo(() => [...studySessions].filter((session) => session.status !== 'archived').sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0] ?? null, [studySessions]);
+  const dailyScore = useMemo(() => getDailyProgressScore({
+    dayKey,
+    readingDays: getReadingDays(),
+    routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
+    memoryVerses,
+    studySessions,
+    prayers,
+    planProgress: progress,
+    notes,
+  }), [dayKey, memoryVerses, notes, prayers, progress, routineDays, studySessions]);
 
   const activePlan = useMemo(() => {
     return READING_PLANS
@@ -193,6 +204,17 @@ export const HomePage: React.FC = () => {
       </header>
 
       <InstallPrompt />
+
+      <section className="rounded-[1.7rem] border border-border bg-bg-card p-4 shadow-[var(--shadow-soft)]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent-gold">Rythme du jour</p>
+            <h2 className="mt-1 text-xl font-bold text-text-primary">{dailyScore.score}/100 · {getProgressLevelLabel(dailyScore.level)}</h2>
+            <p className="mt-1 text-sm text-text-secondary">Prochaine étape : {getProgressSuggestion(dailyScore)}</p>
+          </div>
+          <Link to="/review" className="inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-4 font-bold text-white">Ouvrir la reprise</Link>
+        </div>
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
         <div className="flex items-center gap-3 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary">

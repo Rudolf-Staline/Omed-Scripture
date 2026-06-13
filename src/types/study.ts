@@ -11,6 +11,7 @@ export interface StudySession {
   reference: string;
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
   status: StudySessionStatus;
   observation: string;
   interpretation: string;

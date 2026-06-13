@@ -115,8 +115,11 @@ function App() {
       if (current !== reminderPreferences.time || lastFiredKey === dayKey) return;
       lastFiredKey = dayKey;
       const message = 'Votre moment quotidien Omed Scripture est prêt.';
-      if (reminderPreferences.useNotifications && getNotificationPermission() === 'granted') window.Notification && new window.Notification('Omed Scripture', { body: message, tag: 'omed-daily-reminder' });
-      else toast(message);
+      if (reminderPreferences.useNotifications && getNotificationPermission() === 'granted' && window.Notification) {
+        new window.Notification('Omed Scripture', { body: message, tag: 'omed-daily-reminder' });
+      } else {
+        toast(message);
+      }
     }, 30_000);
     return () => window.clearInterval(timer);
   }, [reminderPreferences.enabled, reminderPreferences.time, reminderPreferences.useNotifications]);
