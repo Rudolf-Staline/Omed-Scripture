@@ -18,6 +18,7 @@ import { usePrayerStore } from '../../store/usePrayerStore';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { useCollectionsStore } from '../../store/useCollectionsStore';
 import { useReminderStore } from '../../store/useReminderStore';
+import { useMemoryStore } from '../../store/useMemoryStore';
 import type { PreferredTopicId } from '../../types/onboarding';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { THEMES } from '../../data/themes';
@@ -57,6 +58,8 @@ export const SettingsPage: React.FC = () => {
   const requestReminderPermission = useReminderStore((state) => state.requestPermission);
   const loadReminders = useReminderStore((state) => state.loadReminders);
   const setPosition = useBibleStore((state) => state.setPosition);
+  const memoryVerses = useMemoryStore((state) => state.memoryVerses);
+  const loadMemoryVerses = useMemoryStore((state) => state.loadMemoryVerses);
 
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
   const lineHeights: LineHeight[] = ['Normal', 'Relaxed', 'Large'];
@@ -81,7 +84,7 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteReminders] = await Promise.all([
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteMemory, remoteReminders] = await Promise.all([
         syncFileFromDrive(DRIVE_FILES.settings, token),
         syncFileFromDrive(DRIVE_FILES.favorites, token),
         syncFileFromDrive(DRIVE_FILES.highlights, token),
@@ -91,10 +94,11 @@ export const SettingsPage: React.FC = () => {
         syncFileFromDrive(DRIVE_FILES.prayers, token),
         syncFileFromDrive(DRIVE_FILES.onboarding, token),
         syncFileFromDrive(DRIVE_FILES.collections, token),
+        syncFileFromDrive(DRIVE_FILES.memory, token),
         syncFileFromDrive(DRIVE_FILES.reminders, token),
       ]);
 
-      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteReminders);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders);
       if (hasRemoteData) backupLocalDataBeforeRestore();
 
       if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -106,6 +110,7 @@ export const SettingsPage: React.FC = () => {
       if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
       if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
       if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
+      if (isValidArray(remoteMemory)) loadMemoryVerses(remoteMemory);
       if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
 
       setSynced(true);
@@ -137,6 +142,7 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.prayers, prayers, token),
         syncFileToDrive(DRIVE_FILES.onboarding, preferences, token),
         syncFileToDrive(DRIVE_FILES.collections, collections, token),
+        syncFileToDrive(DRIVE_FILES.memory, memoryVerses, token),
         syncFileToDrive(DRIVE_FILES.reminders, reminderPreferences, token),
       ]);
       setSynced(true);
@@ -165,6 +171,7 @@ export const SettingsPage: React.FC = () => {
       prayers,
       onboarding: preferences,
       collections,
+      memory: memoryVerses,
       reminders: reminderPreferences,
     });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -180,7 +187,7 @@ export const SettingsPage: React.FC = () => {
 
   const clearData = () => {
     const confirmed = window.confirm(
-      'Confirmez-vous la suppression des données locales Omed Scripture uniquement (favoris, notes, surlignages, préférences, parcours, position et session Google) ? Les autres données de ce domaine seront conservées.'
+      'Confirmez-vous la suppression des données locales Omed Scripture uniquement (favoris, notes, surlignages, mémorisation, préférences, parcours, position et session Google) ? Les autres données de ce domaine seront conservées.'
     );
 
     if (confirmed) {
@@ -221,6 +228,7 @@ export const SettingsPage: React.FC = () => {
               <p><strong className="text-text-primary">{notes.length}</strong> notes</p>
               <p><strong className="text-text-primary">{prayers.length}</strong> prières</p>
               <p><strong className="text-text-primary">{collections.length}</strong> collections</p>
+              <p><strong className="text-text-primary">{memoryVerses.length}</strong> versets mémorisés</p>
               <p className="rounded-2xl border border-border bg-bg-primary/50 p-3">Sync : {synced ? 'active' : 'locale'}</p>
             </div>
           </StudyPanel>

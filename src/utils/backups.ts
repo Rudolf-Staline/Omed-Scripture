@@ -7,6 +7,7 @@ import type { PrayerEntry } from '../store/usePrayerStore';
 import type { Settings } from '../store/useSettingsStore';
 import type { OnboardingPreferences } from '../types/onboarding';
 import type { SpiritualCollection } from '../types/collections';
+import type { MemoryVerse } from '../types/memory';
 import type { BibleState } from '../store/useBibleStore';
 import type { ReminderPreferences } from './reminders';
 
@@ -26,6 +27,7 @@ export interface OmedBackup {
   prayers?: PrayerEntry[]; // optionnel : absent des sauvegardes antérieures
   onboarding?: OnboardingPreferences;
   collections?: SpiritualCollection[];
+  memory?: MemoryVerse[];
   reminders?: ReminderPreferences;
 }
 
@@ -60,6 +62,7 @@ export const validateBackup = (value: unknown): value is OmedBackup => {
     (value.prayers === undefined || Array.isArray(value.prayers)) &&
     (value.onboarding === undefined || isRecord(value.onboarding)) &&
     (value.collections === undefined || Array.isArray(value.collections)) &&
+    (value.memory === undefined || Array.isArray(value.memory)) &&
     (value.reminders === undefined || isRecord(value.reminders))
   );
 };
