@@ -12,6 +12,7 @@ export const APP_ROUTE_PATHS = [
   '/plans',
   '/plans/:planId',
   '/settings',
+  '/about',
   '/me',
   '/collections',
   '/memory',

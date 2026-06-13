@@ -1,7 +1,7 @@
 {
   "name": "Omed Scripture",
   "short_name": "Omed",
-  "description": "Application mobile installable pour lire, annoter, écouter par synthèse vocale et préparer des chapitres bibliques hors ligne.",
+  "description": "Application biblique installable en bêta pour lire, rechercher, annoter, mémoriser et préparer des chapitres hors ligne.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

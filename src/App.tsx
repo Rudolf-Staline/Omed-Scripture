@@ -22,6 +22,8 @@ import { ReviewPage } from './features/review/ReviewPage';
 import { StudyPage } from './features/study/StudyPage';
 import { StudySessionEditor } from './features/study/StudySessionEditor';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
+import { AboutPage } from './features/about/AboutPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import { useFavoritesStore } from './store/useFavoritesStore';
@@ -126,7 +128,8 @@ function App() {
 
   return (
     <Router>
-      <Routes>
+      <ErrorBoundary>
+        <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<Layout />}>
@@ -141,6 +144,7 @@ function App() {
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/me" element={<MePage />} />
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/memory" element={<MemoryPage />} />
@@ -150,7 +154,8 @@ function App() {
           <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
       <CommandPalette />
       <MeditationOverlay />
       <Toaster position="top-right" toastOptions={{ duration: 3500, style: { background: 'var(--color-surface-raised)', color: 'var(--color-text)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-panel)' } }} />

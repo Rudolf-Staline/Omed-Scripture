@@ -26,9 +26,9 @@ import { THEMES } from '../../data/themes';
 import { clearOmedLocalData } from '../../constants/storageKeys';
 import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord, validateBackup } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
-import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles, WifiOff, Bell } from 'lucide-react';
+import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles, WifiOff, Bell, Clipboard, Info, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
 import { ContentDeck } from '../../components/layout/ContentDeck';
@@ -38,6 +38,7 @@ import type { OfflineLibrarySummary } from '../../utils/offlineLibrary';
 import { listStaticTranslations, getStaticTranslationIndex } from '../../utils/staticBibleProvider';
 import type { BibleTranslationMeta } from '../../types/bibleData';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
+import { APP_VERSION, createDiagnosticsText } from '../../utils/diagnostics';
 
 export const SettingsPage: React.FC = () => {
   const { settings, updateSettings, synced, setSynced, loadSettings } = useSettingsStore();
@@ -255,6 +256,20 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+
+  const diagnosticsText = createDiagnosticsText({ theme: settings.theme, syncEnabled: synced });
+  const feedbackSubject = encodeURIComponent('Retour bêta Omed Scripture');
+  const feedbackBody = encodeURIComponent(`Bonjour,\n\nRetour bêta :\n\n--- Diagnostic optionnel (sans notes, prières, favoris ni compte) ---\n${diagnosticsText}`);
+
+  const handleCopyDiagnostics = async () => {
+    try {
+      await navigator.clipboard.writeText(diagnosticsText);
+      toast.success('Diagnostic copié sans données personnelles.');
+    } catch {
+      toast.error('Copie impossible dans ce navigateur.');
+    }
+  };
+
   const SegmentedControl = <T extends string>({ values, selected, onSelect }: { values: readonly T[]; selected: T; onSelect: (value: T) => void }) => (
     <div className="grid gap-1 rounded-2xl border border-border bg-bg-primary p-1 sm:flex sm:gap-2">
       {values.map((value) => (
@@ -294,6 +309,33 @@ export const SettingsPage: React.FC = () => {
         )}
       >
       <div className="settings-control-map grid gap-6 lg:grid-cols-2">
+        <section className="omed-card p-4 sm:p-6 lg:col-span-2">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
+                <Info size={20} className="text-accent-brown" /> Bêta & support
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-text-secondary">
+                Version {APP_VERSION}. Omed Scripture est en bêta publique : les données restent locales, sauf synchronisation Google Drive si vous l’activez.
+                Le diagnostic ci-dessous ne contient pas vos notes, prières, favoris, surlignages, e-mail ni jeton Google.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                <Link to="/about" className="font-semibold text-accent-gold hover:underline">À propos</Link>
+                <a href="https://github.com/Rudolf-Staline/Omed-Scripture/blob/main/docs/PRIVACY_NOTES.md" target="_blank" rel="noreferrer" className="font-semibold text-accent-gold hover:underline">Confidentialité</a>
+                <a href="https://github.com/Rudolf-Staline/Omed-Scripture/blob/main/docs/BIBLE_RIGHTS_AND_LICENSES.md" target="_blank" rel="noreferrer" className="font-semibold text-accent-gold hover:underline">Licences bibliques</a>
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <button type="button" onClick={handleCopyDiagnostics} className="omed-button-secondary inline-flex items-center gap-2 px-4 py-2 text-sm">
+                <Clipboard size={16} aria-hidden="true" /> Copier diagnostic
+              </button>
+              <a href={`mailto:?subject=${feedbackSubject}&body=${feedbackBody}`} className="omed-button-secondary inline-flex items-center gap-2 px-4 py-2 text-sm">
+                <Mail size={16} aria-hidden="true" /> Envoyer un retour
+              </a>
+            </div>
+          </div>
+        </section>
+
         <section className="omed-card p-4 sm:p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Palette size={20} className="text-accent-brown" /> Apparence
