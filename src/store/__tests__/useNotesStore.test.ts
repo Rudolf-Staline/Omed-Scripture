@@ -52,7 +52,7 @@ describe('useNotesStore', () => {
     localStorage.setItem(OMED_STORAGE_KEYS.notes, JSON.stringify(mockNotes));
 
     const store = await setupStore();
-    expect(store.getState().notes).toEqual(mockNotes);
+    expect(store.getState().notes).toEqual([{ id: '1', verseId: 'lsg-jean-3-16', text: 'God loves us', verseText: '', dateAdded: 123, dateModified: 123 }]);
   });
 
   it('loads initial state from invalid localStorage', async () => {

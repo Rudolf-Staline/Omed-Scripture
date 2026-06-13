@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import type {
   FontSize,
@@ -24,7 +24,7 @@ import type { PreferredTopicId } from '../../types/onboarding';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { THEMES } from '../../data/themes';
 import { clearOmedLocalData } from '../../constants/storageKeys';
-import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord } from '../../utils/backups';
+import { backupLocalDataBeforeRestore, createBackup, isValidArray, isValidReadingPosition, isValidRecord, validateBackup } from '../../utils/backups';
 import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from '../../utils/driveSync';
 import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles, WifiOff, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -46,6 +46,7 @@ export const SettingsPage: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [offlineSummary, setOfflineSummary] = useState<OfflineLibrarySummary>(() => getOfflineLibrarySummary());
   const [staticTranslations, setStaticTranslations] = useState<Array<BibleTranslationMeta & { bookCount: number; chapterCount: number }>>([]);
+  const restoreInputRef = useRef<HTMLInputElement | null>(null);
   const isOnline = useOnlineStatus();
 
   const { loadFavorites, favorites } = useFavoritesStore();
@@ -209,6 +210,38 @@ export const SettingsPage: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+
+  const restoreData = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text()) as unknown;
+      if (!validateBackup(parsed)) {
+        toast.error('Sauvegarde invalide : le fichier ne correspond pas au format Omed Scripture attendu.');
+        return;
+      }
+
+      const backupKey = backupLocalDataBeforeRestore();
+      loadSettings(parsed.settings);
+      loadFavorites(parsed.favorites);
+      loadHighlights(parsed.highlights);
+      loadNotes(parsed.notes);
+      loadPlans(parsed.progress);
+      setPosition(parsed.position.translation, parsed.position.bookId, parsed.position.chapter);
+      loadPrayers(parsed.prayers ?? []);
+      if (parsed.onboarding) loadOnboarding(parsed.onboarding);
+      loadCollections(parsed.collections ?? []);
+      loadMemoryVerses(parsed.memory ?? []);
+      if (parsed.reminders) loadReminders(parsed.reminders);
+      loadStudySessions(parsed.studySessions ?? []);
+      toast.success(`Données restaurées. Sauvegarde locale de sécurité : ${backupKey}`);
+    } catch (error) {
+      console.error('Backup restore failed', error);
+      toast.error('Restauration impossible : vérifiez que le fichier JSON est lisible.');
+    } finally {
+      if (restoreInputRef.current) restoreInputRef.current.value = '';
+    }
   };
 
   const clearData = () => {
@@ -524,6 +557,22 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <h4 className="font-medium text-text-primary">Exporter mes données</h4>
                 <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes, études bibliques, préférences, onboarding et collections.</p>
+              </div>
+            </button>
+
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              aria-label="Choisir une sauvegarde Omed Scripture à restaurer"
+              onChange={(event) => { void restoreData(event.target.files?.[0] ?? null); }}
+            />
+            <button type="button" onClick={() => restoreInputRef.current?.click()} className="flex min-h-16 w-full items-center gap-3 rounded-2xl border border-border p-4 text-left transition-colors hover:bg-bg-primary">
+              <div className="rounded-xl bg-bg-secondary p-2 text-accent-brown"><RefreshCw size={20} /></div>
+              <div>
+                <h4 className="font-medium text-text-primary">Restaurer une sauvegarde</h4>
+                <p className="text-sm text-text-muted">Importer un JSON Omed Scripture validé ; une sauvegarde locale est créée avant toute restauration.</p>
               </div>
             </button>
 

@@ -120,3 +120,11 @@ Browser-side TypeScript validators also validate fetched JSON before use:
 - The committed LSG static corpus is partial: it proves static reading and local search for Jean 3:16-17 only.
 - Complete LSG import is a next step after choosing and documenting a canonical machine-readable source.
 - Static packs are cache-on-install/cache-on-request through the service worker for current small files; future complete packs should avoid pre-caching every large book/search file by default.
+
+## V1 release checks
+
+- Static Bible JSON must stay under `public/bibles`; do not import book or search-index JSON directly from `src`.
+- Every translation must be declared in `catalog.json` and have an `index.json` with stable book ids matching the application book ids.
+- Search indexes are generated from declared book files with `npm run bible:index` and validated with `npm run bible:validate`.
+- Copyright/provenance must be documented before adding a complete translation. The current committed static corpus is intentionally partial and should not be treated as a licensed complete Bible distribution.
+- Offline behavior depends on files being served as static assets and cached/requested by the browser/service worker; large future packs should avoid unconditional precache of every book.

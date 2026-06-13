@@ -47,4 +47,30 @@ describe('backup validation', () => {
     expect(validateBackup({ ...base, prayers: 'invalide' })).toBe(false);
     expect(validateBackup({ ...base, studySessions: 'invalide' })).toBe(false);
   });
+
+  it('accepts the full V1 backup surface and rejects invalid optional datasets', () => {
+    const base = {
+      schemaVersion: 2,
+      exportedAt: new Date().toISOString(),
+      settings: {},
+      favorites: [],
+      highlights: {},
+      notes: [],
+      progress: {},
+      position: { translation: 'lsg', bookId: 'jean', chapter: 3 },
+    };
+
+    expect(validateBackup({
+      ...base,
+      prayers: [],
+      onboarding: { completed: true },
+      collections: [],
+      memory: [],
+      reminders: { enabled: false },
+      studySessions: [],
+    })).toBe(true);
+    expect(validateBackup({ ...base, memory: {} })).toBe(false);
+    expect(validateBackup({ ...base, reminders: [] })).toBe(false);
+    expect(validateBackup({ ...base, collections: {} })).toBe(false);
+  });
 });
