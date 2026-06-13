@@ -15,11 +15,11 @@ export interface PaletteCommand {
   actionId?: 'meditation';
 }
 
-// Catalogue de commandes. `readerPath` permet de reprendre la lecture en cours.
 export const buildCommands = (readerPath: string): PaletteCommand[] => {
   const navigation: PaletteCommand[] = [
     { id: 'go-home', label: 'Accueil', group: 'Aller à', kind: 'navigate', to: '/', keywords: ['accueil', 'home', 'aujourd', 'tableau'] },
     { id: 'go-reader', label: 'Reprendre la lecture', group: 'Aller à', kind: 'navigate', to: readerPath, keywords: ['lire', 'lecture', 'lecteur', 'bible', 'continuer'] },
+    { id: 'go-review', label: 'Centre de reprise', group: 'Aller à', kind: 'navigate', to: '/review', keywords: ['reprise', 'review', 'aujourd', 'reprendre', 'priorite', 'priorité'] },
     { id: 'go-search', label: 'Recherche', group: 'Aller à', kind: 'navigate', to: '/search', keywords: ['recherche', 'chercher', 'trouver', 'search'] },
     { id: 'go-favorites', label: 'Favoris', group: 'Aller à', kind: 'navigate', to: '/favorites', keywords: ['favoris', 'marque', 'pages', 'versets'] },
     { id: 'go-memory', label: 'Mémorisation', group: 'Aller à', kind: 'navigate', to: '/memory', keywords: ['memoire', 'mémoire', 'memoriser', 'mémoriser', 'reviser', 'réviser', 'versets'] },
@@ -53,8 +53,6 @@ const normalize = (value: string): string =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '');
 
-// Filtre et classe les commandes : priorité aux libellés qui commencent par le
-// terme, puis ceux qui le contiennent, puis les correspondances de mots-clés.
 export const filterCommands = (commands: PaletteCommand[], query: string): PaletteCommand[] => {
   const term = normalize(query.trim());
   if (!term) return commands;

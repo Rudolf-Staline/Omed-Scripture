@@ -18,6 +18,7 @@ import { MePage } from './features/me/MePage';
 import { OnboardingPage } from './features/onboarding/OnboardingPage';
 import { CollectionsPage } from './features/collections/CollectionsPage';
 import { MemoryPage } from './features/memory/MemoryPage';
+import { ReviewPage } from './features/review/ReviewPage';
 import { StudyPage } from './features/study/StudyPage';
 import { StudySessionEditor } from './features/study/StudySessionEditor';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
@@ -62,9 +63,7 @@ function App() {
   const reminderPreferences = useReminderStore((state) => state.preferences);
   const setPosition = useBibleStore((state) => state.setPosition);
 
-  useEffect(() => {
-    restoreSession();
-  }, [restoreSession]);
+  useEffect(() => { restoreSession(); }, [restoreSession]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -74,47 +73,17 @@ function App() {
     root.dataset.theme = meta.cssClass.replace('theme-', '');
   }, [settings.theme]);
 
-  useEffect(() => {
-    if (sessionExpired) {
-      toast.error('Session Google expirée. Veuillez vous reconnecter.');
-    }
-  }, [sessionExpired]);
+  useEffect(() => { if (sessionExpired) toast.error('Session Google expirée. Veuillez vous reconnecter.'); }, [sessionExpired]);
 
   useEffect(() => {
     if (token && synced) {
       const syncDown = async () => {
         try {
-          const [
-            remoteSettings,
-            remoteFavorites,
-            remoteHighlights,
-            remoteNotes,
-            remotePlans,
-            remotePosition,
-            remotePrayers,
-            remoteOnboarding,
-            remoteCollections,
-            remoteMemory,
-            remoteReminders,
-            remoteStudySessions
-          ] = await Promise.all([
-            syncFileFromDrive(DRIVE_FILES.settings, token),
-            syncFileFromDrive(DRIVE_FILES.favorites, token),
-            syncFileFromDrive(DRIVE_FILES.highlights, token),
-            syncFileFromDrive(DRIVE_FILES.notes, token),
-            syncFileFromDrive(DRIVE_FILES.plans, token),
-            syncFileFromDrive(DRIVE_FILES.position, token),
-            syncFileFromDrive(DRIVE_FILES.prayers, token),
-            syncFileFromDrive(DRIVE_FILES.onboarding, token),
-            syncFileFromDrive(DRIVE_FILES.collections, token),
-            syncFileFromDrive(DRIVE_FILES.memory, token),
-            syncFileFromDrive(DRIVE_FILES.reminders, token),
-            syncFileFromDrive(DRIVE_FILES.studySessions, token)
+          const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteMemory, remoteReminders, remoteStudySessions] = await Promise.all([
+            syncFileFromDrive(DRIVE_FILES.settings, token), syncFileFromDrive(DRIVE_FILES.favorites, token), syncFileFromDrive(DRIVE_FILES.highlights, token), syncFileFromDrive(DRIVE_FILES.notes, token), syncFileFromDrive(DRIVE_FILES.plans, token), syncFileFromDrive(DRIVE_FILES.position, token), syncFileFromDrive(DRIVE_FILES.prayers, token), syncFileFromDrive(DRIVE_FILES.onboarding, token), syncFileFromDrive(DRIVE_FILES.collections, token), syncFileFromDrive(DRIVE_FILES.memory, token), syncFileFromDrive(DRIVE_FILES.reminders, token), syncFileFromDrive(DRIVE_FILES.studySessions, token)
           ]);
-
           const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders || remoteStudySessions);
           if (hasRemoteData) backupLocalDataBeforeRestore();
-
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
           if (isValidArray(remoteFavorites)) loadFavorites(remoteFavorites as Parameters<typeof loadFavorites>[0]);
           if (isValidRecord(remoteHighlights)) loadHighlights(remoteHighlights as Parameters<typeof loadHighlights>[0]);
@@ -128,18 +97,13 @@ function App() {
           if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
           if (isValidArray(remoteStudySessions)) loadStudySessions(remoteStudySessions);
         } catch (err) {
-          console.error("Erreur de synchronisation automatique en arrière-plan", err);
-          if (isDriveSessionInvalidError(err)) {
-            expireSession();
-          } else {
-            toast.error('Synchronisation Google Drive impossible pour le moment.');
-          }
+          console.error('Erreur de synchronisation automatique en arrière-plan', err);
+          if (isDriveSessionInvalidError(err)) expireSession(); else toast.error('Synchronisation Google Drive impossible pour le moment.');
         }
       };
       syncDown();
     }
   }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadMemoryVerses, loadReminders, loadStudySessions, setPosition, expireSession]);
-
 
   useEffect(() => {
     if (!reminderPreferences.enabled) return undefined;
@@ -151,11 +115,8 @@ function App() {
       if (current !== reminderPreferences.time || lastFiredKey === dayKey) return;
       lastFiredKey = dayKey;
       const message = 'Votre moment quotidien Omed Scripture est prêt.';
-      if (reminderPreferences.useNotifications && getNotificationPermission() === 'granted') {
-        new Notification('Omed Scripture', { body: message, tag: 'omed-daily-reminder' });
-      } else {
-        toast(message);
-      }
+      if (reminderPreferences.useNotifications && getNotificationPermission() === 'granted') window.Notification && new window.Notification('Omed Scripture', { body: message, tag: 'omed-daily-reminder' });
+      else toast(message);
     }, 30_000);
     return () => window.clearInterval(timer);
   }, [reminderPreferences.enabled, reminderPreferences.time, reminderPreferences.useNotifications]);
@@ -165,7 +126,6 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
-
         <Route element={<Layout />}>
           <Route path="/" element={onboardingCompleted ? <HomePage /> : <OnboardingPage />} />
           <Route path="/reader" element={<ReaderPage />} />
@@ -181,6 +141,7 @@ function App() {
           <Route path="/me" element={<MePage />} />
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/memory" element={<MemoryPage />} />
+          <Route path="/review" element={<ReviewPage />} />
           <Route path="/study" element={<StudyPage />} />
           <Route path="/study/:sessionId" element={<StudySessionEditor />} />
           <Route path="/more" element={<MorePage />} />
@@ -189,18 +150,7 @@ function App() {
       </Routes>
       <CommandPalette />
       <MeditationOverlay />
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3500,
-          style: {
-            background: 'var(--color-surface-raised)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-panel)',
-          },
-        }}
-      />
+      <Toaster position="top-right" toastOptions={{ duration: 3500, style: { background: 'var(--color-surface-raised)', color: 'var(--color-text)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-panel)' } }} />
     </Router>
   );
 }
