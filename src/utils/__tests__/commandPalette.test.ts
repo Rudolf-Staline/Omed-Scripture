@@ -19,7 +19,7 @@ describe('commandPalette', () => {
     const targets = buildCommands(READER_PATH)
       .filter((c) => c.kind === 'navigate')
       .map((c) => c.to);
-    ['/', '/review', '/search', '/favorites', '/notes', '/prayer', '/plans', '/settings'].forEach((route) => {
+    ['/', '/review', '/search', '/favorites', '/notes', '/prayer', '/plans', '/settings', '/about'].forEach((route) => {
       expect(targets).toContain(route);
     });
   });
@@ -52,6 +52,7 @@ describe('commandPalette', () => {
     expect(filterCommands(commands, 'reprise').some((c) => c.to === '/review')).toBe(true);
     expect(filterCommands(commands, 'mémoire').some((c) => c.to === '/memory')).toBe(true);
     expect(filterCommands(commands, 'étude').some((c) => c.to === '/study')).toBe(true);
+    expect(filterCommands(commands, 'beta').some((c) => c.to === '/about')).toBe(true);
   });
 
   it('returns nothing for an unknown term', () => {

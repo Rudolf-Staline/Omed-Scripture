@@ -16,7 +16,7 @@ describe('route coverage', () => {
   it('declares the V1 route surface in App', () => {
     expect(APP_ROUTE_PATHS).toEqual([
       '/login', '/onboarding', '/', '/reader', '/read/:translation/:bookId/:chapter', '/search', '/discover',
-      '/favorites', '/notes', '/prayer', '/plans', '/plans/:planId', '/settings', '/me', '/collections',
+      '/favorites', '/notes', '/prayer', '/plans', '/plans/:planId', '/settings', '/about', '/me', '/collections',
       '/memory', '/review', '/study', '/study/:sessionId', '/more', '*',
     ]);
   });

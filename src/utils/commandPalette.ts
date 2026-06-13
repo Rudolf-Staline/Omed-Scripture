@@ -28,6 +28,7 @@ export const buildCommands = (readerPath: string): PaletteCommand[] => {
     { id: 'go-prayer', label: 'Carnet de prière', group: 'Aller à', kind: 'navigate', to: '/prayer', keywords: ['priere', 'prière', 'journal', 'gratitude'] },
     { id: 'go-plans', label: 'Plans de lecture', group: 'Aller à', kind: 'navigate', to: '/plans', keywords: ['parcours', 'plans', 'plan', 'lecture'] },
     { id: 'go-settings', label: 'Paramètres', group: 'Aller à', kind: 'navigate', to: '/settings', keywords: ['reglages', 'réglages', 'parametres', 'paramètres', 'settings', 'theme'] },
+    { id: 'go-about', label: 'À propos de la bêta', group: 'Aller à', kind: 'navigate', to: '/about', keywords: ['about', 'a propos', 'à propos', 'beta', 'bêta', 'support', 'feedback', 'licence', 'confidentialite', 'confidentialité'] },
   ];
 
   const actions: PaletteCommand[] = [

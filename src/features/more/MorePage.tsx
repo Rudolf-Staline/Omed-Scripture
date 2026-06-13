@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { BookMarked, Bookmark, Brain, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { BookMarked, Bookmark, Brain, ChevronRight, Cloud, Download, Flame, HandHeart, Info, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
@@ -19,6 +19,7 @@ const menu = [
   { to: '/memory', label: 'Mémoriser', description: 'Versets à revoir et retenir', icon: Brain },
   { to: '/prayer', label: 'Prières', description: 'Journal et demandes', icon: HandHeart },
   { to: '/settings', label: 'Paramètres', description: 'Lecture, apparence, sync et données', icon: Settings },
+  { to: '/about', label: 'À propos / bêta', description: 'Présentation, confidentialité, licences et feedback', icon: Info },
 ];
 
 export const MorePage: React.FC = () => {

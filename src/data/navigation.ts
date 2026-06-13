@@ -1,4 +1,4 @@
-import { BookOpenText, BookMarked, Bookmark, Boxes, Brain, CalendarRange, Compass, HandHeart, Home, NotebookPen, RotateCcw, Settings, UserCircle } from 'lucide-react';
+import { BookOpenText, BookMarked, Bookmark, Boxes, Brain, CalendarRange, Compass, HandHeart, Home, Info, NotebookPen, RotateCcw, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -61,4 +61,5 @@ export const MOBILE_MORE_ITEMS: NavItem[] = [
   { to: '/prayer', label: 'Prière', icon: HandHeart },
   { to: '/collections', label: 'Collections', icon: Boxes },
   { to: '/settings', label: 'Paramètres', icon: Settings },
+  { to: '/about', label: 'À propos', icon: Info },
 ];
