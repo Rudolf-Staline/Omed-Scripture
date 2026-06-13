@@ -16,6 +16,8 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { getTodayGoalStatus, getWeeklyGoalProgress } from '../../utils/dailyGoals';
 import { getBookName } from '../../utils/bibleBooks';
 import { getMemoryStats, formatDueLabel } from '../../utils/memory';
+import { getProgressLevelLabel, getWeeklyProgressScores } from '../../utils/progressScore';
+import { getReadingDays } from '../../utils/readingActivity';
 import { getOfflineLibrarySummary, formatApproxSize } from '../../utils/offlineLibrary';
 import { useReminderStore } from '../../store/useReminderStore';
 import { useStudyStore } from '../../store/useStudyStore';
@@ -42,6 +44,18 @@ export const MePage: React.FC = () => {
   const activePlans = Object.values(progress).filter((plan) => plan.completedDays.length > 0).length;
   const draftStudyCount = studySessions.filter((session) => session.status === 'draft').length;
   const completedStudyCount = studySessions.filter((session) => session.status === 'completed').length;
+  const progressWeek = getWeeklyProgressScores({
+    readingDays: getReadingDays(),
+    routineCompletedDays: days.filter((day) => day.completedAt).map((day) => day.date),
+    memoryVerses,
+    studySessions,
+    prayers,
+    planProgress: progress,
+    notes,
+  });
+  const weeklyAverage = Math.round(progressWeek.reduce((total, day) => total + day.score, 0) / progressWeek.length);
+  const activeProgressDays = progressWeek.filter((day) => day.score > 0).length;
+  const currentLevel = getProgressLevelLabel(progressWeek.at(-1)?.level ?? 'repos');
 
   const stats = [
     { label: 'Série', value: `${weekly.streak} j`, icon: Flame },
@@ -69,6 +83,17 @@ export const MePage: React.FC = () => {
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">{stats.map((stat) => <article key={stat.label} className="rounded-3xl border border-border bg-bg-card p-4"><stat.icon size={18} className="text-accent-gold" /><p className="mt-3 text-2xl font-bold text-text-primary">{stat.value}</p><p className="text-sm text-text-muted">{stat.label}</p></article>)}</section>
+
+      <section className="rounded-[1.7rem] border border-border bg-bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent-gold">Rythme personnel</p>
+            <h2 className="mt-1 text-2xl font-bold text-text-primary">{weeklyAverage}/100 de moyenne · {currentLevel}</h2>
+            <p className="mt-2 text-text-secondary">{activeProgressDays}/7 jour(s) actifs cette semaine · série routine {weekly.streak} jour(s) · {studySessions.length} étude(s), {memoryStats.total} verset(s) mémoire, {prayers.filter((prayer) => prayer.status === 'active').length} prière(s) active(s).</p>
+          </div>
+          <Link to="/review" className="inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-4 font-bold text-white">Ouvrir la reprise</Link>
+        </div>
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-[1.7rem] border border-border bg-bg-card p-5 lg:col-span-2">

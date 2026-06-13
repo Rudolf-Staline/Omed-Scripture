@@ -73,6 +73,7 @@ export const sanitizeStudySessions = (value: unknown): StudySession[] => {
       reference,
       createdAt: isIsoString(entry.createdAt) ? entry.createdAt : now,
       updatedAt: isIsoString(entry.updatedAt) ? entry.updatedAt : now,
+      ...(isIsoString(entry.completedAt) ? { completedAt: entry.completedAt } : {}),
       status: STATUSES.includes(entry.status as StudySessionStatus) ? entry.status as StudySessionStatus : 'draft',
       observation: truncateStudyText(entry.observation),
       interpretation: truncateStudyText(entry.interpretation),

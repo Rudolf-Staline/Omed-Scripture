@@ -30,6 +30,7 @@ describe('useStudyStore', () => {
 
     useStudyStore.getState().completeStudySession(id);
     expect(useStudyStore.getState().sessions[0].status).toBe('completed');
+    expect(useStudyStore.getState().sessions[0].completedAt).toEqual(expect.any(String));
 
     useStudyStore.getState().archiveStudySession(id);
     expect(useStudyStore.getState().sessions[0].status).toBe('archived');
@@ -42,10 +43,11 @@ describe('useStudyStore', () => {
     localStorage.setItem('unrelated', 'keep');
     useStudyStore.getState().loadStudySessions([
       { bad: 'data' },
-      { id: 's1', title: 'Étude', translation: 'lsg', bookId: 'jean', chapter: 3, reference: 'Jean 3', createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', status: 'completed', observation: 'Observer', interpretation: '', application: '', prayer: '', tags: ['paix'] },
+      { id: 's1', title: 'Étude', translation: 'lsg', bookId: 'jean', chapter: 3, reference: 'Jean 3', createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', status: 'completed', completedAt: '2026-01-02T00:00:00.000Z', observation: 'Observer', interpretation: '', application: '', prayer: '', tags: ['paix'] },
       { id: 's1', title: 'Doublon', translation: 'lsg', bookId: 'jean', chapter: 3, reference: 'Jean 3' },
     ]);
     expect(useStudyStore.getState().sessions).toHaveLength(1);
+    expect(useStudyStore.getState().sessions[0].completedAt).toBe('2026-01-02T00:00:00.000Z');
     expect(localStorage.getItem(OMED_STORAGE_KEYS.studySessions)).toContain('Observer');
     expect(localStorage.getItem('unrelated')).toBe('keep');
   });

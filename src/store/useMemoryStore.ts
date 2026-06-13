@@ -2,11 +2,13 @@ import { create } from 'zustand';
 import { OMED_STORAGE_KEYS } from '../constants/storageKeys';
 import { DRIVE_FILES, syncFileToDrive } from '../utils/driveSync';
 import { scheduleMemoryReview } from '../utils/memory';
-import type { MemoryReviewGrade, MemoryVerse, MemoryVerseInput } from '../types/memory';
+import type { MemoryReviewEvent, MemoryReviewGrade, MemoryVerse, MemoryVerseInput } from '../types/memory';
 import { useAuthStore } from './useAuthStore';
 import { useSettingsStore } from './useSettingsStore';
 
 const MAX_MEMORY_VERSES = 300;
+export const MAX_MEMORY_REVIEW_HISTORY = 50;
+const REVIEW_GRADE_VALUES: MemoryReviewGrade[] = ['again', 'hard', 'good', 'easy'];
 const STATUS_VALUES: MemoryVerse['status'][] = ['learning', 'reviewing', 'mastered'];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -17,6 +19,16 @@ const isIsoString = (value: unknown): value is string =>
 
 const isPositiveInteger = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value > 0;
+
+
+const sanitizeReviewHistory = (value: unknown): MemoryReviewEvent[] => {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((event): MemoryReviewEvent[] => {
+    if (!isRecord(event)) return [];
+    if (!isIsoString(event.reviewedAt) || !REVIEW_GRADE_VALUES.includes(event.grade as MemoryReviewGrade)) return [];
+    return [{ reviewedAt: event.reviewedAt, grade: event.grade as MemoryReviewGrade }];
+  }).sort((a, b) => Date.parse(b.reviewedAt) - Date.parse(a.reviewedAt)).slice(0, MAX_MEMORY_REVIEW_HISTORY);
+};
 
 export const sanitizeMemoryVerses = (value: unknown): MemoryVerse[] => {
   if (!Array.isArray(value)) return [];
@@ -57,6 +69,7 @@ export const sanitizeMemoryVerses = (value: unknown): MemoryVerse[] => {
       lapses: typeof entry.lapses === 'number' && entry.lapses >= 0 ? Math.floor(entry.lapses) : 0,
       status,
       ...(isIsoString(entry.lastReviewedAt) ? { lastReviewedAt: entry.lastReviewedAt } : {}),
+      reviewHistory: sanitizeReviewHistory(entry.reviewHistory),
     }];
   }).slice(0, MAX_MEMORY_VERSES);
 };
@@ -124,6 +137,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
       reviewCount: 0,
       lapses: 0,
       status: 'learning',
+      reviewHistory: [],
     };
 
     set((state) => {

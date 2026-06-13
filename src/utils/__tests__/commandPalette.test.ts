@@ -19,7 +19,7 @@ describe('commandPalette', () => {
     const targets = buildCommands(READER_PATH)
       .filter((c) => c.kind === 'navigate')
       .map((c) => c.to);
-    ['/', '/search', '/favorites', '/notes', '/prayer', '/plans', '/settings'].forEach((route) => {
+    ['/', '/review', '/search', '/favorites', '/notes', '/prayer', '/plans', '/settings'].forEach((route) => {
       expect(targets).toContain(route);
     });
   });
@@ -44,6 +44,14 @@ describe('commandPalette', () => {
     const results = filterCommands(commands, 'rech');
     // "Recherche" (label prefix) should come before keyword-only matches.
     expect(results[0].to).toBe('/search');
+  });
+
+  it('finds progress, memory and study commands', () => {
+    const commands = buildCommands(READER_PATH);
+    expect(filterCommands(commands, 'score').some((c) => c.to === '/review')).toBe(true);
+    expect(filterCommands(commands, 'reprise').some((c) => c.to === '/review')).toBe(true);
+    expect(filterCommands(commands, 'mémoire').some((c) => c.to === '/memory')).toBe(true);
+    expect(filterCommands(commands, 'étude').some((c) => c.to === '/study')).toBe(true);
   });
 
   it('returns nothing for an unknown term', () => {

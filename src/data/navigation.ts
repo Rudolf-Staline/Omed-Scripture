@@ -1,4 +1,4 @@
-import { BookOpenText, BookMarked, Bookmark, Boxes, Brain, CalendarRange, Compass, HandHeart, Home, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { BookOpenText, BookMarked, Bookmark, Boxes, Brain, CalendarRange, Compass, HandHeart, Home, NotebookPen, RotateCcw, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -31,6 +31,7 @@ export const buildNavGroups = (readerPath: string): NavGroup[] => [
     id: 'personnel',
     label: 'Personnel',
     items: [
+      { to: '/review', label: 'Reprise', icon: RotateCcw },
       { to: '/study', label: 'Études', icon: BookMarked },
       { to: '/notes', label: 'Notes', icon: NotebookPen },
       { to: '/favorites', label: 'Favoris', icon: Bookmark },
@@ -52,7 +53,7 @@ export const buildMobilePrimary = (readerPath: string): NavItem[] => [
 
 export const MOBILE_MORE_ITEMS: NavItem[] = [
   { to: '/me', label: 'Moi', icon: UserCircle },
-  { to: '/more', label: 'Plus', icon: UserCircle },
+  { to: '/review', label: 'Reprise', icon: RotateCcw },
   { to: '/study', label: 'Études', icon: BookMarked },
   { to: '/notes', label: 'Notes', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', icon: Bookmark },

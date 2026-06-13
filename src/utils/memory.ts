@@ -51,6 +51,12 @@ export const scheduleMemoryReview = (
     dueAt = addDays(now, intervalDays);
   }
 
+  const reviewedAt = now.toISOString();
+  const reviewHistory = [
+    { reviewedAt, grade },
+    ...(item.reviewHistory ?? []),
+  ].slice(0, 50);
+
   return {
     ...item,
     intervalDays,
@@ -58,8 +64,9 @@ export const scheduleMemoryReview = (
     lapses,
     status,
     dueAt,
-    lastReviewedAt: now.toISOString(),
-    updatedAt: now.toISOString(),
+    lastReviewedAt: reviewedAt,
+    reviewHistory,
+    updatedAt: reviewedAt,
     reviewCount: item.reviewCount + 1,
   };
 };

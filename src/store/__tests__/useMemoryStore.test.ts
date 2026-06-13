@@ -49,6 +49,8 @@ describe('useMemoryStore', () => {
     expect(item.reviewCount).toBe(1);
     expect(item.status).toBe('reviewing');
     expect(Date.parse(item.dueAt)).toBeGreaterThan(Date.now());
+    expect(item.reviewHistory).toHaveLength(1);
+    expect(item.reviewHistory?.[0].grade).toBe('good');
   });
 
   it('records again review outcomes without destroying unrelated localStorage data', () => {
@@ -60,6 +62,24 @@ describe('useMemoryStore', () => {
     expect(item.lapses).toBe(1);
     expect(item.reviewCount).toBe(1);
     expect(localStorage.getItem('unrelated')).toBe('keep');
+  });
+
+  it('sanitizes review history and keeps old verses compatible', () => {
+    const sanitized = sanitizeMemoryVerses([{
+      id: 'm1', verseId: 'lsg-jean-3-16', translation: 'lsg', bookId: 'jean', chapter: 3, verse: 16,
+      text: 'Car Dieu', reference: 'Jean 3:16', addedAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', dueAt: '2026-01-01T00:00:00.000Z', intervalDays: 0, easeFactor: 2.5, reviewCount: 0, lapses: 0, status: 'learning',
+      reviewHistory: [{ reviewedAt: 'bad', grade: 'good' }, { reviewedAt: '2026-01-02T00:00:00.000Z', grade: 'easy' }],
+    }]);
+    expect(sanitized[0].reviewHistory).toEqual([{ reviewedAt: '2026-01-02T00:00:00.000Z', grade: 'easy' }]);
+  });
+
+  it('limits review history length', () => {
+    const reviewHistory = Array.from({ length: 60 }, (_, index) => ({ reviewedAt: `2026-01-01T00:00:${String(index % 60).padStart(2, '0')}.000Z`, grade: 'good' as const }));
+    const sanitized = sanitizeMemoryVerses([{
+      id: 'm1', verseId: 'lsg-jean-3-16', translation: 'lsg', bookId: 'jean', chapter: 3, verse: 16,
+      text: 'Car Dieu', reference: 'Jean 3:16', addedAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', dueAt: '2026-01-01T00:00:00.000Z', intervalDays: 0, easeFactor: 2.5, reviewCount: 0, lapses: 0, status: 'learning', reviewHistory,
+    }]);
+    expect(sanitized[0].reviewHistory).toHaveLength(50);
   });
 
   it('sanitizes loaded values before persisting them', () => {
