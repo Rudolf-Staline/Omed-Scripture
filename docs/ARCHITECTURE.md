@@ -106,3 +106,8 @@ Aucun `localStorage.clear()` global n'est utilisé.
   traduction `DAILY_VERSE_TRANSLATION` (`lsg`) pour le lien, le favori et le partage.
 - `src/utils/readingActivity.ts` : journal local des jours de lecture (alimenté par le lecteur), qui fournit
   la progression hebdomadaire et la série de jours consécutifs affichées sur l'accueil.
+
+## Static Bible data packs and local search
+
+Bible text packs live in `public/bibles` and are loaded with `fetch`, not bundled into the JavaScript application. The runtime validates `catalog.json`, translation indexes, book files, and search indexes before using them. Chapter loading prefers static data, then the local cache, then the existing remote providers. Search prefers a local per-translation `search-index.json`, then falls back to API search when available. See `docs/BIBLE_DATA.md` for licence rules, file format, and import workflow.
+

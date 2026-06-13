@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { ArrowLeft, Check, Search, X } from 'lucide-react';
+import { ArrowLeft, Check, Search, WifiOff, X } from 'lucide-react';
 import { FEATURED_TRANSLATIONS } from '../../data/translations';
+import { listStaticTranslations } from '../../utils/staticBibleProvider';
 import {
   getBooksByTestament,
   getSupportedBook,
@@ -40,25 +41,40 @@ export const TestamentTabs: React.FC<{ value: Testament; onChange: (value: Testa
   </div>
 );
 
-export const TranslationSelector: React.FC<{ value: string; onChange: (id: string) => void }> = ({ value, onChange }) => (
-  <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Traduction">
-    {FEATURED_TRANSLATIONS.map((item) => (
-      <button
-        key={item.id}
-        type="button"
-        onClick={() => onChange(item.id)}
-        aria-pressed={value === item.id}
-        title={item.name}
-        className={clsx(
-          'flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-bold transition-colors',
-          value === item.id ? 'border-accent-gold/50 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-card text-text-secondary hover:text-text-primary'
-        )}
-      >
-        {value === item.id && <Check size={14} />} {item.short}
-      </button>
-    ))}
-  </div>
-);
+export const TranslationSelector: React.FC<{ value: string; onChange: (id: string) => void }> = ({ value, onChange }) => {
+  const [staticIds, setStaticIds] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    let mounted = true;
+    void listStaticTranslations().then((translations) => {
+      if (mounted) setStaticIds(new Set(translations.map((item) => item.id)));
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Traduction">
+      {FEATURED_TRANSLATIONS.map((item) => {
+        const isStatic = staticIds.has(item.id);
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onChange(item.id)}
+            aria-pressed={value === item.id}
+            title={`${item.name}${isStatic ? ' · disponible hors ligne' : ' · API seulement'}`}
+            className={clsx(
+              'flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-bold transition-colors',
+              value === item.id ? 'border-accent-gold/50 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-card text-text-secondary hover:text-text-primary'
+            )}
+          >
+            {value === item.id && <Check size={14} />} {item.short} {isStatic ? <WifiOff size={13} aria-label="Disponible hors ligne" /> : <span className="text-[0.65rem] font-semibold text-text-muted">API</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 export const BookGrid: React.FC<{ books: BibleBook[]; selectedId: string; onSelect: (book: BibleBook) => void }> = ({ books, selectedId, onSelect }) => {
   if (books.length === 0) {

@@ -1,16 +1,20 @@
 {
   "translationId": "lsg",
   "name": "Louis Segond 1910",
+  "shortName": "LSG",
   "language": "fr",
-  "source": "static",
+  "direction": "ltr",
   "books": [
     {
       "id": "jean",
+      "osisId": "John",
       "name": "Jean",
       "abbreviation": "Jn",
       "testament": "new",
+      "order": 43,
       "chapterCount": 21,
-      "order": 43
+      "path": "/bibles/lsg/jean.json",
+      "availableChapters": [3]
     }
   ]
 }

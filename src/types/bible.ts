@@ -12,4 +12,5 @@ export interface SearchResult {
   translation_id: string;
   book_id: string;
   chapter_id: string;
+  source?: 'local' | 'api';
 }

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "translations": [
+    {
+      "id": "lsg",
+      "name": "Louis Segond 1910",
+      "shortName": "LSG",
+      "language": "fr",
+      "direction": "ltr",
+      "source": "eBible.org fraLSG / domaine public; pack initial partiel maintenu dans le dépôt",
+      "license": "Public Domain",
+      "availability": "partial",
+      "indexPath": "/bibles/lsg/index.json",
+      "searchIndexPath": "/bibles/lsg/search-index.json",
+      "notes": "Pack statique partiel de validation d'architecture: Jean 3:16-17 uniquement. Les autres chapitres LSG restent servis par fallback API."
+    },
+    {
+      "id": "darby",
+      "name": "Darby (Français)",
+      "shortName": "DBY",
+      "language": "fr",
+      "direction": "ltr",
+      "source": "bolls.life runtime provider",
+      "license": "Non documentée dans ce dépôt; non incluse en statique.",
+      "availability": "api-only"
+    },
+    {
+      "id": "kjv",
+      "name": "King James Version",
+      "shortName": "KJV",
+      "language": "en",
+      "direction": "ltr",
+      "source": "bible-api.com runtime provider",
+      "license": "API-only dans ce dépôt.",
+      "availability": "api-only"
+    },
+    {
+      "id": "web",
+      "name": "World English Bible",
+      "shortName": "WEB",
+      "language": "en",
+      "direction": "ltr",
+      "source": "bible-api.com runtime provider",
+      "license": "API-only dans ce dépôt.",
+      "availability": "api-only"
+    },
+    {
+      "id": "bbe",
+      "name": "Bible in Basic English",
+      "shortName": "BBE",
+      "language": "en",
+      "direction": "ltr",
+      "source": "bible-api.com runtime provider",
+      "license": "API-only dans ce dépôt.",
+      "availability": "api-only"
+    }
+  ]
+}

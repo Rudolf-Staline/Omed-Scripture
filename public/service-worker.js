@@ -1,5 +1,5 @@
-const CACHE_NAME = 'omed-scripture-shell-v2';
-const SHELL_ASSETS = ['/', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/favicon.svg'];
+const CACHE_NAME = 'omed-scripture-shell-v3';
+const SHELL_ASSETS = ['/', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/favicon.svg', '/bibles/catalog.json', '/bibles/lsg/index.json', '/bibles/lsg/jean.json', '/bibles/lsg/search-index.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)).catch(() => undefined));
@@ -38,7 +38,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {
       if (!response || response.status !== 200 || response.type !== 'basic') return response;
-      if (url.pathname.startsWith('/assets/') || SHELL_ASSETS.includes(url.pathname)) {
+      if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/bibles/') || SHELL_ASSETS.includes(url.pathname)) {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
       }

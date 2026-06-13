@@ -1,0 +1,18 @@
+[
+  {
+    "bookId": "jean",
+    "chapter": 3,
+    "verse": 16,
+    "reference": "Jean 3:16",
+    "text": "Car Dieu a tant aimé le monde qu'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu'il ait la vie éternelle.",
+    "normalizedText": "car dieu a tant aime le monde qu'il a donne son fils unique, afin que quiconque croit en lui ne perisse point, mais qu'il ait la vie eternelle."
+  },
+  {
+    "bookId": "jean",
+    "chapter": 3,
+    "verse": 17,
+    "reference": "Jean 3:17",
+    "text": "Dieu, en effet, n'a pas envoyé son Fils dans le monde pour qu'il juge le monde, mais pour que le monde soit sauvé par lui.",
+    "normalizedText": "dieu, en effet, n'a pas envoye son fils dans le monde pour qu'il juge le monde, mais pour que le monde soit sauve par lui."
+  }
+]
