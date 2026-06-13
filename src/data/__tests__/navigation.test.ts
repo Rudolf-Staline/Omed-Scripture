@@ -22,6 +22,7 @@ describe('navigation configuration', () => {
     expect(moreLabels).toContain('Moi');
     expect(moreLabels).toContain('Collections');
     expect(moreLabels).toContain('Mémoriser');
+    expect(moreLabels).toContain('Études');
     expect(new Set(moreLabels).size).toBe(moreLabels.length);
   });
 });

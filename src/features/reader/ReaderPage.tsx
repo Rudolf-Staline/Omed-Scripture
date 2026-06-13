@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import clsx from 'clsx';
-import { ChevronLeft, ChevronRight, GitCompare, Headphones, Maximize2, Minimize2, NotebookPen, WifiOff } from 'lucide-react';
+import { BookMarked, ChevronLeft, ChevronRight, GitCompare, Headphones, Maximize2, Minimize2, NotebookPen, WifiOff } from 'lucide-react';
 import { useBibleStore } from '../../store/useBibleStore';
 import { BIBLE_BOOKS } from '../../utils/bibleApi';
 import { ChapterView } from './ChapterView';
@@ -12,6 +12,8 @@ import { PassageSelectorButton } from '../../components/reader/PassageSelectorBu
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { recordReadingDay } from '../../utils/readingActivity';
 import { clampChapterForBook, getSupportedBook, getSupportedTranslation, getTranslationLabel } from '../../utils/bibleNavigation';
+import { useStudyStore } from '../../store/useStudyStore';
+import { formatStudyReference } from '../../utils/study';
 
 export const ReaderPage: React.FC = () => {
   const params = useParams<{ translation: string; bookId: string; chapter: string }>();
@@ -26,6 +28,7 @@ export const ReaderPage: React.FC = () => {
   const setPosition = useBibleStore((state) => state.setPosition);
   const compareTranslation = useBibleStore((state) => state.compareTranslation);
   const setCompareTranslation = useBibleStore((state) => state.setCompareTranslation);
+  const createStudySession = useStudyStore((state) => state.createStudySession);
 
   const effectiveTranslation = getSupportedTranslation(params.translation || stored.translation);
   const currentBook = getSupportedBook(params.bookId || stored.bookId);
@@ -51,6 +54,18 @@ export const ReaderPage: React.FC = () => {
       navigateTo(effectiveTranslation, previous.id, previous.chapters);
     }
   };
+  const startStudySession = () => {
+    const reference = formatStudyReference({ bookId: currentBook.id, chapter: chapterNum });
+    const id = createStudySession({
+      translation: effectiveTranslation,
+      bookId: currentBook.id,
+      chapter: chapterNum,
+      reference,
+      title: `Étude — ${reference}`,
+    });
+    navigate(`/study/${id}`);
+  };
+
   const goNext = () => {
     if (chapterNum < currentBook.chapters) return navigateTo(effectiveTranslation, currentBook.id, chapterNum + 1);
     const index = BIBLE_BOOKS.findIndex((book) => book.id === currentBook.id);
@@ -76,13 +91,15 @@ export const ReaderPage: React.FC = () => {
             />
             <div className="ml-auto flex items-center gap-1.5">
               {!isOnline && <span className="mr-1 flex items-center gap-1 rounded-full bg-bg-secondary px-2.5 py-1 text-xs font-semibold text-text-secondary"><WifiOff size={13} /> <span className="hidden sm:inline">Hors ligne</span></span>}
+              <button type="button" onClick={startStudySession} className={actionButton(false)} aria-label="Étudier ce passage" title="Étudier ce passage"><BookMarked size={18} /></button>
               <button type="button" onClick={() => setShowAudio(true)} className={actionButton(false)} aria-label="Écouter ce chapitre"><Headphones size={18} /></button>
               <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : compareWith)} className={actionButton(Boolean(compareTranslation))} aria-label="Comparer une traduction"><GitCompare size={18} /></button>
               <button type="button" onClick={() => setStudyMode((value) => !value)} className={clsx(actionButton(studyMode), 'hidden sm:flex')} aria-label="Afficher notes et favoris"><NotebookPen size={18} /></button>
               <button type="button" onClick={() => setFocusMode(true)} className={actionButton(false)} aria-label="Activer le mode focus"><Maximize2 size={18} /></button>
             </div>
           </div>
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={startStudySession} className="inline-flex min-h-9 items-center gap-2 rounded-2xl border border-accent-gold/30 bg-accent-gold/10 px-3 text-xs font-bold text-accent-gold sm:hidden"><BookMarked size={14} /> Étudier ce passage</button>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-secondary">
               <div className="h-full rounded-full bg-accent-gold/70" style={{ width: `${Math.round((chapterNum / currentBook.chapters) * 100)}%` }} />
             </div>

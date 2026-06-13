@@ -43,6 +43,8 @@ describe('backup validation', () => {
 
     expect(validateBackup(base)).toBe(true);
     expect(validateBackup({ ...base, prayers: [] })).toBe(true);
+    expect(validateBackup({ ...base, studySessions: [] })).toBe(true);
     expect(validateBackup({ ...base, prayers: 'invalide' })).toBe(false);
+    expect(validateBackup({ ...base, studySessions: 'invalide' })).toBe(false);
   });
 });

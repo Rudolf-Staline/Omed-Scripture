@@ -19,6 +19,7 @@ import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { useCollectionsStore } from '../../store/useCollectionsStore';
 import { useReminderStore } from '../../store/useReminderStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
+import { useStudyStore } from '../../store/useStudyStore';
 import type { PreferredTopicId } from '../../types/onboarding';
 import { FEATURED_TRANSLATIONS } from '../../utils/bibleApi';
 import { THEMES } from '../../data/themes';
@@ -60,6 +61,8 @@ export const SettingsPage: React.FC = () => {
   const setPosition = useBibleStore((state) => state.setPosition);
   const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const loadMemoryVerses = useMemoryStore((state) => state.loadMemoryVerses);
+  const studySessions = useStudyStore((state) => state.sessions);
+  const loadStudySessions = useStudyStore((state) => state.loadStudySessions);
 
   const fontSizes: FontSize[] = ['S', 'M', 'L', 'XL'];
   const lineHeights: LineHeight[] = ['Normal', 'Relaxed', 'Large'];
@@ -84,7 +87,7 @@ export const SettingsPage: React.FC = () => {
     }
     setSyncing(true);
     try {
-      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteMemory, remoteReminders] = await Promise.all([
+      const [remoteSettings, remoteFavorites, remoteHighlights, remoteNotes, remotePlans, remotePosition, remotePrayers, remoteOnboarding, remoteCollections, remoteMemory, remoteReminders, remoteStudySessions] = await Promise.all([
         syncFileFromDrive(DRIVE_FILES.settings, token),
         syncFileFromDrive(DRIVE_FILES.favorites, token),
         syncFileFromDrive(DRIVE_FILES.highlights, token),
@@ -96,9 +99,10 @@ export const SettingsPage: React.FC = () => {
         syncFileFromDrive(DRIVE_FILES.collections, token),
         syncFileFromDrive(DRIVE_FILES.memory, token),
         syncFileFromDrive(DRIVE_FILES.reminders, token),
+        syncFileFromDrive(DRIVE_FILES.studySessions, token),
       ]);
 
-      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders);
+      const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders || remoteStudySessions);
       if (hasRemoteData) backupLocalDataBeforeRestore();
 
       if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -112,6 +116,7 @@ export const SettingsPage: React.FC = () => {
       if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
       if (isValidArray(remoteMemory)) loadMemoryVerses(remoteMemory);
       if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
+      if (isValidArray(remoteStudySessions)) loadStudySessions(remoteStudySessions);
 
       setSynced(true);
       toast.success('Synchronisation réussie !');
@@ -144,6 +149,7 @@ export const SettingsPage: React.FC = () => {
         syncFileToDrive(DRIVE_FILES.collections, collections, token),
         syncFileToDrive(DRIVE_FILES.memory, memoryVerses, token),
         syncFileToDrive(DRIVE_FILES.reminders, reminderPreferences, token),
+        syncFileToDrive(DRIVE_FILES.studySessions, studySessions, token),
       ]);
       setSynced(true);
       toast.success('Sauvegarde en ligne réussie !');
@@ -173,6 +179,7 @@ export const SettingsPage: React.FC = () => {
       collections,
       memory: memoryVerses,
       reminders: reminderPreferences,
+      studySessions,
     });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -476,7 +483,7 @@ export const SettingsPage: React.FC = () => {
               <div className="rounded-xl bg-bg-secondary p-2 text-accent-brown"><Download size={20} /></div>
               <div>
                 <h4 className="font-medium text-text-primary">Exporter mes données</h4>
-                <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes, préférences, onboarding et collections.</p>
+                <p className="text-sm text-text-muted">Télécharger une sauvegarde JSON de vos favoris, notes, études bibliques, préférences, onboarding et collections.</p>
               </div>
             </button>
 

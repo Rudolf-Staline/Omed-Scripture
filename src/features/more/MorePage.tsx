@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Brain, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
+import { BookMarked, Bookmark, Brain, ChevronRight, Cloud, Download, Flame, HandHeart, NotebookPen, Settings, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
@@ -13,6 +13,7 @@ import { getUnifiedDailyActivity, getUnifiedStreak, timestampsToDayKeys } from '
 import { getMemoryStats } from '../../utils/memory';
 
 const menu = [
+  { to: '/study', label: 'Études', description: 'Observation, interprétation, application et prière', icon: BookMarked },
   { to: '/notes', label: 'Notes', description: 'Annotations et tags personnels', icon: NotebookPen },
   { to: '/favorites', label: 'Favoris', description: 'Versets sauvegardés', icon: Bookmark },
   { to: '/memory', label: 'Mémoriser', description: 'Versets à revoir et retenir', icon: Brain },

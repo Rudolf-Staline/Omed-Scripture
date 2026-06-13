@@ -9,6 +9,7 @@ export const DRIVE_FILES = {
   onboarding: 'omed_bible_onboarding.json',
   collections: 'omed_bible_collections.json',
   memory: 'omed_bible_memory.json',
+  studySessions: 'omed_bible_study_sessions.json',
   reminders: 'omed_bible_reminders.json',
 } as const;
 

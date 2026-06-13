@@ -18,6 +18,8 @@ import { MePage } from './features/me/MePage';
 import { OnboardingPage } from './features/onboarding/OnboardingPage';
 import { CollectionsPage } from './features/collections/CollectionsPage';
 import { MemoryPage } from './features/memory/MemoryPage';
+import { StudyPage } from './features/study/StudyPage';
+import { StudySessionEditor } from './features/study/StudySessionEditor';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -30,6 +32,7 @@ import { useOnboardingStore } from './store/useOnboardingStore';
 import { useCollectionsStore } from './store/useCollectionsStore';
 import { useMemoryStore } from './store/useMemoryStore';
 import { useReminderStore } from './store/useReminderStore';
+import { useStudyStore } from './store/useStudyStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
 import { CommandPalette } from './components/CommandPalette';
@@ -55,6 +58,7 @@ function App() {
   const loadCollections = useCollectionsStore((state) => state.loadCollections);
   const loadMemoryVerses = useMemoryStore((state) => state.loadMemoryVerses);
   const loadReminders = useReminderStore((state) => state.loadReminders);
+  const loadStudySessions = useStudyStore((state) => state.loadStudySessions);
   const reminderPreferences = useReminderStore((state) => state.preferences);
   const setPosition = useBibleStore((state) => state.setPosition);
 
@@ -91,7 +95,8 @@ function App() {
             remoteOnboarding,
             remoteCollections,
             remoteMemory,
-            remoteReminders
+            remoteReminders,
+            remoteStudySessions
           ] = await Promise.all([
             syncFileFromDrive(DRIVE_FILES.settings, token),
             syncFileFromDrive(DRIVE_FILES.favorites, token),
@@ -103,10 +108,11 @@ function App() {
             syncFileFromDrive(DRIVE_FILES.onboarding, token),
             syncFileFromDrive(DRIVE_FILES.collections, token),
             syncFileFromDrive(DRIVE_FILES.memory, token),
-            syncFileFromDrive(DRIVE_FILES.reminders, token)
+            syncFileFromDrive(DRIVE_FILES.reminders, token),
+            syncFileFromDrive(DRIVE_FILES.studySessions, token)
           ]);
 
-          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders || remoteStudySessions);
           if (hasRemoteData) backupLocalDataBeforeRestore();
 
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -120,6 +126,7 @@ function App() {
           if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
           if (isValidArray(remoteMemory)) loadMemoryVerses(remoteMemory);
           if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
+          if (isValidArray(remoteStudySessions)) loadStudySessions(remoteStudySessions);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
           if (isDriveSessionInvalidError(err)) {
@@ -131,7 +138,7 @@ function App() {
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadMemoryVerses, loadReminders, setPosition, expireSession]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadMemoryVerses, loadReminders, loadStudySessions, setPosition, expireSession]);
 
 
   useEffect(() => {
@@ -174,6 +181,8 @@ function App() {
           <Route path="/me" element={<MePage />} />
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/memory" element={<MemoryPage />} />
+          <Route path="/study" element={<StudyPage />} />
+          <Route path="/study/:sessionId" element={<StudySessionEditor />} />
           <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

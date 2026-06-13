@@ -23,6 +23,7 @@ export const buildCommands = (readerPath: string): PaletteCommand[] => {
     { id: 'go-search', label: 'Recherche', group: 'Aller à', kind: 'navigate', to: '/search', keywords: ['recherche', 'chercher', 'trouver', 'search'] },
     { id: 'go-favorites', label: 'Favoris', group: 'Aller à', kind: 'navigate', to: '/favorites', keywords: ['favoris', 'marque', 'pages', 'versets'] },
     { id: 'go-memory', label: 'Mémorisation', group: 'Aller à', kind: 'navigate', to: '/memory', keywords: ['memoire', 'mémoire', 'memoriser', 'mémoriser', 'reviser', 'réviser', 'versets'] },
+    { id: 'go-study', label: 'Études bibliques', group: 'Aller à', kind: 'navigate', to: '/study', keywords: ['etude', 'étude', 'biblique', 'observation', 'interpretation', 'application'] },
     { id: 'go-notes', label: 'Notes', group: 'Aller à', kind: 'navigate', to: '/notes', keywords: ['notes', 'carnet', 'annotations'] },
     { id: 'go-prayer', label: 'Carnet de prière', group: 'Aller à', kind: 'navigate', to: '/prayer', keywords: ['priere', 'prière', 'journal', 'gratitude'] },
     { id: 'go-plans', label: 'Plans de lecture', group: 'Aller à', kind: 'navigate', to: '/plans', keywords: ['parcours', 'plans', 'plan', 'lecture'] },
