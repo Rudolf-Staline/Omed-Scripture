@@ -20,3 +20,16 @@ Do not add copyrighted or protected Bible translations to the repository without
 
 ## Partial packs
 If a pack is partial, the UI and documentation should describe that limitation honestly so testers do not assume full Bible coverage.
+
+## Original editorial content (cross-references & study prompts)
+`src/data/crossReferences.ts` and `src/data/studyPrompts.ts` are **original**
+content written for Omed Scripture. They contain **no Bible text and no
+third-party material**:
+- Cross-references list only passage coordinates (book / chapter / verse) linked
+  by an obvious theme. No external cross-reference database is copied.
+- Study prompts are short, open-ended questions (Observation / Interpretation /
+  Application / Prayer). No commentary or devotional is copied; nothing is forced
+  into the user's notes.
+
+These structures are ready to receive additional, **licensed and documented**
+data later, following `docs/CONTENT_GOVERNANCE.md`.
