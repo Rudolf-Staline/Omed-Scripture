@@ -17,6 +17,7 @@ import { MorePage } from './features/more/MorePage';
 import { MePage } from './features/me/MePage';
 import { OnboardingPage } from './features/onboarding/OnboardingPage';
 import { CollectionsPage } from './features/collections/CollectionsPage';
+import { MemoryPage } from './features/memory/MemoryPage';
 import { NotFoundPage } from './features/not-found/NotFoundPage';
 import { useBibleStore } from './store/useBibleStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -27,6 +28,7 @@ import { usePlansStore } from './store/usePlansStore';
 import { usePrayerStore } from './store/usePrayerStore';
 import { useOnboardingStore } from './store/useOnboardingStore';
 import { useCollectionsStore } from './store/useCollectionsStore';
+import { useMemoryStore } from './store/useMemoryStore';
 import { useReminderStore } from './store/useReminderStore';
 import { syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidError } from './utils/driveSync';
 import { backupLocalDataBeforeRestore, isValidArray, isValidReadingPosition, isValidRecord } from './utils/backups';
@@ -51,6 +53,7 @@ function App() {
   const loadOnboarding = useOnboardingStore((state) => state.loadOnboarding);
   const onboardingCompleted = useOnboardingStore((state) => state.preferences.completed);
   const loadCollections = useCollectionsStore((state) => state.loadCollections);
+  const loadMemoryVerses = useMemoryStore((state) => state.loadMemoryVerses);
   const loadReminders = useReminderStore((state) => state.loadReminders);
   const reminderPreferences = useReminderStore((state) => state.preferences);
   const setPosition = useBibleStore((state) => state.setPosition);
@@ -87,6 +90,7 @@ function App() {
             remotePrayers,
             remoteOnboarding,
             remoteCollections,
+            remoteMemory,
             remoteReminders
           ] = await Promise.all([
             syncFileFromDrive(DRIVE_FILES.settings, token),
@@ -98,10 +102,11 @@ function App() {
             syncFileFromDrive(DRIVE_FILES.prayers, token),
             syncFileFromDrive(DRIVE_FILES.onboarding, token),
             syncFileFromDrive(DRIVE_FILES.collections, token),
+            syncFileFromDrive(DRIVE_FILES.memory, token),
             syncFileFromDrive(DRIVE_FILES.reminders, token)
           ]);
 
-          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteReminders);
+          const hasRemoteData = Boolean(remoteSettings || remoteFavorites || remoteHighlights || remoteNotes || remotePlans || remotePosition || remotePrayers || remoteOnboarding || remoteCollections || remoteMemory || remoteReminders);
           if (hasRemoteData) backupLocalDataBeforeRestore();
 
           if (isValidRecord(remoteSettings)) loadSettings(remoteSettings as unknown as Parameters<typeof loadSettings>[0]);
@@ -113,6 +118,7 @@ function App() {
           if (isValidArray(remotePrayers)) loadPrayers(remotePrayers as Parameters<typeof loadPrayers>[0]);
           if (isValidRecord(remoteOnboarding)) loadOnboarding(remoteOnboarding);
           if (isValidArray(remoteCollections)) loadCollections(remoteCollections);
+          if (isValidArray(remoteMemory)) loadMemoryVerses(remoteMemory);
           if (isValidRecord(remoteReminders)) loadReminders(remoteReminders);
         } catch (err) {
           console.error("Erreur de synchronisation automatique en arrière-plan", err);
@@ -125,7 +131,7 @@ function App() {
       };
       syncDown();
     }
-  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadReminders, setPosition, expireSession]);
+  }, [token, synced, loadSettings, loadFavorites, loadHighlights, loadNotes, loadPlans, loadPrayers, loadOnboarding, loadCollections, loadMemoryVerses, loadReminders, setPosition, expireSession]);
 
 
   useEffect(() => {
@@ -167,6 +173,7 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/me" element={<MePage />} />
           <Route path="/collections" element={<CollectionsPage />} />
+          <Route path="/memory" element={<MemoryPage />} />
           <Route path="/more" element={<MorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

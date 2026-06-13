@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { BookmarkPlus, Check, Copy, Edit3, Heart, MessageCircle, Palette, Share2, Type, X } from 'lucide-react';
+import { BookmarkPlus, Brain, Check, Copy, Edit3, Heart, MessageCircle, Palette, Share2, Type, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { Verse } from '../../utils/bibleApi';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useHighlightsStore } from '../../store/useHighlightsStore';
 import type { HighlightColor } from '../../store/useHighlightsStore';
 import { useNotesStore } from '../../store/useNotesStore';
+import { useMemoryStore } from '../../store/useMemoryStore';
 import { formatBibleReference } from '../../utils/bibleBooks';
 import { NoteModal } from '../../components/verse-actions/NoteModal';
 import { createShareVerseImage } from '../../components/verse-actions/shareVerseImage';
@@ -32,10 +33,13 @@ const IntentButton: React.FC<{
   helper?: string;
   onClick: (event: React.MouseEvent) => void;
   active?: boolean;
-}> = ({ icon, label, helper, onClick, active }) => (
+  ariaLabel?: string;
+}> = ({ icon, label, helper, onClick, active, ariaLabel }) => (
   <button
     type="button"
     onClick={onClick}
+    aria-label={ariaLabel ?? label}
+    aria-pressed={active}
     className={`group flex min-h-14 items-center gap-3 rounded-2xl border px-3 text-left transition-all ${active ? 'border-accent-gold/45 bg-accent-gold/14 text-accent-gold' : 'border-border bg-bg-card/45 text-text-secondary hover:border-accent-gold/35 hover:text-text-primary'}`}
   >
     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-bg-primary/70 text-accent-gold">{icon}</span>
@@ -57,9 +61,14 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
   const highlights = useHighlightsStore((state) => state.highlights);
   const addHighlight = useHighlightsStore((state) => state.addHighlight);
   const removeHighlight = useHighlightsStore((state) => state.removeHighlight);
+  const memoryVerses = useMemoryStore((state) => state.memoryVerses);
+  const addMemoryVerse = useMemoryStore((state) => state.addMemoryVerse);
+  const removeMemoryVerse = useMemoryStore((state) => state.removeMemoryVerse);
 
   const reference = formatBibleReference(bookId, verse.chapter, verse.verse);
   const isFavorite = favorites.some((favorite) => favorite.id === verseId);
+  const memoryVerse = memoryVerses.find((item) => item.verseId === verseId && item.translation === translation);
+  const isMemorized = Boolean(memoryVerse);
   const currentHighlight = highlights[verseId];
   const textToShare = `« ${verse.text} »\n— ${reference} (${translation.toUpperCase()})`;
 
@@ -72,6 +81,26 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
       addFavorite({ id: verseId, translation, bookId, chapter: verse.chapter, verse: verse.verse, text: verse.text, dateAdded: Date.now() });
       toast.success('Ajouté aux favoris !');
     }
+  };
+
+  const handleMemory = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (memoryVerse) {
+      removeMemoryVerse(memoryVerse.id);
+      toast('Retiré de la mémorisation', { icon: '🧠' });
+      return;
+    }
+
+    addMemoryVerse({
+      verseId,
+      translation,
+      bookId,
+      chapter: verse.chapter,
+      verse: verse.verse,
+      text: verse.text,
+      reference,
+    });
+    toast.success('Ajouté à la mémorisation !');
   };
 
   const handleHighlight = (color: HighlightColor, e: React.MouseEvent) => {
@@ -165,7 +194,10 @@ export const VerseActions: React.FC<VerseActionsProps> = ({ verse, verseId, tran
           <div className="space-y-3">
             <div>
               <p className="mb-2 text-[0.66rem] font-bold uppercase tracking-[0.18em] text-text-muted">Garder</p>
-              <IntentButton icon={<Heart size={17} className={isFavorite ? 'fill-accent-gold' : ''} />} label={isFavorite ? 'Favori gardé' : 'Ajouter aux favoris'} helper="mémoire" onClick={handleFavorite} active={isFavorite} />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <IntentButton icon={<Heart size={17} className={isFavorite ? 'fill-accent-gold' : ''} />} label={isFavorite ? 'Favori gardé' : 'Favori'} helper={isFavorite ? 'gardé' : 'garder'} onClick={handleFavorite} active={isFavorite} ariaLabel={isFavorite ? 'Retirer ce verset des favoris' : 'Ajouter ce verset aux favoris'} />
+                <IntentButton icon={<Brain size={17} className={isMemorized ? 'fill-accent-gold/20' : ''} />} label={isMemorized ? 'Mémorisé' : 'Mémoriser'} helper={isMemorized ? 'actif' : 'réviser'} onClick={handleMemory} active={isMemorized} ariaLabel={isMemorized ? 'Retirer ce verset de la mémorisation' : 'Ajouter ce verset à la mémorisation'} />
+              </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               <IntentButton icon={<Edit3 size={17} />} label="Écrire une note" helper="annoter" onClick={(e) => { e.stopPropagation(); setShowNoteModal(true); }} />

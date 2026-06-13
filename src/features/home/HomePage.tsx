@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenText, Bookmark, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun, WifiOff, Bell } from 'lucide-react';
+import { BookOpenText, Bookmark, Brain, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun, WifiOff, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
@@ -20,7 +20,9 @@ import { getUnifiedDailyActivity, getUnifiedStreak, getUnifiedWeek, timestampsTo
 import { getPersonalizedDailyPrompt, getTodayGoalStatus } from '../../utils/dailyGoals';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { useReminderStore } from '../../store/useReminderStore';
+import { useMemoryStore } from '../../store/useMemoryStore';
 import { getOfflineLibrarySummary } from '../../utils/offlineLibrary';
+import { formatDueLabel, getDueMemoryVerses, getMemoryStats } from '../../utils/memory';
 import { InstallPrompt } from '../../components/InstallPrompt';
 
 const formatDate = (value?: number) => value ? new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '—';
@@ -44,6 +46,7 @@ export const HomePage: React.FC = () => {
   const synced = useSettingsStore((state) => state.synced);
   const preferences = useOnboardingStore((state) => state.preferences);
   const reminder = useReminderStore((state) => state.preferences);
+  const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const isOnline = useOnlineStatus();
   const offlineSummary = getOfflineLibrarySummary();
 
@@ -77,6 +80,8 @@ export const HomePage: React.FC = () => {
   }), [routineDays, prayers, notes]);
   const unifiedStreak = useMemo(() => getUnifiedStreak(unifiedDays), [unifiedDays]);
   const week = useMemo(() => getUnifiedWeek(unifiedDays), [unifiedDays]);
+  const memoryStats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
+  const nextMemoryVerse = useMemo(() => getDueMemoryVerses(memoryVerses)[0] ?? [...memoryVerses].sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0], [memoryVerses]);
 
   const activePlan = useMemo(() => {
     return READING_PLANS
@@ -156,6 +161,7 @@ export const HomePage: React.FC = () => {
     { to: '/notes', label: 'Notes', icon: NotebookPen },
     { to: '/prayer', label: 'Prière', icon: HandHeart },
     { to: '/favorites', label: 'Favoris', icon: Bookmark },
+    { to: '/memory', label: 'Mémoriser', icon: Brain },
     { to: '/collections', label: 'Collections', icon: Bookmark },
   ];
 
@@ -251,6 +257,21 @@ export const HomePage: React.FC = () => {
         >
           {routineDone ? <><Check size={18} /> Routine terminée</> : <><Check size={18} /> Commencer aujourd’hui</>}
         </button>
+      </section>
+
+
+      <section className="rounded-[1.7rem] border border-border bg-bg-card p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-gold/14 text-accent-gold"><Brain size={21} /></span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-text-muted">Mémorisation</p>
+            <h2 className="mt-1 text-xl font-bold text-text-primary">{memoryStats.due} verset{memoryStats.due > 1 ? 's' : ''} à revoir</h2>
+            <p className="mt-1 line-clamp-2 text-sm text-text-secondary">
+              {nextMemoryVerse ? `${nextMemoryVerse.reference} · ${formatDueLabel(nextMemoryVerse.dueAt)}` : 'Ajoutez un verset depuis le lecteur pour lancer votre première révision.'}
+            </p>
+          </div>
+          <Link to="/memory" className="inline-flex min-h-11 shrink-0 items-center rounded-2xl bg-accent-gold px-4 text-sm font-semibold text-white">Réviser</Link>
+        </div>
       </section>
 
       {/* Progression */}
