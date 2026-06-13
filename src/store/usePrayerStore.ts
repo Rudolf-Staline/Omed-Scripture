@@ -54,6 +54,8 @@ const isPrayerEntry = (value: unknown): value is PrayerEntry => {
 const sanitizePrayers = (value: unknown): PrayerEntry[] =>
   Array.isArray(value) ? value.filter(isPrayerEntry) : [];
 
+export { sanitizePrayers };
+
 const getInitialPrayers = (): PrayerEntry[] => {
   try {
     const stored = localStorage.getItem(OMED_STORAGE_KEYS.prayers);
