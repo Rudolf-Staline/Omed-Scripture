@@ -16,7 +16,7 @@ export interface Note {
 
 interface NotesState {
   notes: Note[];
-  addNote: (note: Omit<Note, 'id' | 'dateAdded' | 'dateModified'>) => void;
+  addNote: (note: Omit<Note, 'id' | 'dateAdded' | 'dateModified'>) => string;
   updateNote: (id: string, text: string, tags?: string[]) => void;
   removeNote: (id: string) => void;
   loadNotes: (notes: Note[]) => void;
@@ -37,12 +37,13 @@ const getInitialNotes = (): Note[] => {
 
 export const useNotesStore = create<NotesState>((set) => ({
   notes: getInitialNotes(),
-  addNote: (noteData) =>
+  addNote: (noteData) => {
+    const now = Date.now();
+    const id = `note-${now}`;
     set((state) => {
-      const now = Date.now();
       const newNote: Note = {
         ...noteData,
-        id: `note-${now}`,
+        id,
         dateAdded: now,
         dateModified: now,
       };
@@ -56,7 +57,9 @@ export const useNotesStore = create<NotesState>((set) => ({
       }
       
       return { notes: newNotes };
-    }),
+    });
+    return id;
+  },
   updateNote: (id, text, tags) =>
     set((state) => {
       const newNotes = state.notes.map((n) =>

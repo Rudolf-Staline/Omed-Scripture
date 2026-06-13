@@ -8,6 +8,7 @@ import type { Settings } from '../store/useSettingsStore';
 import type { OnboardingPreferences } from '../types/onboarding';
 import type { SpiritualCollection } from '../types/collections';
 import type { MemoryVerse } from '../types/memory';
+import type { StudySession } from '../types/study';
 import type { BibleState } from '../store/useBibleStore';
 import type { ReminderPreferences } from './reminders';
 
@@ -29,6 +30,7 @@ export interface OmedBackup {
   collections?: SpiritualCollection[];
   memory?: MemoryVerse[];
   reminders?: ReminderPreferences;
+  studySessions?: StudySession[];
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -63,7 +65,8 @@ export const validateBackup = (value: unknown): value is OmedBackup => {
     (value.onboarding === undefined || isRecord(value.onboarding)) &&
     (value.collections === undefined || Array.isArray(value.collections)) &&
     (value.memory === undefined || Array.isArray(value.memory)) &&
-    (value.reminders === undefined || isRecord(value.reminders))
+    (value.reminders === undefined || isRecord(value.reminders)) &&
+    (value.studySessions === undefined || Array.isArray(value.studySessions))
   );
 };
 

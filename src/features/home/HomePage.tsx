@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpenText, Bookmark, Brain, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun, WifiOff, Bell } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BookMarked, BookOpenText, Bookmark, Brain, CalendarRange, Check, ChevronRight, Compass, Copy, Flame, HandHeart, Heart, NotebookPen, Settings, Share2, Sparkles, Sun, WifiOff, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
@@ -21,6 +21,7 @@ import { getPersonalizedDailyPrompt, getTodayGoalStatus } from '../../utils/dail
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 import { useReminderStore } from '../../store/useReminderStore';
 import { useMemoryStore } from '../../store/useMemoryStore';
+import { useStudyStore } from '../../store/useStudyStore';
 import { getOfflineLibrarySummary } from '../../utils/offlineLibrary';
 import { formatDueLabel, getDueMemoryVerses, getMemoryStats } from '../../utils/memory';
 import { InstallPrompt } from '../../components/InstallPrompt';
@@ -36,6 +37,7 @@ const greeting = (): string => {
 };
 
 export const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const { translation, bookId, chapter } = useBibleStore();
   const favorites = useFavoritesStore((state) => state.favorites);
   const addFavorite = useFavoritesStore((state) => state.addFavorite);
@@ -47,6 +49,8 @@ export const HomePage: React.FC = () => {
   const preferences = useOnboardingStore((state) => state.preferences);
   const reminder = useReminderStore((state) => state.preferences);
   const memoryVerses = useMemoryStore((state) => state.memoryVerses);
+  const studySessions = useStudyStore((state) => state.sessions);
+  const createStudySession = useStudyStore((state) => state.createStudySession);
   const isOnline = useOnlineStatus();
   const offlineSummary = getOfflineLibrarySummary();
 
@@ -76,12 +80,16 @@ export const HomePage: React.FC = () => {
     readingDays: getReadingDays(),
     routineCompletedDays: routineDays.filter((day) => day.completedAt).map((day) => day.date),
     extraDays: timestampsToDayKeys(prayers.map((prayer) => prayer.lastPrayedAt)),
-    noteTimestamps: notes.map((note) => note.dateAdded),
-  }), [routineDays, prayers, notes]);
+    noteTimestamps: [
+      ...notes.map((note) => note.dateAdded),
+      ...studySessions.map((session) => Date.parse(session.updatedAt)).filter((time) => !Number.isNaN(time)),
+    ],
+  }), [routineDays, prayers, notes, studySessions]);
   const unifiedStreak = useMemo(() => getUnifiedStreak(unifiedDays), [unifiedDays]);
   const week = useMemo(() => getUnifiedWeek(unifiedDays), [unifiedDays]);
   const memoryStats = useMemo(() => getMemoryStats(memoryVerses), [memoryVerses]);
   const nextMemoryVerse = useMemo(() => getDueMemoryVerses(memoryVerses)[0] ?? [...memoryVerses].sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0], [memoryVerses]);
+  const latestStudySession = useMemo(() => [...studySessions].filter((session) => session.status !== 'archived').sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0] ?? null, [studySessions]);
 
   const activePlan = useMemo(() => {
     return READING_PLANS
@@ -154,10 +162,16 @@ export const HomePage: React.FC = () => {
   };
 
   const planPercent = activePlan ? Math.round((activePlan.planProgress.completedDays.length / activePlan.plan.durationDays) * 100) : 0;
+  const createHomeStudySession = () => {
+    const reference = `${getBookName(bookId)} ${chapter}`;
+    const id = createStudySession({ translation, bookId, chapter, reference, title: `Étude — ${reference}` });
+    navigate(`/study/${id}`);
+  };
   const shortcuts = [
     { to: continuePath, label: 'Bible', icon: BookOpenText },
     { to: '/plans', label: 'Plans', icon: CalendarRange },
     { to: '/discover', label: 'Découvrir', icon: Compass },
+    { to: '/study', label: 'Études', icon: BookMarked },
     { to: '/notes', label: 'Notes', icon: NotebookPen },
     { to: '/prayer', label: 'Prière', icon: HandHeart },
     { to: '/favorites', label: 'Favoris', icon: Bookmark },
@@ -207,6 +221,21 @@ export const HomePage: React.FC = () => {
           <Link to={dailyVersePath} className="col-span-3 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent-gold px-4 font-semibold text-white sm:col-span-1"><BookOpenText size={18} /> Lire</Link>
           <button type="button" onClick={copyDailyVerse} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-bg-primary px-4 font-semibold text-text-primary"><Copy size={18} /> Copier</button>
           <button type="button" onClick={shareDailyVerse} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-bg-primary px-4 font-semibold text-text-primary"><Share2 size={18} /> Partager</button>
+        </div>
+      </section>
+
+
+      <section className="rounded-[2rem] border border-border bg-bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-accent-gold"><BookMarked size={14} /> Étude biblique</p>
+            <h2 className="mt-1 text-xl font-bold text-text-primary">{latestStudySession ? latestStudySession.title : 'Approfondir le passage actuel'}</h2>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">{latestStudySession ? `${latestStudySession.reference} · ${latestStudySession.status === 'draft' ? 'brouillon en cours' : 'dernière session'}` : `Créez une session Observation · Interprétation · Application · Prière sur ${getBookName(bookId)} ${chapter}.`}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {latestStudySession && <Link to={`/study/${latestStudySession.id}`} className="inline-flex min-h-11 items-center rounded-2xl bg-accent-gold px-4 font-bold text-white">Continuer</Link>}
+            <button type="button" onClick={createHomeStudySession} className="inline-flex min-h-11 items-center rounded-2xl border border-border px-4 font-semibold text-text-primary">Nouvelle étude</button>
+          </div>
         </div>
       </section>
 

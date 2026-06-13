@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenText, Bookmark, Boxes, Brain, Cloud, Flame, HandHeart, NotebookPen, Settings, Sparkles, UserCircle } from 'lucide-react';
+import { BookMarked, BookOpenText, Bookmark, Boxes, Brain, Cloud, Flame, HandHeart, NotebookPen, Settings, Sparkles, UserCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useBibleStore } from '../../store/useBibleStore';
 import { useCollectionsStore } from '../../store/useCollectionsStore';
@@ -18,6 +18,7 @@ import { getBookName } from '../../utils/bibleBooks';
 import { getMemoryStats, formatDueLabel } from '../../utils/memory';
 import { getOfflineLibrarySummary, formatApproxSize } from '../../utils/offlineLibrary';
 import { useReminderStore } from '../../store/useReminderStore';
+import { useStudyStore } from '../../store/useStudyStore';
 
 export const MePage: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -32,16 +33,20 @@ export const MePage: React.FC = () => {
   const memoryVerses = useMemoryStore((state) => state.memoryVerses);
   const progress = usePlansStore((state) => state.progress);
   const collections = useCollectionsStore((state) => state.collections);
+  const studySessions = useStudyStore((state) => state.sessions);
   const goal = getTodayGoalStatus(preferences, days);
   const weekly = getWeeklyGoalProgress(days);
   const reminder = useReminderStore((state) => state.preferences);
   const offlineSummary = getOfflineLibrarySummary();
   const memoryStats = getMemoryStats(memoryVerses);
   const activePlans = Object.values(progress).filter((plan) => plan.completedDays.length > 0).length;
+  const draftStudyCount = studySessions.filter((session) => session.status === 'draft').length;
+  const completedStudyCount = studySessions.filter((session) => session.status === 'completed').length;
 
   const stats = [
     { label: 'Série', value: `${weekly.streak} j`, icon: Flame },
     { label: 'Semaine', value: `${weekly.completedThisWeek}/7`, icon: Sparkles },
+    { label: 'Études', value: studySessions.length, icon: BookMarked },
     { label: 'Notes', value: notes.length, icon: NotebookPen },
     { label: 'Favoris', value: favorites.length, icon: Bookmark },
     { label: 'Mémoire', value: memoryStats.due, icon: Brain },
@@ -66,6 +71,12 @@ export const MePage: React.FC = () => {
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">{stats.map((stat) => <article key={stat.label} className="rounded-3xl border border-border bg-bg-card p-4"><stat.icon size={18} className="text-accent-gold" /><p className="mt-3 text-2xl font-bold text-text-primary">{stat.value}</p><p className="text-sm text-text-muted">{stat.label}</p></article>)}</section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <article className="rounded-[1.7rem] border border-border bg-bg-card p-5 lg:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><h2 className="text-xl font-bold text-text-primary">Études bibliques</h2><p className="mt-2 text-text-secondary">{studySessions.length} session(s), {draftStudyCount} brouillon(s), {completedStudyCount} terminée(s).</p></div>
+            <Link to="/study" className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-accent-gold px-4 font-bold text-white"><BookMarked size={18} /> Voir mes études</Link>
+          </div>
+        </article>
         <article className="rounded-[1.7rem] border border-border bg-bg-card p-5">
           <h2 className="text-xl font-bold text-text-primary">Objectif quotidien</h2>
           <p className="mt-2 text-text-secondary">{goal.label} · {goal.completed ? 'terminé aujourd’hui' : 'encore à vivre aujourd’hui'} · {activePlans} plan(s) démarré(s).</p>

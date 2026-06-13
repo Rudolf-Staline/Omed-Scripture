@@ -26,7 +26,7 @@ export const PRAYER_STATUSES: PrayerStatus[] = ['active', 'answered', 'archived'
 
 interface PrayerState {
   prayers: PrayerEntry[];
-  addPrayer: (entry: Omit<PrayerEntry, 'id' | 'status' | 'dateAdded' | 'dateModified'>) => void;
+  addPrayer: (entry: Omit<PrayerEntry, 'id' | 'status' | 'dateAdded' | 'dateModified'>) => string;
   updatePrayer: (id: string, patch: Partial<Pick<PrayerEntry, 'title' | 'content' | 'category' | 'verseRef'>>) => void;
   setPrayerStatus: (id: string, status: PrayerStatus) => void;
   markPrayed: (id: string) => void;
@@ -76,12 +76,13 @@ const persistPrayers = (prayers: PrayerEntry[]) => {
 
 export const usePrayerStore = create<PrayerState>((set) => ({
   prayers: getInitialPrayers(),
-  addPrayer: (entry) =>
+  addPrayer: (entry) => {
+    const now = Date.now();
+    const id = `prayer-${now}-${Math.random().toString(36).slice(2, 8)}`;
     set((state) => {
-      const now = Date.now();
       const newEntry: PrayerEntry = {
         ...entry,
-        id: `prayer-${now}-${Math.random().toString(36).slice(2, 8)}`,
+        id,
         status: 'active',
         dateAdded: now,
         dateModified: now,
@@ -89,7 +90,9 @@ export const usePrayerStore = create<PrayerState>((set) => ({
       const prayers = [newEntry, ...state.prayers];
       persistPrayers(prayers);
       return { prayers };
-    }),
+    });
+    return id;
+  },
   updatePrayer: (id, patch) =>
     set((state) => {
       const prayers = state.prayers.map((entry) =>
