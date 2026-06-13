@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { History, Loader2, Search as SearchIcon, SlidersHorizontal, Sparkles, X, WifiOff } from 'lucide-react';
-import { BIBLE_BOOKS, FEATURED_TRANSLATIONS, searchVerses } from '../../utils/bibleApi';
+import { BIBLE_BOOKS, FEATURED_TRANSLATIONS, searchVersesWithSource } from '../../utils/bibleApi';
 import type { SearchResult } from '../../utils/bibleApi';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { EmptyState } from '../../components/EmptyState';
@@ -30,6 +30,7 @@ export const SearchPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [resultSource, setResultSource] = useState<'local' | 'api' | null>(null);
   const [testamentFilter, setTestamentFilter] = useState<TestamentFilter>('tous');
   const [bookFilter, setBookFilter] = useState('tous');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -42,12 +43,6 @@ export const SearchPage: React.FC = () => {
   const runSearch = async (raw: string) => {
     const clean = raw.trim();
     if (!clean) return;
-    if (!isOnline) {
-      setHasSearched(true);
-      setResults([]);
-      setError('La recherche complète nécessite internet. Hors ligne, ouvrez les chapitres déjà consultés ou sauvegardés.');
-      return;
-    }
     setQuery(clean);
     setLoading(true);
     setError(null);
@@ -56,13 +51,15 @@ export const SearchPage: React.FC = () => {
     setBookFilter('tous');
     setSelectedTopicId(null);
     try {
-      const data = await searchVerses(translation, clean);
-      setResults(data);
+      const data = await searchVersesWithSource(translation, clean);
+      setResults(data.results);
+      setResultSource(data.source);
       setSearchedTerm(clean);
       setHistory(addSearchHistoryEntry(clean));
     } catch (err) {
       setResults([]);
-      setError(err instanceof Error ? err.message : 'La recherche n’a pas abouti.');
+      setResultSource(null);
+      setError(!isOnline ? 'Aucun index local n’est disponible pour cette traduction et la recherche API nécessite internet.' : err instanceof Error ? err.message : 'La recherche n’a pas abouti.');
     } finally {
       setLoading(false);
     }
@@ -91,6 +88,7 @@ export const SearchPage: React.FC = () => {
     setQuery(topic.query);
     setResults([]);
     setSearchedTerm('');
+    setResultSource(null);
     setError(null);
     setHasSearched(false);
     setTestamentFilter('tous');
@@ -107,7 +105,7 @@ export const SearchPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      {!isOnline && <div className="flex items-center gap-2 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary"><WifiOff size={18} className="text-accent-brown" /> Hors ligne : Discover et la recherche complète sont limités aux chapitres déjà consultés ou sauvegardés depuis le lecteur.</div>}
+      {!isOnline && <div className="flex items-center gap-2 rounded-3xl border border-border bg-bg-card p-4 text-sm text-text-secondary"><WifiOff size={18} className="text-accent-brown" /> Hors ligne : la recherche utilise les index locaux disponibles, sinon les versions API nécessitent internet.</div>}
       <header className="rounded-[2rem] border border-border bg-bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6">
         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-accent-gold"><Sparkles size={15} /> Découvrir</p>
         <h1 className="mt-2 text-3xl font-bold text-text-primary">Rechercher un passage ou un thème</h1>
@@ -174,11 +172,11 @@ export const SearchPage: React.FC = () => {
               </div>
             </div>
           )}
-          {!loading && results.length > 0 && <p className="text-sm font-semibold text-text-secondary">{filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''} · {groupedResults.length} livre{groupedResults.length > 1 ? 's' : ''} · {translationName}</p>}
+          {!loading && results.length > 0 && <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text-secondary">{filteredResults.length} résultat{filteredResults.length > 1 ? 's' : ''} · {groupedResults.length} livre{groupedResults.length > 1 ? 's' : ''} · {translationName}<span className="rounded-full border border-border bg-bg-card px-2 py-0.5 text-xs font-bold text-accent-gold">{resultSource === 'local' ? 'local/offline' : 'API'}</span></p>}
           {groupedResults.map((group) => (
             <section key={group.bookId} className="space-y-2">
               <h3 className="sticky top-0 z-10 bg-bg-primary/90 py-1 text-sm font-bold uppercase tracking-wide text-accent-gold backdrop-blur">{group.name} <span className="text-text-muted">· {group.items.length}</span></h3>
-              {group.items.map((result, index) => <article key={`${result.book_id}-${result.chapter_id}-${index}`} className="rounded-3xl border border-border bg-bg-card p-4"><p className="font-bold text-accent-gold">{result.reference}</p><p className="mt-2 leading-7 text-text-primary"><HighlightedText text={result.text} term={searchedTerm} /></p><button type="button" onClick={() => openResult(result)} className="mt-3 min-h-10 rounded-2xl border border-border bg-bg-primary px-3 text-sm font-semibold text-text-primary">Ouvrir le chapitre</button></article>)}
+              {group.items.map((result, index) => <article key={`${result.book_id}-${result.chapter_id}-${index}`} className="rounded-3xl border border-border bg-bg-card p-4"><div className="flex flex-wrap items-center gap-2"><p className="font-bold text-accent-gold">{result.reference}</p>{result.source === 'local' && <span className="rounded-full bg-accent-gold/12 px-2 py-0.5 text-xs font-bold text-accent-gold">offline</span>}</div><p className="mt-2 leading-7 text-text-primary"><HighlightedText text={result.text} term={searchedTerm} /></p><button type="button" onClick={() => openResult(result)} className="mt-3 min-h-10 rounded-2xl border border-border bg-bg-primary px-3 text-sm font-semibold text-text-primary">Ouvrir le chapitre</button></article>)}
             </section>
           ))}
         </section>

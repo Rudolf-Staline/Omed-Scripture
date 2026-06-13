@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bible:validate": "node scripts/bible/validateBibleData.mjs",
+    "bible:index": "node scripts/bible/buildSearchIndex.mjs",
+    "bible:build": "npm run bible:index && npm run bible:validate"
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.4",

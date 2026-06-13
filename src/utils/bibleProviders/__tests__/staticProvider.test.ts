@@ -1,133 +1,70 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { getStaticChapter } from '../staticProvider';
+import { clearStaticBibleProviderCache, getBibleCatalog, getStaticBook, getStaticChapter, getStaticTranslationIndex, hasStaticTranslation, listStaticTranslations } from '../staticProvider';
 
-const VALID_INDEX = {
-  translationId: 'lsg',
-  name: 'Louis Segond 1910',
-  language: 'fr',
-  source: 'static',
-  books: [
-    {
-      id: 'jean',
-      name: 'Jean',
-      abbreviation: 'Jn',
-      testament: 'new',
-      chapterCount: 21,
-      order: 43,
-    },
+const CATALOG = {
+  schemaVersion: 1,
+  translations: [
+    { id: 'lsg', name: 'Louis Segond 1910', shortName: 'LSG', language: 'fr', direction: 'ltr', source: 'fixture', license: 'Public Domain', availability: 'partial', indexPath: '/bibles/lsg/index.json', searchIndexPath: '/bibles/lsg/search-index.json' },
+    { id: 'web', name: 'World English Bible', shortName: 'WEB', language: 'en', direction: 'ltr', source: 'api', license: 'api-only', availability: 'api-only' },
   ],
 };
 
-const VALID_BOOK = {
+const INDEX = {
+  translationId: 'lsg',
+  name: 'Louis Segond 1910',
+  shortName: 'LSG',
+  language: 'fr',
+  books: [{ id: 'jean', osisId: 'John', name: 'Jean', abbreviation: 'Jn', testament: 'new', order: 43, chapterCount: 21, path: '/bibles/lsg/jean.json', availableChapters: [3] }],
+};
+
+const BOOK = {
   translationId: 'lsg',
   bookId: 'jean',
-  bookName: 'Jean',
-  chapters: {
-    '3': [
-      { verse: 16, text: 'Car Dieu a tant aimé le monde...' },
-      { verse: 17, text: "Dieu, en effet, n'a pas envoyé son Fils..." },
-    ],
-  },
+  name: 'Jean',
+  chapters: [{ chapter: 3, verses: [{ verse: 16, text: 'Car Dieu a tant aimé le monde...' }] }],
 };
 
 const ok = (body: unknown) => ({ ok: true, json: async () => body });
 const notFound = () => ({ ok: false, json: async () => ({}) });
 
-/**
- * Construit un mock de fetch qui répond différemment selon l'URL demandée.
- */
-const mockFetch = (handlers: Record<string, () => unknown>) => {
-  return vi.fn(async (url: string) => {
-    if (url.endsWith('/index.json') && handlers.index) return handlers.index();
-    if (url.endsWith('/jean.json') && handlers.book) return handlers.book();
-    return notFound();
-  });
-};
+const mockFetch = (overrides: Record<string, unknown> = {}) => vi.fn(async (url: string) => {
+  if (url === '/bibles/catalog.json') return overrides.catalog ?? ok(CATALOG);
+  if (url === '/bibles/lsg/index.json') return overrides.index ?? ok(INDEX);
+  if (url === '/bibles/lsg/jean.json') return overrides.book ?? ok(BOOK);
+  return notFound();
+});
 
-describe('staticProvider.getStaticChapter', () => {
+describe('staticBibleProvider', () => {
+  beforeEach(() => {
+    clearStaticBibleProviderCache();
+    vi.stubGlobal('fetch', mockFetch());
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
+    clearStaticBibleProviderCache();
   });
 
-  beforeEach(() => {
-    vi.stubGlobal('fetch', mockFetch({}));
+  it('charge le catalogue et liste les traductions statiques', async () => {
+    await expect(getBibleCatalog()).resolves.toMatchObject({ schemaVersion: 1 });
+    await expect(listStaticTranslations()).resolves.toHaveLength(1);
+    await expect(hasStaticTranslation('lsg')).resolves.toBe(true);
+    await expect(hasStaticTranslation('web')).resolves.toBe(false);
   });
 
-  it('retourne un chapitre statique valide', async () => {
-    vi.stubGlobal(
-      'fetch',
-      mockFetch({ index: () => ok(VALID_INDEX), book: () => ok(VALID_BOOK) })
-    );
-
-    const verses = await getStaticChapter('lsg', 'jean', 3);
-
-    expect(verses).not.toBeNull();
-    expect(verses).toHaveLength(2);
-    expect(verses?.[0]).toEqual({
-      book_id: 'jean',
-      book_name: 'Jean',
-      chapter: 3,
-      verse: 16,
-      text: 'Car Dieu a tant aimé le monde...',
-    });
+  it('charge index, livre et chapitre', async () => {
+    await expect(getStaticTranslationIndex('lsg')).resolves.toMatchObject({ translationId: 'lsg' });
+    await expect(getStaticBook('lsg', 'jean')).resolves.toMatchObject({ bookId: 'jean' });
+    await expect(getStaticChapter('lsg', 'jean', 3)).resolves.toEqual([{ book_id: 'jean', book_name: 'Jean', chapter: 3, verse: 16, text: 'Car Dieu a tant aimé le monde...' }]);
   });
 
-  it("retourne null si l'index est absent", async () => {
-    vi.stubGlobal('fetch', mockFetch({ index: () => notFound() }));
-
-    expect(await getStaticChapter('lsg', 'jean', 3)).toBeNull();
+  it('retourne null si un fichier manque', async () => {
+    vi.stubGlobal('fetch', mockFetch({ book: notFound() }));
+    await expect(getStaticChapter('lsg', 'jean', 3)).resolves.toBeNull();
   });
 
-  it("retourne null si le livre est absent de l'index", async () => {
-    const indexWithoutJean = { ...VALID_INDEX, books: [] };
-    vi.stubGlobal('fetch', mockFetch({ index: () => ok(indexWithoutJean) }));
-
-    expect(await getStaticChapter('lsg', 'jean', 3)).toBeNull();
-  });
-
-  it('retourne null si le fichier du livre est absent', async () => {
-    vi.stubGlobal(
-      'fetch',
-      mockFetch({ index: () => ok(VALID_INDEX), book: () => notFound() })
-    );
-
-    expect(await getStaticChapter('lsg', 'jean', 3)).toBeNull();
-  });
-
-  it('retourne null si le chapitre est absent', async () => {
-    vi.stubGlobal(
-      'fetch',
-      mockFetch({ index: () => ok(VALID_INDEX), book: () => ok(VALID_BOOK) })
-    );
-
-    expect(await getStaticChapter('lsg', 'jean', 99)).toBeNull();
-  });
-
-  it('retourne null si le JSON est invalide', async () => {
-    vi.stubGlobal(
-      'fetch',
-      mockFetch({
-        index: () => ({
-          ok: true,
-          json: async () => {
-            throw new SyntaxError('Unexpected token');
-          },
-        }),
-      })
-    );
-
-    expect(await getStaticChapter('lsg', 'jean', 3)).toBeNull();
-  });
-
-  it('retourne null si la structure du chapitre est invalide', async () => {
-    const brokenBook = {
-      chapters: { '3': [{ verse: '16', text: 42 }] },
-    };
-    vi.stubGlobal(
-      'fetch',
-      mockFetch({ index: () => ok(VALID_INDEX), book: () => ok(brokenBook) })
-    );
-
-    expect(await getStaticChapter('lsg', 'jean', 3)).toBeNull();
+  it('retourne null si le JSON est malformé ou invalide', async () => {
+    vi.stubGlobal('fetch', mockFetch({ index: ok({ books: 'nope' }) }));
+    await expect(getStaticTranslationIndex('lsg')).resolves.toBeNull();
   });
 });

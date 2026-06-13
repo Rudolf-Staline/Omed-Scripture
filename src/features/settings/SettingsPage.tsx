@@ -35,6 +35,8 @@ import { ContentDeck } from '../../components/layout/ContentDeck';
 import { StudyPanel } from '../../components/layout/StudyPanel';
 import { cleanRecentChapterCache, clearOfflineLibrary, formatApproxSize, getOfflineLibrarySummary } from '../../utils/offlineLibrary';
 import type { OfflineLibrarySummary } from '../../utils/offlineLibrary';
+import { listStaticTranslations, getStaticTranslationIndex } from '../../utils/staticBibleProvider';
+import type { BibleTranslationMeta } from '../../types/bibleData';
 import { useOnlineStatus } from '../../utils/useOnlineStatus';
 
 export const SettingsPage: React.FC = () => {
@@ -43,6 +45,7 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [syncing, setSyncing] = useState(false);
   const [offlineSummary, setOfflineSummary] = useState<OfflineLibrarySummary>(() => getOfflineLibrarySummary());
+  const [staticTranslations, setStaticTranslations] = useState<Array<BibleTranslationMeta & { bookCount: number; chapterCount: number }>>([]);
   const isOnline = useOnlineStatus();
 
   const { loadFavorites, favorites } = useFavoritesStore();
@@ -74,6 +77,22 @@ export const SettingsPage: React.FC = () => {
     const refresh = () => setOfflineSummary(getOfflineLibrarySummary());
     window.addEventListener('storage', refresh);
     return () => window.removeEventListener('storage', refresh);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    void listStaticTranslations().then(async (translations) => {
+      const withCounts = await Promise.all(translations.map(async (translationMeta) => {
+        const index = await getStaticTranslationIndex(translationMeta.id);
+        return {
+          ...translationMeta,
+          bookCount: index?.books.length ?? 0,
+          chapterCount: index?.books.reduce((sum, book) => sum + (book.availableChapters?.length ?? book.chapterCount), 0) ?? 0,
+        };
+      }));
+      if (mounted) setStaticTranslations(withCounts);
+    });
+    return () => { mounted = false; };
   }, []);
 
   const refreshOfflineSummary = () => setOfflineSummary(getOfflineLibrarySummary());
@@ -384,7 +403,28 @@ export const SettingsPage: React.FC = () => {
               <div className="rounded-2xl border border-border bg-bg-primary p-4"><p className="text-2xl font-bold text-text-primary">{offlineSummary.manualCount}</p><p>sauvegardés manuellement</p></div>
               <div className="rounded-2xl border border-border bg-bg-primary p-4"><p className="text-2xl font-bold text-text-primary">{formatApproxSize(offlineSummary.totalSizeApprox)}</p><p>taille estimée</p></div>
             </div>
-            <p className="rounded-2xl border border-border bg-bg-primary/60 p-3">État réseau : {isOnline ? 'en ligne' : 'hors ligne'}. La recherche complète et les nouveaux chapitres peuvent nécessiter internet.</p>
+            <p className="rounded-2xl border border-border bg-bg-primary/60 p-3">État réseau : {isOnline ? 'en ligne' : 'hors ligne'}. Les packs statiques et chapitres en cache fonctionnent sans API ; les versions API-only peuvent nécessiter internet.</p>
+            <div className="rounded-2xl border border-border bg-bg-primary/60 p-3">
+              <p className="font-bold text-text-primary">Packs bibliques statiques</p>
+              <p className="mt-1">Les packs statiques sont servis depuis <code>/public/bibles</code> et restent disponibles sans API après mise en cache PWA. Les versions API-only peuvent nécessiter internet.</p>
+              <div className="mt-3 space-y-2">
+                {staticTranslations.length === 0 ? <p>Aucun pack statique valide détecté.</p> : staticTranslations.map((item) => (
+                  <div key={item.id} className="rounded-xl border border-border bg-bg-card p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <strong className="text-text-primary">{item.name} ({item.shortName})</strong>
+                      <span className="rounded-full bg-accent-gold/12 px-2 py-0.5 text-xs font-bold text-accent-gold">{item.availability === 'partial' ? 'partiel statique' : 'statique intégré'}</span>
+                    </div>
+                    <p className="mt-1 text-xs">{item.bookCount} livre(s) · {item.chapterCount} chapitre(s) déclaré(s) · licence : {item.license}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {FEATURED_TRANSLATIONS.filter((translationItem) => !staticTranslations.some((item) => item.id === translationItem.id)).map((translationItem) => (
+                  <span key={translationItem.id} className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold">{translationItem.short} · API seulement</span>
+                ))}
+              </div>
+            </div>
+
             <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
               {offlineSummary.chapters.length === 0 ? <p>Aucun chapitre n’est encore en cache. Ouvrez un chapitre ou utilisez “Sauvegarder hors ligne” dans le lecteur.</p> : offlineSummary.chapters.map((item) => (
                 <div key={`${item.translation}-${item.bookId}-${item.chapter}`} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-primary p-3">
