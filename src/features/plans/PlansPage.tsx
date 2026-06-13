@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarRange, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CalendarRange, CheckCircle2, ChevronRight } from 'lucide-react';
 import { READING_PLANS } from '../../data/readingPlans';
+import { GUIDED_JOURNEYS } from '../../data/guidedJourneys';
 import { usePlansStore } from '../../store/usePlansStore';
 import { PlanCard } from '../../components/plans/PlanCard';
 import { PlanFilterChips } from '../../components/plans/PlanFilterChips';
@@ -57,6 +59,24 @@ export const PlansPage: React.FC = () => {
         <h1 className="mt-2 text-3xl font-bold text-text-primary">Catalogue de lecture</h1>
         <p className="mt-2 max-w-2xl text-text-secondary">Reprenez un parcours en cours ou choisissez-en un selon sa durée et son thème.</p>
       </header>
+
+      <Section title="Parcours guidés">
+        <p className="-mt-2 mb-3 text-sm text-text-secondary">Vous ne savez pas par où commencer ? Choisissez un parcours, on vous guide pas à pas.</p>
+        <div className="flex snap-x gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3">
+          {GUIDED_JOURNEYS.map((journey) => (
+            <Link
+              key={journey.id}
+              to={journey.action.route}
+              className="flex w-60 shrink-0 snap-start flex-col rounded-2xl border border-border bg-bg-card p-4 hover:border-accent-gold/45 sm:w-auto"
+            >
+              <span className="flex items-center gap-2 text-accent-gold"><journey.icon size={18} /><span className="text-xs font-bold uppercase tracking-wide text-text-muted">{journey.durationLabel}</span></span>
+              <span className="mt-2 font-bold text-text-primary">{journey.title}</span>
+              <span className="mt-1 line-clamp-2 flex-1 text-sm text-text-secondary">{journey.description}</span>
+              <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent-gold">{journey.action.label} <ChevronRight size={15} /></span>
+            </Link>
+          ))}
+        </div>
+      </Section>
 
       {inProgress.length > 0 && (
         <Section title="En cours" count={inProgress.length}>

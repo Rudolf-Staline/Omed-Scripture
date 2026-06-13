@@ -10,6 +10,7 @@ import { addSearchHistoryEntry, clearSearchHistory, getSearchHistory } from '../
 import { splitByTerm } from '../../utils/highlightTerm';
 import { getBookName } from '../../utils/bibleBooks';
 import { TOPICS } from '../../data/topics';
+import { GUIDED_JOURNEYS } from '../../data/guidedJourneys';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { getPlansForTopic, getPopularTopics, getRecommendedTopics, getSuggestedPassages, groupSearchResultsByBook } from '../../utils/discover';
 import { READING_PLANS } from '../../data/readingPlans';
@@ -169,6 +170,18 @@ export const SearchPage: React.FC = () => {
               <div className="mt-5 grid gap-3 lg:grid-cols-2">
                 <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="text-sm font-bold text-text-primary">Thèmes populaires</p><div className="mt-3 flex flex-wrap gap-2">{popularTopics.map((topic) => <button key={topic.id} type="button" onClick={() => selectTopic(topic.id)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{topic.label}</button>)}</div></div>
                 <div className="rounded-3xl border border-border bg-bg-card p-4"><p className="text-sm font-bold text-text-primary">Passages suggérés</p><div className="mt-3 flex flex-wrap gap-2">{suggestedPassages.map((ref) => <button key={`${ref.topicId}-${ref.label}`} type="button" onClick={() => navigate(`/read/${translation}/${ref.bookId}/${ref.chapter}`)} className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-semibold text-text-secondary hover:text-text-primary">{ref.label}</button>)}</div></div>
+              </div>
+              <div className="rounded-3xl border border-border bg-bg-card p-4">
+                <p className="text-sm font-bold text-text-primary">Parcours guidés</p>
+                <p className="mt-0.5 text-xs text-text-secondary">Vous ne savez pas par où commencer ? Suivez un parcours pas à pas.</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {GUIDED_JOURNEYS.slice(0, 4).map((journey) => (
+                    <button key={journey.id} type="button" onClick={() => navigate(journey.action.route)} className="flex items-center gap-3 rounded-2xl border border-border bg-bg-primary/50 p-3 text-left hover:border-accent-gold/45">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-gold/12 text-accent-gold"><journey.icon size={18} /></span>
+                      <span className="min-w-0"><span className="block text-sm font-semibold text-text-primary">{journey.title}</span><span className="block truncate text-xs text-text-secondary">{journey.durationLabel} · {journey.theme}</span></span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
