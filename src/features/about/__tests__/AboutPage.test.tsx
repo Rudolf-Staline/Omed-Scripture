@@ -70,4 +70,14 @@ describe('AboutPage', () => {
     );
     expect(html).toContain('GitHub Issues');
   });
+
+  it('renders BaseKit migration section', () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <AboutPage />
+      </MemoryRouter>
+    );
+    expect(html).toContain('Interface propulsée par BaseKit');
+    expect(html).toContain('Migration progressive');
+  });
 });
