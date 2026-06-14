@@ -8,9 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
+/dist
+/dist-ssr
 *.local
+
+# Vendored BaseKit ships its prebuilt dist on purpose (see vendor/basekit/README.md),
+# so the `dist` ignore above is scoped to the project root only.
 
 # Editor directories and files
 .vscode/*

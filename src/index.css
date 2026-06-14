@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* BaseKit V1 — pont de tokens (doit suivre l'import Tailwind, voir le fichier). */
+@import "./styles/basekit-adapter.css";
+
+/* Tailwind v4 doit voir les classes utilitaires figées dans le dist BaseKit
+   vendorisé pour les générer (sinon les composants BaseKit seraient non stylés). */
+@source "../vendor/basekit/packages/ui/dist";
 
 @theme {
   --color-bg-primary: var(--color-bg);

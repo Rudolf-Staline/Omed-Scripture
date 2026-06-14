@@ -8,6 +8,16 @@
     "types": ["vite/client"],
     "skipLibCheck": true,
 
+    /* BaseKit V1 — resolve @basekit/* to the vendored, prebuilt declarations.
+       skipLibCheck keeps the library's internals out of the app type-check. */
+    "baseUrl": ".",
+    "paths": {
+      "@basekit/tokens": ["./vendor/basekit/packages/tokens/dist/index.d.ts"],
+      "@basekit/core": ["./vendor/basekit/packages/core/dist/index.d.ts"],
+      "@basekit/ui": ["./vendor/basekit/packages/ui/dist/index.d.ts"],
+      "@basekit/api": ["./vendor/basekit/packages/api/dist/index.d.ts"]
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
