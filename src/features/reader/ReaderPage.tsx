@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { BookMarked, ChevronLeft, ChevronRight, GitCompare, Headphones, Maximize2, Minimize2, NotebookPen, WifiOff } from 'lucide-react';
+// Présentation reconstruite avec les primitives BaseKit (via la façade `src/ui`).
+// La couche données, le routing et les stores restent intacts.
+import { Stack, Inline, Card, Button, IconButton, Badge, Progress } from '../../ui';
 import { useBibleStore } from '../../store/useBibleStore';
 import { BIBLE_BOOKS } from '../../utils/bibleApi';
 import { ChapterView } from './ChapterView';
@@ -73,52 +76,73 @@ export const ReaderPage: React.FC = () => {
   };
 
   const bookIndex = BIBLE_BOOKS.findIndex((book) => book.id === currentBook.id);
-  const actionButton = (active: boolean) => clsx(
-    'flex h-12 w-12 items-center justify-center rounded-2xl border transition-colors',
-    active ? 'border-accent-gold/45 bg-accent-gold/12 text-accent-gold' : 'border-border bg-bg-card text-text-secondary hover:text-text-primary'
-  );
+  // Helper de tonalité BaseKit pour les actions de la barre d'outils :
+  // une action active emprunte la tonalité « primary » (or laiton) en variante douce.
+  const toolbarTone = (active: boolean) => ({
+    tone: active ? ('primary' as const) : ('neutral' as const),
+    variant: active ? ('soft' as const) : ('ghost' as const),
+  });
 
   return (
-    <div className={clsx('mx-auto space-y-4', focusMode ? 'max-w-3xl' : 'max-w-4xl')}>
+    <Stack gap="md" className={clsx('mx-auto', focusMode ? 'max-w-3xl' : 'max-w-4xl')}>
       {!focusMode && (
-        <header className="sticky top-0 z-30 -mx-4 border-b border-border bg-bg-primary/92 px-4 py-2.5 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:rounded-[1.7rem] lg:border lg:bg-bg-card lg:px-4 lg:py-3 lg:shadow-[var(--shadow-soft)]">
-          <div className="flex items-center gap-2">
+        <Card
+          variant="outlined"
+          padding="none"
+          radius="xl"
+          className="sticky top-0 z-30 -mx-4 border-x-0 border-t-0 border-b border-border bg-bg-primary/92 px-4 py-2.5 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border lg:bg-bg-card lg:px-4 lg:py-3 lg:shadow-[var(--shadow-soft)]"
+        >
+          <Inline align="center" gap="sm">
             <PassageSelectorButton
               bookName={currentBook.name}
               chapter={chapterNum}
               translationLabel={getTranslationLabel(effectiveTranslation)}
               onClick={() => setPickerOpen(true)}
             />
-            <div className="ml-auto flex items-center gap-1.5">
-              {!isOnline && <span className="mr-1 flex items-center gap-1 rounded-full bg-bg-secondary px-2.5 py-1 text-xs font-semibold text-text-secondary"><WifiOff size={13} /> <span className="hidden sm:inline">Hors ligne</span></span>}
-              <button type="button" onClick={startStudySession} className={actionButton(false)} aria-label="Étudier ce passage" title="Étudier ce passage"><BookMarked size={18} /></button>
-              <button type="button" onClick={() => setShowAudio(true)} className={actionButton(false)} aria-label="Écouter ce chapitre"><Headphones size={18} /></button>
-              <button type="button" onClick={() => setCompareTranslation(compareTranslation ? null : compareWith)} className={actionButton(Boolean(compareTranslation))} aria-label="Comparer une traduction"><GitCompare size={18} /></button>
-              <button type="button" onClick={() => setStudyMode((value) => !value)} className={clsx(actionButton(studyMode), 'hidden sm:flex')} aria-label="Afficher notes et favoris"><NotebookPen size={18} /></button>
-              <button type="button" onClick={() => setFocusMode(true)} className={actionButton(false)} aria-label="Activer le mode focus"><Maximize2 size={18} /></button>
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={startStudySession} className="inline-flex min-h-9 items-center gap-2 rounded-2xl border border-accent-gold/30 bg-accent-gold/10 px-3 text-xs font-bold text-accent-gold sm:hidden"><BookMarked size={14} /> Étudier ce passage</button>
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-secondary">
-              <div className="h-full rounded-full bg-accent-gold/70" style={{ width: `${Math.round((chapterNum / currentBook.chapters) * 100)}%` }} />
-            </div>
+            <Inline align="center" gap="xs" className="ml-auto">
+              {!isOnline && (
+                <Badge tone="warning" variant="soft" iconLeft={<WifiOff size={13} />} className="mr-1">
+                  <span className="hidden sm:inline">Hors ligne</span>
+                </Badge>
+              )}
+              <IconButton size="lg" {...toolbarTone(false)} onClick={startStudySession} aria-label="Étudier ce passage" title="Étudier ce passage" icon={<BookMarked size={18} />} />
+              <IconButton size="lg" {...toolbarTone(false)} onClick={() => setShowAudio(true)} aria-label="Écouter ce chapitre" icon={<Headphones size={18} />} />
+              <IconButton size="lg" {...toolbarTone(Boolean(compareTranslation))} onClick={() => setCompareTranslation(compareTranslation ? null : compareWith)} aria-label="Comparer une traduction" icon={<GitCompare size={18} />} />
+              <IconButton size="lg" {...toolbarTone(studyMode)} onClick={() => setStudyMode((value) => !value)} aria-label="Afficher notes et favoris" className="hidden sm:inline-flex" icon={<NotebookPen size={18} />} />
+              <IconButton size="lg" {...toolbarTone(false)} onClick={() => setFocusMode(true)} aria-label="Activer le mode focus" icon={<Maximize2 size={18} />} />
+            </Inline>
+          </Inline>
+          <Inline align="center" gap="sm" wrap className="mt-2">
+            <Button size="sm" tone="primary" variant="soft" onClick={startStudySession} iconLeft={<BookMarked size={14} />} className="sm:hidden">
+              Étudier ce passage
+            </Button>
+            <Progress value={chapterNum} max={currentBook.chapters} tone="primary" className="h-1.5 flex-1" />
             <span className="shrink-0 text-xs font-semibold text-text-muted">Chap. {chapterNum}/{currentBook.chapters} · Livre {bookIndex + 1}/{BIBLE_BOOKS.length}</span>
-          </div>
-        </header>
+          </Inline>
+        </Card>
       )}
 
-      {focusMode && <button type="button" onClick={() => setFocusMode(false)} className="fixed right-4 top-4 z-40 flex min-h-11 items-center gap-2 rounded-2xl bg-bg-card px-4 text-sm font-semibold shadow-[var(--shadow-soft)]"><Minimize2 size={17} /> Quitter</button>}
+      {focusMode && (
+        <Button
+          tone="neutral"
+          variant="soft"
+          onClick={() => setFocusMode(false)}
+          iconLeft={<Minimize2 size={17} />}
+          className="fixed right-4 top-4 z-40 shadow-[var(--shadow-soft)]"
+        >
+          Quitter
+        </Button>
+      )}
 
       <div className={clsx('grid gap-4', studyMode && !focusMode ? 'xl:grid-cols-[minmax(0,1fr)_22rem]' : '')}>
-        <div className="min-w-0 space-y-4">
+        <Stack gap="md" className="min-w-0">
           <ChapterView translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} focus={focusMode} />
           {compareTranslation && !focusMode && <ChapterView translation={compareTranslation} bookId={currentBook.id} chapter={chapterNum} comparison />}
           <nav className="grid grid-cols-2 gap-3" aria-label="Navigation entre chapitres">
-            <button type="button" onClick={goPrevious} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-bg-card font-semibold text-text-primary"><ChevronLeft size={18} /> Précédent</button>
-            <button type="button" onClick={goNext} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent-gold font-semibold text-white">Suivant <ChevronRight size={18} /></button>
+            <Button fullWidth tone="neutral" variant="outline" onClick={goPrevious} iconLeft={<ChevronLeft size={18} />}>Précédent</Button>
+            <Button fullWidth tone="primary" variant="solid" onClick={goNext} iconRight={<ChevronRight size={18} />}>Suivant</Button>
           </nav>
-        </div>
+        </Stack>
         {studyMode && !focusMode && <StudyPanel translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} />}
       </div>
 
@@ -131,6 +155,6 @@ export const ReaderPage: React.FC = () => {
         onSelect={(t, b, c) => navigateTo(t, b, c)}
       />
       {showAudio && <AudioPlayer translation={effectiveTranslation} bookId={currentBook.id} chapter={chapterNum} onClose={() => setShowAudio(false)} />}
-    </div>
+    </Stack>
   );
 };
