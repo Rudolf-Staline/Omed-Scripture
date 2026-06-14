@@ -11,6 +11,7 @@ import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
 import { getReadingDays } from '../../utils/readingActivity';
 import { getUnifiedDailyActivity, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
 import { getMemoryStats } from '../../utils/memory';
+import { Card, CardContent, Stack, Grid, Inline, Badge } from '../../ui';
 
 const menu = [
   { to: '/study', label: 'Études', description: 'Observation, interprétation, application et prière', icon: BookMarked },
@@ -41,53 +42,83 @@ export const MorePage: React.FC = () => {
   })), [routineDays, prayers, notes]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <header className="rounded-3xl border border-border bg-bg-card p-5 shadow-[var(--shadow-soft)]">
+    <Stack gap="md" className="mx-auto max-w-3xl">
+      {/* En-tête profil */}
+      <Card variant="outlined" padding="lg" radius="lg">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-gold/14 text-accent-gold"><UserCircle size={30} /></div>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-gold/14 text-accent-gold">
+            <UserCircle size={30} />
+          </div>
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-text-muted">Moi</p>
             <h1 className="truncate text-2xl font-bold text-text-primary">{user?.name || user?.email || 'Espace personnel'}</h1>
-            <p className="mt-1 flex items-center gap-2 text-sm text-text-secondary"><Cloud size={15} className={synced ? 'text-accent-sage' : 'text-text-muted'} /> {synced ? 'Synchronisation Google Drive activée' : 'Données conservées localement'}</p>
+            <Inline gap="xs" className="mt-1 text-sm text-text-secondary">
+              <Cloud size={15} className={synced ? 'text-accent-sage' : 'text-text-muted'} />
+              <span>{synced ? 'Synchronisation Google Drive activée' : 'Données conservées localement'}</span>
+              <Badge tone={synced ? 'success' : 'neutral'} className="ml-1">
+                {synced ? 'Sync' : 'Local'}
+              </Badge>
+            </Inline>
           </div>
         </div>
-      </header>
+      </Card>
 
-      <section className="rounded-3xl border border-border bg-bg-card p-4" aria-label="Progression">
+      {/* Progression */}
+      <Card variant="outlined" padding="md" aria-label="Progression">
         <div className="flex items-center gap-2">
           <Flame size={18} className="text-accent-gold" />
           <p className="font-semibold text-text-primary">Série quotidienne : {unifiedStreak} jour{unifiedStreak > 1 ? 's' : ''}</p>
           <span className="ml-auto text-sm text-text-muted">lecture · routine · prière · note</span>
         </div>
-      </section>
+      </Card>
 
-      <section className="grid grid-cols-4 gap-3" aria-label="Résumé personnel">
-        <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{notes.length}</p><p className="text-xs text-text-muted">Notes</p></div>
-        <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{favorites.length}</p><p className="text-xs text-text-muted">Favoris</p></div>
-        <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{memoryStats.due}</p><p className="text-xs text-text-muted">À revoir</p></div>
-        <div className="rounded-3xl border border-border bg-bg-card p-4 text-center"><p className="text-2xl font-bold text-text-primary">{activePrayers}</p><p className="text-xs text-text-muted">Prières</p></div>
-      </section>
+      {/* Statistiques personnelles */}
+      <Grid columns={4} gap="sm" aria-label="Résumé personnel">
+        <Card variant="outlined" padding="md" className="text-center">
+          <p className="text-2xl font-bold text-text-primary">{notes.length}</p>
+          <p className="text-xs text-text-muted">Notes</p>
+        </Card>
+        <Card variant="outlined" padding="md" className="text-center">
+          <p className="text-2xl font-bold text-text-primary">{favorites.length}</p>
+          <p className="text-xs text-text-muted">Favoris</p>
+        </Card>
+        <Card variant="outlined" padding="md" className="text-center">
+          <p className="text-2xl font-bold text-text-primary">{memoryStats.due}</p>
+          <p className="text-xs text-text-muted">À revoir</p>
+        </Card>
+        <Card variant="outlined" padding="md" className="text-center">
+          <p className="text-2xl font-bold text-text-primary">{activePrayers}</p>
+          <p className="text-xs text-text-muted">Prières</p>
+        </Card>
+      </Grid>
 
-      <section className="rounded-3xl border border-border bg-bg-card p-2 shadow-[var(--shadow-soft)]" aria-label="Menu personnel">
+      {/* Menu de navigation */}
+      <Card variant="outlined" radius="lg" className="p-2" aria-label="Menu personnel">
         {menu.map((item) => (
           <Link key={item.to} to={item.to} className="flex min-h-16 items-center gap-3 rounded-2xl px-3 hover:bg-bg-secondary">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-bg-secondary text-accent-gold"><item.icon size={20} /></span>
-            <span className="min-w-0 flex-1"><span className="block font-semibold text-text-primary">{item.label}</span><span className="block text-sm text-text-secondary">{item.description}</span></span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-bg-secondary text-accent-gold">
+              <item.icon size={20} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-text-primary">{item.label}</span>
+              <span className="block text-sm text-text-secondary">{item.description}</span>
+            </span>
             <ChevronRight size={18} className="text-text-muted" />
           </Link>
         ))}
-      </section>
+      </Card>
 
-      <section className="rounded-3xl border border-border bg-bg-card p-4">
+      {/* Export et sauvegarde */}
+      <Card variant="outlined" padding="lg">
         <div className="flex items-start gap-3">
           <Download size={20} className="mt-1 text-accent-gold" />
           <div>
             <h2 className="font-semibold text-text-primary">Export et sauvegarde</h2>
-            <p className="mt-1 text-sm leading-6 text-text-secondary">L’export JSON et la synchronisation restent disponibles dans Paramètres, sans migration destructive des données locales.</p>
+            <p className="mt-1 text-sm leading-6 text-text-secondary">L'export JSON et la synchronisation restent disponibles dans Paramètres, sans migration destructive des données locales.</p>
             <Link to="/settings" className="mt-3 inline-flex min-h-10 items-center rounded-2xl bg-accent-gold px-4 text-sm font-semibold text-white">Ouvrir les paramètres</Link>
           </div>
         </div>
-      </section>
-    </div>
+      </Card>
+    </Stack>
   );
 };
