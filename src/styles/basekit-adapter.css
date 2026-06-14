@@ -1,0 +1,128 @@
+/* =========================================================================
+   BaseKit V1 ↔ Omed Scripture — couche d'adaptation des tokens.
+
+   BaseKit habille ses composants avec des utilitaires Tailwind sémantiques
+   (`bg-primary`, `text-surface-muted`, `border-border`, `shadow-soft`, …) qui
+   résolvent vers des variables `--bk-*`. Omed possède déjà ses cinq ambiances
+   (dark / light / sepia / nocturne / aube) exprimées en `--color-*`.
+
+   Ce fichier fait deux choses, sans rien remplacer côté Omed :
+
+   1. `@theme inline` — déclare les *tokens Tailwind v4* dont BaseKit a besoin et
+      les pointe vers `var(--bk-*)`. `inline` est important : Tailwind n'émet PAS
+      ces variables dans `:root`, il inline simplement `var(--bk-*)` dans les
+      utilitaires générés — aucune collision avec les `--color-*` d'Omed, aucune
+      référence circulaire.
+   2. Le bloc runtime — mappe `--bk-*` vers les `--color-*` d'Omed, pour les cinq
+      thèmes. Comme `--bk-*` suit les variables d'ambiance, les composants BaseKit
+      changent de thème automatiquement avec le reste de l'application.
+
+   `--color-border` n'est PAS redéclaré ici : Omed l'expose déjà comme token
+   Tailwind, et il porte déjà la couleur de bordure attendue par BaseKit.
+   ========================================================================= */
+
+@theme inline {
+  --color-background: var(--bk-background);
+  --color-foreground: var(--bk-foreground);
+
+  --color-surface: var(--bk-surface);
+  --color-surface-raised: var(--bk-surfaceRaised);
+  --color-surface-muted: var(--bk-surfaceMuted);
+
+  --color-primary: var(--bk-primary);
+  --color-primary-foreground: var(--bk-primaryForeground);
+  --color-primary-soft: var(--bk-primary-soft);
+  --color-primary-hover: var(--bk-primary-hover);
+
+  --color-accent: var(--bk-accent);
+  --color-accent-foreground: var(--bk-accentForeground);
+  --color-accent-soft: var(--bk-accent-soft);
+  --color-accent-hover: var(--bk-accent-hover);
+
+  --color-success: var(--bk-success);
+  --color-success-foreground: var(--bk-successForeground);
+  --color-success-soft: var(--bk-success-soft);
+  --color-success-hover: var(--bk-success-hover);
+
+  --color-warning: var(--bk-warning);
+  --color-warning-foreground: var(--bk-warningForeground);
+  --color-warning-soft: var(--bk-warning-soft);
+  --color-warning-hover: var(--bk-warning-hover);
+
+  --color-danger: var(--bk-danger);
+  --color-danger-foreground: var(--bk-dangerForeground);
+  --color-danger-soft: var(--bk-danger-soft);
+  --color-danger-hover: var(--bk-danger-hover);
+
+  --color-neutral-soft: var(--bk-neutral-soft);
+  --color-neutral-hover: var(--bk-neutral-hover);
+
+  --color-muted: var(--bk-muted);
+  --color-muted-foreground: var(--bk-mutedForeground);
+
+  --color-input: var(--bk-input);
+  --color-ring: var(--bk-ring);
+
+  --shadow-soft: var(--bk-shadow-soft);
+  --shadow-strong: var(--bk-shadow-strong);
+}
+
+/* Runtime mapping : --bk-* suit l'ambiance Omed active. Le sélecteur couvre la
+   racine, chaque classe de thème et l'attribut [data-theme] pour rester robuste
+   quelle que soit la façon dont l'ambiance est appliquée sur <html>. */
+:root,
+.theme-dark,
+.theme-light,
+.theme-sepia,
+.theme-nocturne,
+.theme-aube,
+[data-theme] {
+  --bk-background: var(--color-bg);
+  --bk-foreground: var(--color-text);
+
+  --bk-surface: var(--color-surface);
+  --bk-surfaceRaised: var(--color-surface-raised);
+  --bk-surfaceMuted: var(--color-surface-soft);
+
+  --bk-primary: var(--color-accent);
+  --bk-primaryForeground: var(--color-bg);
+
+  --bk-accent: var(--color-olive);
+  --bk-accentForeground: var(--color-bg);
+
+  --bk-success: var(--color-olive);
+  --bk-successForeground: var(--color-bg);
+
+  --bk-warning: var(--color-copper);
+  --bk-warningForeground: var(--color-bg);
+
+  --bk-danger: var(--color-danger);
+  --bk-dangerForeground: var(--color-bg);
+
+  /* BaseKit `muted` est une *surface* discrète (et non un texte) : on la mappe
+     sur une surface douce d'Omed, et son foreground sur le texte secondaire. */
+  --bk-muted: var(--color-surface-soft);
+  --bk-mutedForeground: var(--color-muted);
+
+  --bk-border: var(--color-border);
+  --bk-input: var(--color-border);
+  --bk-ring: var(--color-accent);
+
+  /* Teintes dérivées soft/hover — même formule que @basekit/tokens. */
+  --bk-primary-soft: color-mix(in oklab, var(--bk-primary) 14%, var(--bk-surface));
+  --bk-primary-hover: color-mix(in oklab, var(--bk-primary) 88%, black);
+  --bk-accent-soft: color-mix(in oklab, var(--bk-accent) 14%, var(--bk-surface));
+  --bk-accent-hover: color-mix(in oklab, var(--bk-accent) 88%, black);
+  --bk-success-soft: color-mix(in oklab, var(--bk-success) 14%, var(--bk-surface));
+  --bk-success-hover: color-mix(in oklab, var(--bk-success) 88%, black);
+  --bk-warning-soft: color-mix(in oklab, var(--bk-warning) 14%, var(--bk-surface));
+  --bk-warning-hover: color-mix(in oklab, var(--bk-warning) 88%, black);
+  --bk-danger-soft: color-mix(in oklab, var(--bk-danger) 14%, var(--bk-surface));
+  --bk-danger-hover: color-mix(in oklab, var(--bk-danger) 88%, black);
+  --bk-neutral-soft: var(--bk-surfaceMuted);
+  --bk-neutral-hover: color-mix(in oklab, var(--bk-surfaceMuted) 70%, var(--bk-foreground) 8%);
+
+  /* Échelles non chromatiques alignées sur l'ambiance Omed. */
+  --bk-shadow-soft: var(--shadow-soft);
+  --bk-shadow-strong: var(--shadow-panel);
+}

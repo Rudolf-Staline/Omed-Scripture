@@ -1,5 +1,6 @@
 import React from 'react';
 import { Inbox } from 'lucide-react';
+import { Button, EmptyState as BkEmptyState } from '../ui';
 
 interface EmptyStateProps {
   title: string;
@@ -9,25 +10,30 @@ interface EmptyStateProps {
   compact?: boolean;
 }
 
+/**
+ * État vide générique — désormais construit sur `EmptyState` de BaseKit.
+ * L'API publique (title / message / actionLabel / onAction / compact) reste
+ * inchangée pour les appelants ; l'icône Omed (lucide `Inbox`) est conservée et
+ * les couleurs suivent l'ambiance active via le pont de tokens BaseKit.
+ */
 export const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   message,
   actionLabel,
   onAction,
   compact = false,
-}) => {
-  return (
-    <div className={compact ? 'empty-state px-5 py-10 text-center' : 'empty-state px-6 py-16 text-center'}>
-      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-accent-gold/30 bg-accent-gold/10 text-accent-gold">
-        <Inbox size={24} aria-hidden="true" />
-      </div>
-      <h2 className="mb-2 font-display text-2xl font-semibold text-text-primary">{title}</h2>
-      <p className="mx-auto max-w-xl text-sm leading-6 text-text-secondary">{message}</p>
-      {actionLabel && onAction && (
-        <button type="button" onClick={onAction} className="omed-button-ghost mt-6 px-6 py-2.5 font-semibold">
+}) => (
+  <BkEmptyState
+    title={title}
+    description={message}
+    icon={<Inbox size={22} aria-hidden="true" />}
+    className={compact ? 'px-5 py-10' : undefined}
+    action={
+      actionLabel && onAction ? (
+        <Button variant="ghost" tone="neutral" onClick={onAction}>
           {actionLabel}
-        </button>
-      )}
-    </div>
-  );
-};
+        </Button>
+      ) : undefined
+    }
+  />
+);

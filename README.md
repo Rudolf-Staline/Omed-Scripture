@@ -65,6 +65,19 @@ npm run bible:build
 
 Les scripts Bible valident et reconstruisent les index de données statiques. Lancez-les dès qu’un pack biblique change.
 
+## Système de design — BaseKit
+
+Les briques UI génériques proviennent de **BaseKit**, vendorisé sous `vendor/basekit/`
+et consommé via la façade `src/ui`. Le métier biblique reste entièrement dans Omed.
+Importez toujours via la façade :
+
+```tsx
+import { Button, Card, EmptyState } from '../ui';
+```
+
+Détails (pont de tokens, thèmes, composants migrés, étapes restantes) :
+`docs/basekit-integration.md` et `vendor/basekit/README.md`.
+
 ## CI
 
 `.github/workflows/ci.yml` lance `npm ci`, `npm run lint`, `npm run typecheck`, `npm run build` et `npm test` sur les pull requests et les push vers `main`. Aucune PR ne devrait être mergée si la CI est rouge.
