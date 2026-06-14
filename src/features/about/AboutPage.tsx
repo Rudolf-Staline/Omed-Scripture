@@ -15,7 +15,7 @@ const features = [
   { icon: BookOpenText, title: 'Lecture et recherche', text: 'Reader, Bible Picker, recherche, favoris, notes et surlignages pour garder le texte au centre.' },
   { icon: Wifi, title: 'PWA et hors ligne', text: 'Installation possible comme app web et accès hors ligne selon les chapitres et index statiques disponibles.' },
   { icon: Sparkles, title: 'Mémoire et reprise', text: 'Memory, Review Center, Progress Score et routines douces pour reprendre sans pression.' },
-  { icon: Cloud, title: 'Synchronisation optionnelle', text: 'Google Drive AppData peut sauvegarder les données si l'utilisateur se connecte et active la sync.' },
+  { icon: Cloud, title: 'Synchronisation optionnelle', text: "Google Drive AppData peut sauvegarder les données si l'utilisateur se connecte et active la sync." },
 ];
 
 export const AboutPage: React.FC = () => {

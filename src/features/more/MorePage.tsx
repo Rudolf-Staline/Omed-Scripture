@@ -11,7 +11,7 @@ import { useDailyRoutineStore } from '../../store/useDailyRoutineStore';
 import { getReadingDays } from '../../utils/readingActivity';
 import { getUnifiedDailyActivity, getUnifiedStreak, timestampsToDayKeys } from '../../utils/dailyActivity';
 import { getMemoryStats } from '../../utils/memory';
-import { Card, CardContent, Stack, Grid, Inline, Badge } from '../../ui';
+import { Card, Stack, Grid, Inline, Badge } from '../../ui';
 
 const menu = [
   { to: '/study', label: 'Études', description: 'Observation, interprétation, application et prière', icon: BookMarked },

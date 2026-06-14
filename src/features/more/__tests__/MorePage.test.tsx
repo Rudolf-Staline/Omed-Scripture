@@ -1,97 +1,97 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
+import { describe, it, expect, vi } from 'vitest';
 import { MorePage } from '../MorePage';
 
 // Mocks stores
-jest.mock('../../../store/useAuthStore', () => ({
+vi.mock('../../../store/useAuthStore', () => ({
   useAuthStore: (sel: (s: { user: null }) => unknown) => sel({ user: null }),
 }));
 
-jest.mock('../../../store/useSettingsStore', () => ({
+vi.mock('../../../store/useSettingsStore', () => ({
   useSettingsStore: (sel: (s: { synced: boolean }) => unknown) => sel({ synced: false }),
 }));
 
-jest.mock('../../../store/useNotesStore', () => ({
+vi.mock('../../../store/useNotesStore', () => ({
   useNotesStore: (sel: (s: { notes: never[] }) => unknown) => sel({ notes: [] }),
 }));
 
-jest.mock('../../../store/useFavoritesStore', () => ({
+vi.mock('../../../store/useFavoritesStore', () => ({
   useFavoritesStore: (sel: (s: { favorites: never[] }) => unknown) => sel({ favorites: [] }),
 }));
 
-jest.mock('../../../store/useMemoryStore', () => ({
+vi.mock('../../../store/useMemoryStore', () => ({
   useMemoryStore: (sel: (s: { memoryVerses: never[] }) => unknown) => sel({ memoryVerses: [] }),
 }));
 
-jest.mock('../../../store/usePrayerStore', () => ({
+vi.mock('../../../store/usePrayerStore', () => ({
   usePrayerStore: (sel: (s: { prayers: never[] }) => unknown) => sel({ prayers: [] }),
 }));
 
-jest.mock('../../../store/useDailyRoutineStore', () => ({
+vi.mock('../../../store/useDailyRoutineStore', () => ({
   useDailyRoutineStore: (sel: (s: { days: never[] }) => unknown) => sel({ days: [] }),
 }));
 
-jest.mock('../../../utils/readingActivity', () => ({
+vi.mock('../../../utils/readingActivity', () => ({
   getReadingDays: () => [],
 }));
 
-jest.mock('../../../utils/dailyActivity', () => ({
+vi.mock('../../../utils/dailyActivity', () => ({
   getUnifiedDailyActivity: () => [],
   getUnifiedStreak: () => 0,
   timestampsToDayKeys: () => [],
 }));
 
-jest.mock('../../../utils/memory', () => ({
+vi.mock('../../../utils/memory', () => ({
   getMemoryStats: () => ({ due: 0, total: 0 }),
 }));
 
 describe('MorePage', () => {
   it('renders without crashing', () => {
-    render(
+    const html = renderToStaticMarkup(
       <MemoryRouter>
         <MorePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Espace personnel/i)).toBeInTheDocument();
+    expect(html).toContain('Espace personnel');
   });
 
   it('renders Paramètres menu item', () => {
-    render(
+    const html = renderToStaticMarkup(
       <MemoryRouter>
         <MorePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Paramètres/i)).toBeInTheDocument();
+    expect(html).toContain('Paramètres');
   });
 
   it('renders stats grid cards', () => {
-    render(
+    const html = renderToStaticMarkup(
       <MemoryRouter>
         <MorePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Notes/i)).toBeInTheDocument();
-    expect(screen.getByText(/Favoris/i)).toBeInTheDocument();
-    expect(screen.getByText(/À revoir/i)).toBeInTheDocument();
-    expect(screen.getByText(/Prières/i)).toBeInTheDocument();
+    expect(html).toContain('Notes');
+    expect(html).toContain('Favoris');
+    expect(html).toContain('À revoir');
+    expect(html).toContain('Prières');
   });
 
   it('renders sync badge', () => {
-    render(
+    const html = renderToStaticMarkup(
       <MemoryRouter>
         <MorePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Local/i)).toBeInTheDocument();
+    expect(html).toContain('Local');
   });
 
   it('renders Export et sauvegarde section', () => {
-    render(
+    const html = renderToStaticMarkup(
       <MemoryRouter>
         <MorePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Export et sauvegarde/i)).toBeInTheDocument();
+    expect(html).toContain('Export et sauvegarde');
   });
 });
