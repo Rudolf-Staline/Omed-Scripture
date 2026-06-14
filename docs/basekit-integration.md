@@ -129,3 +129,84 @@ prières, collections, mémorisation, settings, reader, search, onboarding.
 1. Phase 2 : migrer 1–2 pages simples (ex. About, Settings) via `src/ui`.
 2. Étendre la façade au besoin (formulaires, modals) au fil des migrations.
 3. Évaluer une couche `src/ui/toast.ts` pour centraliser les toasts.
+
+
+## Phase 2 — Pages visibles migrées
+
+Cette phase rend l'intégration BaseKit **concrètement visible** dans l'interface
+Omed Scripture, sans toucher au cœur biblique ni à la logique métier.
+
+### Pages migrées
+
+| Page | Fichier | Composants BaseKit utilisés |
+|------|---------|-----------------------------|
+| À propos | `src/features/about/AboutPage.tsx` | `Button`, `Grid`, `Inline`, `Badge`, `Callout` |
+| Plus | `src/features/more/MorePage.tsx` | `Card`, `Stack`, `Grid`, `Inline`, `Badge` |
+| Paramètres (partiel) | `src/features/settings/SettingsPage.tsx` | `Button` (zones UI simples uniquement) |
+
+### Changements visibles
+
+#### AboutPage
+- La grille de fonctionnalités (`grid-cols-4`) utilise désormais `<Grid columns={4}>`.
+- La section "3 panneaux" utilise `<Grid columns={3}>`.
+- Les boutons d'action (copier diagnostic) utilisent `<Button variant="soft" tone="neutral">`.
+- La section limites bêta est enveloppée dans `<Callout tone="neutral">`.
+- Un `<Badge>` affiche le numéro de version de l'app.
+- Une section discrète "Interface" signale l'usage de BaseKit.
+- Les liens React Router gardent leurs classes Omed (BaseKit `Button` ne supporte pas `as`).
+
+#### MorePage
+- L'en-tête profil est une `<Card variant="outlined" padding="lg">`.
+- Les cartes de statistiques (Notes, Favoris, À revoir, Prières) sont des `<Card>` dans une `<Grid columns={4}>`.
+- La section de progression est une `<Card>`.
+- Le menu de navigation est une `<Card>` avec les `<Link>` intacts.
+- La section export est une `<Card>`.
+- Un `<Badge>` indique le statut sync (sync actif / local).
+- Le layout global est un `<Stack gap="md">` au lieu d'un `<div className="space-y-5">`.
+
+#### SettingsPage (chirurgical)
+- Le bouton "Copier diagnostic" utilise `<Button variant="soft" tone="neutral">`.
+- Le bouton "Restaurer depuis Google Drive" utilise `<Button variant="solid" tone="primary">`.
+- Le bouton "Sauvegarder sur Google Drive" utilise `<Button variant="ghost" tone="neutral">`.
+
+### Composants Omed conservés
+
+- `PageCanvas` — layout de page Omed
+- `PageHero` — hero section avec kicker/titre/intro/actions
+- `StudyPanel` — panneaux thématiques bibliques avec icône et style propre à Omed
+- `ContentDeck` — layout multi-colonnes Settings
+- `SegmentedControl` — contrôle interne Settings (non migré)
+
+### Sections volontairement non touchées
+
+- `ReaderPage` — cœur de l'expérience de lecture biblique
+- Logique Google Drive sync (`handleSyncData`, `handleForceUpload`)
+- Restauration et backup de données (`restoreData`, `backupLocalDataBeforeRestore`)
+- Suppression de données (`clearData`)
+- Logique hors-ligne (section `offlineLibrary`)
+- Logique de permissions rappels (`requestReminderPermission`)
+- `LoginPage` — non trouvée dans le dépôt ou trop sensible pour cette passe
+- Stores Zustand — aucun store modifié
+
+### Tests ajoutés
+
+| Fichier | Tests |
+|---------|-------|
+| `src/features/about/__tests__/AboutPage.test.tsx` | Rendu sans crash, bouton Copier diagnostic, grille features, section limites, lien GitHub Issues |
+| `src/features/more/__tests__/MorePage.test.tsx` | Rendu sans crash, items de menu, cartes stats, badge sync, section export |
+
+### Limites restantes
+
+- `Button` de BaseKit ne supporte pas de prop `as` — les liens React Router
+  et les ancres `mailto:` gardent leurs classes Omed (`omed-button-*`) pour rester
+  fonctionnels comme liens HTML natifs.
+- `SettingsPage` reste majoritairement non migrée (trop grande, trop sensible).
+- La compatibilité thématique (dark/light/sepia/nocturne/aube) repose sur
+  l'adaptateur CSS existant ; vérification visuelle manuelle recommandée.
+
+### Prochaines étapes
+
+- **Phase 3** : Formulaires `Select`, `Switch`, `Checkbox` dans SettingsPage pour
+  les sections Lecture et Objectifs personnels.
+- **Phase 4** : Navigation (TabsBar, éventuels Breadcrumb).
+- **Phase 5** : Composants de navigation avancés avec BaseKit Navigation.
