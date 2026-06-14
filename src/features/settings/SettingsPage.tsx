@@ -29,6 +29,7 @@ import { syncFileToDrive, syncFileFromDrive, DRIVE_FILES, isDriveSessionInvalidE
 import { Settings, Cloud, LogOut, Download, Trash2, RefreshCw, Palette, BookOpen, Database, Sparkles, WifiOff, Bell, Clipboard, Info, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import { Button, Badge, Callout, Card } from '../../ui';
 import { PageCanvas } from '../../components/layout/PageCanvas';
 import { PageHero } from '../../components/layout/PageHero';
 import { ContentDeck } from '../../components/layout/ContentDeck';
@@ -309,34 +310,39 @@ export const SettingsPage: React.FC = () => {
         )}
       >
       <div className="settings-control-map grid gap-6 lg:grid-cols-2">
-        <section className="omed-card p-4 sm:p-6 lg:col-span-2">
+        <Card variant="outlined" padding="lg" radius="lg" className="lg:col-span-2">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
+            <div className="flex-1">
               <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
                 <Info size={20} className="text-accent-brown" /> Bêta & support
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-text-secondary">
-                Version {APP_VERSION}. Omed Scripture est en bêta publique : les données restent locales, sauf synchronisation Google Drive si vous l’activez.
-                Le diagnostic ci-dessous ne contient pas vos notes, prières, favoris, surlignages, e-mail ni jeton Google.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+              <Callout tone="neutral" className="mt-4 max-w-3xl">
+                <div className="mb-2">
+                  <Badge tone="neutral" variant="soft">Version {APP_VERSION}</Badge>
+                </div>
+                <p className="text-sm leading-6 text-text-secondary">
+                  Omed Scripture est en bêta publique : les données restent locales, sauf synchronisation Google Drive si vous l’activez.
+                  Le diagnostic ci-dessous ne contient pas vos notes, prières, favoris, surlignages, e-mail ni jeton Google.
+                </p>
+              </Callout>
+              <div className="mt-4 flex flex-wrap gap-4 text-sm">
                 <Link to="/about" className="font-semibold text-accent-gold hover:underline">À propos</Link>
                 <a href="https://github.com/Rudolf-Staline/Omed-Scripture/blob/main/docs/PRIVACY_NOTES.md" target="_blank" rel="noreferrer" className="font-semibold text-accent-gold hover:underline">Confidentialité</a>
                 <a href="https://github.com/Rudolf-Staline/Omed-Scripture/blob/main/docs/BIBLE_RIGHTS_AND_LICENSES.md" target="_blank" rel="noreferrer" className="font-semibold text-accent-gold hover:underline">Licences bibliques</a>
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
-              <button type="button" onClick={handleCopyDiagnostics} className="omed-button-secondary inline-flex items-center gap-2 px-4 py-2 text-sm">
-                <Clipboard size={16} aria-hidden="true" /> Copier diagnostic
-              </button>
-              <a href={`mailto:?subject=${feedbackSubject}&body=${feedbackBody}`} className="omed-button-secondary inline-flex items-center gap-2 px-4 py-2 text-sm">
-                <Mail size={16} aria-hidden="true" /> Envoyer un retour
-              </a>
+              <Button variant="soft" tone="neutral" onClick={handleCopyDiagnostics} iconLeft={<Clipboard size={16} />}>
+                Copier diagnostic
+              </Button>
+              <Button variant="solid" tone="neutral" onClick={() => window.open(`mailto:?subject=${feedbackSubject}&body=${feedbackBody}`)} iconLeft={<Mail size={16} />}>
+                Envoyer un retour
+              </Button>
             </div>
           </div>
-        </section>
+        </Card>
 
-        <section className="omed-card p-4 sm:p-6">
+        <Card variant="outlined" padding="lg" radius="lg">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Palette size={20} className="text-accent-brown" /> Apparence
           </h2>
@@ -398,7 +404,7 @@ export const SettingsPage: React.FC = () => {
               <SegmentedControl values={languages} selected={settings.language} onSelect={(language) => updateSettings({ language })} />
             </div>
           </div>
-        </section>
+        </Card>
 
         <section className="omed-card p-4 sm:p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary"><Sparkles size={20} className="text-accent-brown" /> Objectifs personnels</h2>
@@ -535,7 +541,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="omed-card p-4 sm:p-6">
+        <Card variant="outlined" padding="lg" radius="lg">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">
             <Cloud size={20} className="text-accent-brown" /> Synchronisation
           </h2>
@@ -551,34 +557,33 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                <button type="button" onClick={handleSyncData} disabled={syncing} className="omed-button-primary flex w-full items-center justify-center gap-2 py-3 disabled:opacity-50">
-                  <Cloud size={20} />
+                <Button variant="solid" tone="primary" onClick={handleSyncData} disabled={syncing} loading={syncing} fullWidth iconLeft={<Cloud size={20} />}>
                   {syncing ? 'Synchronisation...' : 'Restaurer depuis Google Drive'}
-                </button>
+                </Button>
 
-                <button type="button" onClick={handleForceUpload} disabled={syncing} className="omed-button-ghost flex w-full items-center justify-center gap-2 py-3 disabled:opacity-50">
-                  <RefreshCw size={20} />
+                <Button variant="soft" tone="neutral" onClick={handleForceUpload} disabled={syncing} loading={syncing} fullWidth iconLeft={<RefreshCw size={20} />}>
                   Sauvegarder sur Google Drive
-                </button>
+                </Button>
 
-                <div className="flex items-center justify-center gap-2 text-sm text-text-muted mt-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${synced ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                  État : {synced ? 'Synchronisation automatique activée' : 'Non synchronisé'}
+                <div className="flex items-center justify-center mt-3">
+                  <Badge tone={synced ? 'success' : 'neutral'} variant="soft">
+                    {synced ? 'Synchronisation automatique activée' : 'Non synchronisé'}
+                  </Badge>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-border mt-4">
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  tone="danger"
                   onClick={() => {
                     logout();
                     setSynced(false);
                   }}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 font-medium text-[color:var(--color-danger)] transition-colors hover:bg-[color:var(--color-danger)]/10"
+                  iconLeft={<LogOut size={18} />}
                 >
-                  <LogOut size={18} />
                   Se déconnecter
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -587,7 +592,7 @@ export const SettingsPage: React.FC = () => {
               <button type="button" onClick={() => navigate('/login')} className="omed-button-ghost px-6 py-2.5 font-semibold">Se connecter</button>
             </div>
           )}
-        </section>
+        </Card>
 
         <section className="omed-card p-4 sm:p-6">
           <h2 className="mb-6 flex items-center gap-2 font-display text-xl font-semibold text-text-primary">

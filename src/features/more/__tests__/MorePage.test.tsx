@@ -94,4 +94,14 @@ describe('MorePage', () => {
     );
     expect(html).toContain('Export et sauvegarde');
   });
+
+  it('renders BaseKit actif badge and Callout', () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <MorePage />
+      </MemoryRouter>
+    );
+    expect(html).toContain('BaseKit actif');
+    expect(html).toContain('Interface unifiée');
+  });
 });

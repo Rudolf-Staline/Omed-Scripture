@@ -147,27 +147,24 @@ Omed Scripture, sans toucher au cœur biblique ni à la logique métier.
 ### Changements visibles
 
 #### AboutPage
-- La grille de fonctionnalités (`grid-cols-4`) utilise désormais `<Grid columns={4}>`.
-- La section "3 panneaux" utilise `<Grid columns={3}>`.
-- Les boutons d'action (copier diagnostic) utilisent `<Button variant="soft" tone="neutral">`.
-- La section limites bêta est enveloppée dans `<Callout tone="neutral">`.
-- Un `<Badge>` affiche le numéro de version de l'app.
-- Une section discrète "Interface" signale l'usage de BaseKit.
-- Les liens React Router gardent leurs classes Omed (BaseKit `Button` ne supporte pas `as`).
+- Ajout d'une section majeure "Interface propulsée par BaseKit" expliquant la philosophie de la migration avec 3 `<Card>`.
+- La section "Limites honnêtes de la bêta" est modernisée avec un `<Callout tone="warning">` et un `<Badge>`.
+- La grille de fonctionnalités utilise `<Grid columns={4}>`.
+- Les boutons d'action (Ouvrir l'app, Retour, Diagnostic) sont harmonisés avec `<Button>` et intégrés de manière cohérente.
 
 #### MorePage
-- L'en-tête profil est une `<Card variant="outlined" padding="lg">`.
-- Les cartes de statistiques (Notes, Favoris, À revoir, Prières) sont des `<Card>` dans une `<Grid columns={4}>`.
+- L'en-tête profil a été transformé en une carte élégante intégrant un badge "BaseKit actif".
+- Une nouvelle section "Interface unifiée" a été ajoutée avec un `<Callout>`.
+- Les cartes de statistiques (Notes, Favoris, À revoir, Prières) sont des `<Card>` dans une `<Grid columns={4}>` avec un effet de survol.
 - La section de progression est une `<Card>`.
-- Le menu de navigation est une `<Card>` avec les `<Link>` intacts.
-- La section export est une `<Card>`.
-- Un `<Badge>` indique le statut sync (sync actif / local).
-- Le layout global est un `<Stack gap="md">` au lieu d'un `<div className="space-y-5">`.
+- Le menu de navigation a été re-stylisé avec un `<Stack>` dans une `<Card>`.
+- La section export est une `<Card>` plus visible.
+- Le layout global est un `<Stack gap="lg">`.
 
-#### SettingsPage (chirurgical)
-- Le bouton "Copier diagnostic" utilise `<Button variant="soft" tone="neutral">`.
-- Le bouton "Restaurer depuis Google Drive" utilise `<Button variant="solid" tone="primary">`.
-- Le bouton "Sauvegarder sur Google Drive" utilise `<Button variant="ghost" tone="neutral">`.
+#### SettingsPage (améliorations visibles ciblées)
+- La section "Bêta & support" utilise une `<Card>` et un `<Callout tone="neutral">` pour clarifier le message.
+- La section "Synchronisation" a été revue avec une `<Card>`, des `<Button>` BaseKit et un `<Badge>` pour le statut.
+- La section "Apparence" et les autres grandes sections ont été englobées dans des `<Card>` pour uniformiser le rendu de la page.
 
 ### Composants Omed conservés
 
